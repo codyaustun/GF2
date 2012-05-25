@@ -9,11 +9,6 @@
 #include <iostream>
 #include "CCScanner.h"
 
-
-int main(){
-    
-}
-
 void getSymbol(symbol& s, name& id, int& num){
     
 };
