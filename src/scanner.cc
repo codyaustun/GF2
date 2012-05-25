@@ -34,10 +34,10 @@ void getSymbol(symbol& s, name& id, int& num){
   else {
     if (isdigit(curch)) {
       s = NUMSYM;
-      getnumber(num);
+      //getnumber(num);
     } else {
       if (isalpha(curch)) {
-	getname(id);
+	//getname(id);
 	if (id == 0) s = DEVSYM; else
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
@@ -54,9 +54,12 @@ void getSymbol(symbol& s, name& id, int& num){
 	case '.': s = PERIOD; break;
 	case '$': s = DOLLAR; break;
 	case '-': s = DASH; break;
-
-		    
-
+	default: s = BADSYM; break;
+	}
+	//getch();
+      } 
+    }
+  }		    
 };
 
 void skipspaces(ifstream *infp, char &curch, bool &eofile)

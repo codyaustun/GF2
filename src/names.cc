@@ -9,7 +9,6 @@ using namespace std;
 
 names::names(void)
 {
-  vector<namestring> nametable;
   nametable [0] = "DEVICES"; nametable [1] = "CONNECTIONS";
   nametable [2] = "MONITORS"; nametable [3] = "FIN";
   nametable [4] = "CLOCK"; nametable [5] = "SWITCH";

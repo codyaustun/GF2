@@ -22,6 +22,8 @@ public:
     ~scanner();
     void getSymbol(symbol& s, name& id, int& num);
     void getCurrentLine();
+    num getnumber(ifstream *infp, char &curch, bool &eofile, int &number);
+    name getname(ifstream *infp, char &curch, bool &eofile, namestring &str);
 };
 
 

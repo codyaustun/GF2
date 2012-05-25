@@ -2,6 +2,7 @@
 #define names_h
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -16,8 +17,10 @@ typedef unsigned int length;
 class names{
 
   /* put stuff that the class uses internally here */
+  vector<namestring> nametable;
 
 public:
+
   name lookup (namestring str);
     /* Returns the internal representation of the name given in character  */
     /* form.  If the name is not already in the name table, it is          */
