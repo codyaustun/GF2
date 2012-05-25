@@ -54,9 +54,9 @@ bool parser::readline()
     
     // Check syntax rule that End of file symbol should be fourth
     if (curSym == EOFSYM) {
-        return (errors == 0);
+        return (errorCount == 0);
     }else{
-        stopSym = EOFSYM
+        stopSym = EOFSYM;
         error("'FIN' should follow the monitors list", stopSym);
         return false;
     }
@@ -79,17 +79,41 @@ void parser::error(string message, symbol stop)
 
 void parser::buildDeviceList()
 {
-    
+    scan.getSymbol(curSym, curName, curInt); 
+    device();
+    while (curSym == SEMICOL) {
+        scan.getSymbol(curSym, curName, curInt);
+        if (curSym == CONSYM) {
+            break;
+        }
+        device();
+    } 
 }
 
 void parser::buildConnectionList()
 {
-    
+    scan.getSymbol(curSym, curName, curInt); 
+    connection();
+    while (curSym == SEMICOL) {
+        scan.getSymbol(curSym, curName, curInt);
+        if (curSym == MONSYM) {
+            break;
+        }
+        connection();
+    }
 }
 
 void parser::buildMonitorList()
 {
-    
+    scan.getSymbol(curSym, curName, curInt); 
+    monitor();
+    while (curSym == SEMICOL) {
+        scan.getSymbol(curSym, curName, curInt);
+        if (curSym == EOFSYM) {
+            break;
+        }
+        monitor();
+    }
 }
 
 void parser::device()
