@@ -17,7 +17,6 @@ class names{
 
   /* put stuff that the class uses internally here */
 
-
 public:
   name lookup (namestring str);
     /* Returns the internal representation of the name given in character  */
