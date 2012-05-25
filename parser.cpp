@@ -19,7 +19,47 @@ parser::parser(scanner s)
 
 bool parser::readline()
 {
+    // Get first Symbol
     scan.getSymbol(curSym, curName, curInt);
+    
+    // Check syntax rule that device list should be first
+    // Create device list
+    if (curSym == DEVSYM) {
+        buildDeviceList();
+    }else{
+        stopSym = DEVSYM;
+        error("The devices list must come first.", stopSym);
+        buildDeviceList();
+    }
+    
+    // Check syntax rule that Connection list should be second
+    // Create connection list
+    if (curSym == CONSYM) {
+        buildConnectionList();
+    }else{
+        stopSym = DEVSYM;
+        error("The connections list should follow the devices list", stopSym);
+        buildConnectionList();
+    }
+    
+    // Check syntax rule that Monitor list should be third
+    // Create Monitor List
+    if (curSym == MONSYM) {
+        buildMonitorList();
+    }else{
+        stopSym = MONSYM;
+        error("The monitors list should follow the connections list", stopSym);
+        buildMonitorList();
+    }
+    
+    // Check syntax rule that End of file symbol should be fourth
+    if (curSym == EOFSYM) {
+        return (errors == 0);
+    }else{
+        stopSym = EOFSYM
+        error("'FIN' should follow the monitors list", stopSym);
+        return false;
+    }
 }
 
 /* Error Handling
