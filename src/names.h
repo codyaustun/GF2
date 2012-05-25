@@ -11,11 +11,11 @@ const int blankname = -1;   /* special name                 */
 
 typedef int name;
 typedef string namestring;
+typedef unsigned int length;
 
 class names{
 
   /* put stuff that the class uses internally here */
-
 
 public:
   name lookup (namestring str);
@@ -31,7 +31,7 @@ public:
   void writename (name id);
     /* Prints out the given name on the console                            */
 
-  int namelength (name id);
+  length namelength (name id);
     /* Returns length ie number of characters in given name                */
 
   names (void);
