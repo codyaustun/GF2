@@ -8,10 +8,3 @@
 
 #include <iostream>
 #include "CCScanner.h"
-
-void getSymbol(symbol& s, name& id, int& num){
-    
-};
-void getCurrentLine(){
-    
-};

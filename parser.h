@@ -10,26 +10,20 @@
 #define _Parser_h
 #include "CCScanner.h"
 
-class Parser {
+class parser {
 public:
     bool readline();
+    parser(scanner s);
 private:
-    bool success = false;
+    bool outputBool;
     symbol curSym; // Current symbol
     name curName; // Current name if curSym is a namesym
     int curInt; // Current integer value if curSym is a numsym
-    int errors = 0; // Number of errors
+    int errorCount; // Number of errors
     symbol stopSym;
-    /* Error Handling
-     @effects: Increments 'errors'. prints out current line with scanner::getCurrentLine() and the error message contained in 'message'. 
-     Also, advances 'curSym' until equals 'stop'.
-     @params: message String for error message.
-     @params: stop Symbol require to start parsing again.
-     My Reasoning: Inputing both an error message and stop symbol allows for
-     more flexible in our error handling. Error messages can be tailored
-     to the specific error. Stop symbol ensures the parser can start
-     parsing again as fast as possbile. 
-     */
+    scanner scan; // Scanner for getting symbols
+    
+   
     void error(string message, symbol stop); 
     void buildDeviceList();
     void buildConnectionList();
@@ -37,17 +31,6 @@ private:
     void device();
     void connection();
     void monitor();
-    
-    
-    
-    /* Implemented in Scanner
-     void getSymbol(symbol& s, // The sort of symbol read from the file 
-     name& id,  // return the name here if it has one
-     int& num); // return the value here if it's a number
-     
-     string getCurrentLine(); // Returns current input line
-     */
-    
     
 };
 
