@@ -36,7 +36,7 @@ private:
     void connection() throw (runtime_error);
     void monitor() throw (runtime_error);
     void nameCheck() throw (runtime_error);
-    void signalCheck();
+    void signalCheck() throw (runtime_error);
     name type() throw (runtime_error);
     void option(name type) throw (runtime_error);
     

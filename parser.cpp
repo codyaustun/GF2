@@ -290,12 +290,22 @@ void parser::device() throw (runtime_error)
     */
     
     try {
+        
+        // check for name
         nameCheck();
+        
+        // check for equals sign
         if (curSym == EQUALS){
             scan.getSymbol(curSym, curName, curInt);
+            
+            // check type
             name devType = type();
+            
+            // check for dollar sign
             if (curSym == DOLLAR) {
                 scan.getSymbol(curSym, curName, curInt);
+                
+                // check for device option
                 option(devType);
                 
                 // TO DO build device
@@ -319,7 +329,7 @@ void parser::device() throw (runtime_error)
             throw;
         }
         
-        // TO DO remove this line
+        // TO DO remove this line. Only need for Debugging
         cout << e.what() << endl;
         // TO DO add cleaning
     }
@@ -331,11 +341,44 @@ void parser::connection() throw (runtime_error)
     // EBNF: connection = name ‘.’ signal ‘-’ name ‘.’ signal (',' | ‘;’)
     
     try {
+        // check for first name
         nameCheck();
+        
+        // check for first period
         if(curSym == PERIOD){
             scan.getSymbol(curSym, curName, curInt);
+            
+            // check signal
             signalCheck();
             
+            // check for dash
+            if (curSym == DASH) {
+                scan.getSymbol(curSym, curName, curInt);
+                
+                // check for second name
+                nameCheck();
+                
+                // check for second period
+                if(curSym == PERIOD){
+                    scan.getSymbol(curSym, curName, curInt);
+                    
+                    // check for second signal
+                    signalCheck();
+                    
+                    // TO DO make connection
+                    
+                    scan.getSymbol(curSym, curName, curInt);
+                    
+                }else{
+                    stopSym = COMMA;
+                    stopSym2 = SEMICOL;
+                    error("Expected a period.", stopSym, stopSym2);
+                }
+            }else{
+                stopSym = COMMA;
+                stopSym2 = SEMICOL;
+                error("Expected a dash.", stopSym, stopSym2); 
+            }
         }else{
             stopSym = COMMA;
             stopSym2 = SEMICOL;
@@ -347,7 +390,7 @@ void parser::connection() throw (runtime_error)
             throw;
         }
         
-        // TO DO remove this line
+        // TO DO remove this line. Only need for Debugging
         cout << e.what() << endl;
         // TO DO add cleaning
     }
@@ -359,13 +402,38 @@ void parser::monitor() throw (runtime_error)
     
     try {
         // TO DO
+        // check for name
+        nameCheck();
+        
+        if(curSym == EQUALS){
+            scan.getSymbol(curSym, curName, curInt);
+            // check for second name
+            nameCheck();
+        }
+        
+        if (curSym == PERIOD) {
+            scan.getSymbol(curSym, curName, curInt);
+            signalCheck();
+            
+            // TO DO make monitor
+            
+            scan.getSymbol(curSym, curName, curInt);
+            
+        }else{
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("Expected a period or equals sign", stopSym,
+                  stopSym2); 
+        }
+        
+        
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
             // rethrow in case of EOFSYM error
             throw;
         }
         
-        // TO DO remove this line
+        // TO DO remove this line. Only need for Debugging
         cout << e.what() << endl;
         // TO DO add cleaning
     }
@@ -374,7 +442,7 @@ void parser::monitor() throw (runtime_error)
 
 void parser::nameCheck() throw (runtime_error)
 {
-    
+    // TO DO figure out a way to tell between monitors and devices
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
@@ -393,8 +461,25 @@ void parser::nameCheck() throw (runtime_error)
     }
 }
 
-void parser::signalCheck()
+void parser::signalCheck() throw (runtime_error)
 {
+    // EBNF: (“O”|”I”(numberlt17not0)|”DATA”|”CLK”|”SET”|”CLEAR”|’Q’|”QBAR”)
+    
+    if(curSym == SIGSYM){
+        name devSignal = curName;
+        
+        // TO DO check semantically if name is okay.
+        
+        scan.getSymbol(curSym, curName, curInt);
+        
+    }else{
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Expected an input or output", stopSym,
+              stopSym2);
+        throw runtime_error("Skipping to next line");
+    }
+    
     
 }
 
