@@ -15,7 +15,6 @@ public:
     bool readline();
     parser(scanner s);
 private:
-    bool outputBool;
     symbol curSym; // Current symbol
     name curName; // Current name if curSym is a namesym
     int curInt; // Current integer value if curSym is a numsym

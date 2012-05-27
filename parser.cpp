@@ -12,7 +12,6 @@
 
 parser::parser(scanner s)
 {
-    outputBool = true;
     errorCount = 0;
     scan = s;
 }
@@ -53,10 +52,10 @@ bool parser::readline()
     }
     
     // Check syntax rule that End of file symbol should be fourth
-    if (curSym == EOFSYM) {
+    if (curSym == FINSYM) {
         return (errorCount == 0);
     }else{
-        stopSym = EOFSYM;
+        stopSym = FINSYM;
         error("'FIN' should follow the monitors list", stopSym);
         return false;
     }
@@ -74,12 +73,17 @@ bool parser::readline()
  */
 void parser::error(string message, symbol stop)
 {
-    outputBool == false;
+    
     // Increment error count
     errorCount++; 
     
     // Scanner should print out current line
     scan.getCurrentLine(); 
+    
+    // TO DO Make this sound better
+    if (curSym == BADSYM) {
+        cout << "This line contains an invalid symbol." << endl;
+    }
     
     // Print error message
     cout << "Error (" << errorCount << "): " << message << endl;
@@ -95,7 +99,14 @@ void parser::error(string message, symbol stop)
 void parser::buildDeviceList()
 {
     scan.getSymbol(curSym, curName, curInt);
-    // TO DO check for colon 
+    
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'DEVICES'.",
+              stopSym);
+    }
+    
     device();
     while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
@@ -108,7 +119,15 @@ void parser::buildDeviceList()
 void parser::buildConnectionList()
 {
     scan.getSymbol(curSym, curName, curInt); 
-    // TO DO check for colon
+    
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'CONNECTIONS'.",
+              stopSym);
+    }
+
+    
     connection();
     while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
@@ -121,8 +140,15 @@ void parser::buildConnectionList()
 void parser::buildMonitorList()
 {
     scan.getSymbol(curSym, curName, curInt);
-    // TO DO check for colon
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'MONITORS'.",
+              stopSym);
+    }
+    
     monitor();
+    
     while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
         monitor();

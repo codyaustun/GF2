@@ -33,7 +33,9 @@ typedef enum{
     DOLLAR,
     DASH,
     PERIOD,
-    COLON
+    COLON,
+    FINSYM,
+    BADSYM,
     } symbol;
 
 class scanner {
