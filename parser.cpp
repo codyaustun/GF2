@@ -160,6 +160,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
 
 void parser::buildDeviceList()
 {
+    // EBNF: “DEVICES:” {device’,’} device’;’ 
     
     // check for colon
     if (curSym == COLON) {
@@ -175,49 +176,26 @@ void parser::buildDeviceList()
         device();
     } 
     
-    // TO DO check for SEMICOLON
-    // This maybe unneeded depending on how I implement device()
+    // check for SEMICOLON
     if (curSym != SEMICOL) {
         stopSym = SEMICOL;
-        error("There should be a ';' at the end of the devices section.", stopSym);
+        error("There should be a ';' at the end of the devices section.",
+              stopSym);
     }
     scan.getSymbol(curSym, curName, curInt);
 
 }
 
-void parser::device()
-{   
-    // Throw exception to prevent double error reporting
-    nameCheck();
-    
-    // Outer if statement prevents double error reporting
-    if (curSym != COMMA && curSym != SEMICOL){
-        if (curSym == EQUALS){
-            scan.getSymbol(curSym, curName, curInt);
-            type();
-            if (curSym == DOLLAR) {
-                scan.getSymbol(curSym, curName, curInt);
-                option();
-            }else{
-                stopSym = COMMA;
-                stopSym2 = SEMICOL;
-                error("Expected a dollar sign.", stopSym,
-                      stopSym2);  
-            }
-        }else{
-            stopSym = COMMA;
-            stopSym2 = SEMICOL;
-            error("Expected an equals sign.", stopSym, stopSym2);
-        }
-    }
-    
-}
+
 
 void parser::buildConnectionList()
 {
+    // EBNF: “CONNECTIONS:” {connection’,’} connection’;’ 
     
     // check for colon
-    if (curSym != COLON) {
+    if (curSym == COLON) {
+        scan.getSymbol(curSym, curName, curInt);
+    }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'CONNECTIONS'.",
               stopSym);
@@ -230,13 +208,23 @@ void parser::buildConnectionList()
         connection();
     }
     
-    // TO DO check for SEMICOLON
+    // check for SEMICOLON
+    if (curSym != SEMICOL) {
+        stopSym = SEMICOL;
+        error("There should be a ';' at the end of the connections section.",
+              stopSym);
+    }
+    scan.getSymbol(curSym, curName, curInt);
 }
 
 void parser::buildMonitorList()
 {
+    // EBNF: “MONITORS:” {monitor’,’} monitor’;’
+    
     // check for colon
-    if (curSym != COLON) {
+    if (curSym == COLON) {
+        scan.getSymbol(curSym, curName, curInt);
+    }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'MONITORS'.",
               stopSym);
@@ -249,26 +237,150 @@ void parser::buildMonitorList()
         monitor();
     }
     
-    // TO DO check for SEMICOLON
+    // check for SEMICOLON
+    if (curSym != SEMICOL) {
+        stopSym = SEMICOL;
+        error("There should be a ';' at the end of the monitors section.",
+              stopSym);
+    }
+    scan.getSymbol(curSym, curName, curInt);
 }
 
-
-
-void parser::connection()
-{
+void parser::device() throw (runtime_error)
+{   
+    // EBNF: device = name "=" type ['$' option] (',' or ';')
+    /* OLD WAY without exceptions
+    
+    nameCheck();
+    
+    // Outer if statement prevents double error reporting
+    // TO DO Try to find a better way of doing this.
+    // Maybe do exceptions... See if there is any memory I need to release.
+    // Possibly need to release information that is saved for actually creating the 
+    // device.
+    if (curSym != COMMA && curSym != SEMICOL){
+        if (curSym == EQUALS){
+            scan.getSymbol(curSym, curName, curInt);
+            name devType = type();
+            // TO ASK will devType be changed when getSymbol is called?
+            // Outer if statement prevents double error reporting
+            if (curSym != COMMA && curSym != SEMICOL){
+                scan.getSymbol(curSym, curName, curInt);
+                if (curSym == DOLLAR) {
+                    scan.getSymbol(curSym, curName, curInt);
+                    option(devType);
+                    
+                    // TO DO build device
+                    
+                    scan.getSymbol(curSym, curName, curInt);
+                    
+                }else{
+                    stopSym = COMMA;
+                    stopSym2 = SEMICOL;
+                    error("Expected a dollar sign.", stopSym,
+                          stopSym2);  
+                }
+            }
+        }else{
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("Expected an equals sign.", stopSym, stopSym2);
+        }
+    }
+    */
+    
+    try {
+        nameCheck();
+        if (curSym == EQUALS){
+            scan.getSymbol(curSym, curName, curInt);
+            name devType = type();
+            if (curSym == DOLLAR) {
+                scan.getSymbol(curSym, curName, curInt);
+                option(devType);
+                
+                // TO DO build device
+                
+                scan.getSymbol(curSym, curName, curInt);
+                
+            }else{
+                stopSym = COMMA;
+                stopSym2 = SEMICOL;
+                error("Expected a dollar sign.", stopSym,
+                      stopSym2);  
+            }
+        }else{
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("Expected an equals sign.", stopSym, stopSym2);
+        }
+    } catch (runtime_error e) {
+        if (curSym != COMMA && curSym != SEMICOL){
+            // rethrow in case of EOFSYM error
+            throw;
+        }
+        
+        // TO DO remove this line
+        cout << e.what() << endl;
+        // TO DO add cleaning
+    }
     
 }
 
-void parser::monitor()
+void parser::connection() throw (runtime_error)
 {
+    // EBNF: connection = name ‘.’ signal ‘-’ name ‘.’ signal (',' | ‘;’)
+    
+    try {
+        nameCheck();
+        if(curSym == PERIOD){
+            scan.getSymbol(curSym, curName, curInt);
+            signalCheck();
+            
+        }else{
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("Expected a period.", stopSym, stopSym2);
+        }
+    } catch (runtime_error e) {
+        if (curSym != COMMA && curSym != SEMICOL){
+            // rethrow in case of EOFSYM error
+            throw;
+        }
+        
+        // TO DO remove this line
+        cout << e.what() << endl;
+        // TO DO add cleaning
+    }
+}
+
+void parser::monitor() throw (runtime_error)
+{
+    // EBNF: monitor = [name  ‘=’] name ‘.’ signal (',' | ‘;’)
+    
+    try {
+        // TO DO
+    } catch (runtime_error e) {
+        if (curSym != COMMA && curSym != SEMICOL){
+            // rethrow in case of EOFSYM error
+            throw;
+        }
+        
+        // TO DO remove this line
+        cout << e.what() << endl;
+        // TO DO add cleaning
+    }
     
 }
 
-void parser::nameCheck(){
+void parser::nameCheck() throw (runtime_error)
+{
+    
+    // EBNF: letter {letter|digit}
+    
     if(curSym == NAMESYM){
         name newName = curName;
         
-        // TO DO checkly semantically if name is okay.
+        // TO DO check semantically if name is okay.
         
         scan.getSymbol(curSym, curName, curInt);
         
@@ -276,14 +388,52 @@ void parser::nameCheck(){
         stopSym = COMMA;
         stopSym2 = SEMICOL;
         error("Expected a name", stopSym,
-              stopSym2);   
+              stopSym2);
+        throw runtime_error("Skipping to next line");
     }
 }
 
-void parser::type(){
+void parser::signalCheck()
+{
     
 }
 
-void parser::option(){
+name parser::type() throw (runtime_error)
+{
+    // EBNF: type = (“CLOCK”|”SWITCH”|”AND”|”NAND”|”OR”|”NOR”|”DTYPE”|”XOR”)
     
+    if (curSym == TYPESYM) {
+        name devType = curName;
+        
+        // TO DO check semantically if type is okay
+        
+        // TO ASK will devType be changed when getSymbol is called?
+        scan.getSymbol(curSym, curName, curInt);
+        return devType;
+        
+    }else{
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Expected a device type.", stopSym, stopSym2);
+        throw runtime_error("Skipping to next line");
+    }
+}
+
+void parser::option(name devType) throw (runtime_error)
+{
+    //EBNF: digit {digit}
+    
+    // type is the device type. Use for semantic check.
+    
+    if (curSym == NUMSYM) {
+        int option = curInt;
+        
+        // TO DO check semantically if option is okay
+        
+    }else{
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Expected a device option.", stopSym, stopSym2); 
+        throw runtime_error("Skipping to next line");
+    }
 }
