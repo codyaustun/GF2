@@ -1,0 +1,39 @@
+#ifndef _CCScanner_h
+#define _CCScanner_h
+#include <string>
+#include <vector>
+
+using namespace std;
+
+
+/* Constants and Types */
+typedef int name;
+vector<string> names;
+
+typedef enum{
+    DEVSYM,
+    CONSYM,
+    MONSYM,
+    NAMESYM,
+    NUMSYM,
+    SIGSYM,
+    TYPESYM,
+    EOFSYM,
+    EQUALS,
+    SEMICOL,
+    COMMA,
+    DOLLAR,
+    DASH,
+    PERIOD,
+    COLON
+    } symbol;
+
+class scanner {
+public:
+    void getSymbol(symbol& s, name& id, int& num);
+    void getCurrentLine();
+};
+
+
+
+#endif
