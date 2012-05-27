@@ -22,6 +22,9 @@ int main(){
     
     p1.readline();
     
+    // For testing
+    cout << "test over" << endl;
+    
 }
 
 bool parser::readline()
@@ -41,13 +44,11 @@ bool parser::readline()
             buildDeviceList();
         }
         
-        // For testing
-        cout << "test over" << endl;
-        return false;
         
         // Check syntax rule that Connection list should be second
         // Create connection list
         if (curSym == CONSYM) {
+            scan.getSymbol(curSym, curName, curInt);
             buildConnectionList();
         }else{
             stopSym = COLON;
@@ -60,6 +61,7 @@ bool parser::readline()
         // Check syntax rule that Monitor list should be third
         // Create Monitor List
         if (curSym == MONSYM) {
+            scan.getSymbol(curSym, curName, curInt);
             buildMonitorList();
         }else{
             stopSym = COLON;
@@ -115,6 +117,10 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     while ((curSym != stop) && (curSym != EOFSYM)) {
         scan.getSymbol(curSym, curName, curInt);
     }
+    
+    
+    // TO DO remove this line. For debugging only
+    cout << "Exiting error function" << endl;
 
     // an exception in the case curSym == EOFSYM
     if (curSym == EOFSYM) {
@@ -149,6 +155,9 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     while ((curSym != stop1) && (curSym != stop2) && (curSym != EOFSYM)) {
         scan.getSymbol(curSym, curName, curInt);
     }
+    
+    // TO DO remove this line. For debugging only
+    cout << "Exiting error function" << endl;
     
     // Throw an exception in the case curSym == EOFSYM
     if (curSym == EOFSYM) {
@@ -310,8 +319,6 @@ void parser::device() throw (runtime_error)
                 
                 // TO DO build device
                 
-                scan.getSymbol(curSym, curName, curInt);
-                
             }else{
                 stopSym = COMMA;
                 stopSym2 = SEMICOL;
@@ -367,7 +374,6 @@ void parser::connection() throw (runtime_error)
                     
                     // TO DO make connection
                     
-                    scan.getSymbol(curSym, curName, curInt);
                     
                 }else{
                     stopSym = COMMA;
@@ -417,7 +423,6 @@ void parser::monitor() throw (runtime_error)
             
             // TO DO make monitor
             
-            scan.getSymbol(curSym, curName, curInt);
             
         }else{
             stopSym = COMMA;
@@ -514,6 +519,8 @@ void parser::option(name devType) throw (runtime_error)
         int option = curInt;
         
         // TO DO check semantically if option is okay
+        
+        scan.getSymbol(curSym, curName, curInt);
         
     }else{
         stopSym = COMMA;

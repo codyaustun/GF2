@@ -9,8 +9,7 @@
 
 #include "CCScanner.h"
 
-symbol ss[] = {DEVSYM, COLON, NAMESYM, EQUALS, 
-    TYPESYM, DOLLAR, NUMSYM, COMMA, EOFSYM};
+
 
 void symbolToString(symbol s){
     switch (s) {
@@ -69,6 +68,12 @@ void symbolToString(symbol s){
             break;
     }
 }
+
+symbol ss[] = {DEVSYM, COLON, NAMESYM, EQUALS, 
+    TYPESYM, DOLLAR, NUMSYM, COMMA, NAMESYM, EQUALS, TYPESYM, DOLLAR, NUMSYM,
+    SEMICOL, CONSYM, COLON, NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM,
+    SEMICOL, MONSYM, COLON, NAMESYM, EQUALS, NAMESYM, PERIOD, SIGSYM, COMMA,
+    NAMESYM, PERIOD, SIGSYM, SEMICOL, FINSYM, EOFSYM};
 
 
 scanner::scanner(){
