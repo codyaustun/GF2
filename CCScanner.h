@@ -10,13 +10,14 @@
 #define _CCScanner_h
 #include <string>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
 
 /* Constants and Types */
 typedef int name;
-vector<string> names;
+// vector<string> names;
 
 typedef enum{
     DEVSYM,
@@ -40,8 +41,11 @@ typedef enum{
 
 class scanner {
 public:
-    void getSymbol(symbol& s, name& id, int& num);
+    scanner();
+    void getSymbol(symbol& s, name& nameid, int& num);
     void getCurrentLine();
+private:
+    int index;
 };
 
 

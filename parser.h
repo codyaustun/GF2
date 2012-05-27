@@ -9,6 +9,9 @@
 #ifndef _Parser_h
 #define _Parser_h
 #include "CCScanner.h"
+#include <stdexcept>;
+
+using std::runtime_error;
 
 class parser {
 public:
@@ -20,16 +23,21 @@ private:
     int curInt; // Current integer value if curSym is a numsym
     int errorCount; // Number of errors
     symbol stopSym;
+    symbol stopSym2;
     scanner scan; // Scanner for getting symbols
     
    
-    void error(string message, symbol stop); 
+    void error(string message, symbol stop) throw (runtime_error); 
+    void error(string message, symbol stop1, symbol stop2) throw (runtime_error);
     void buildDeviceList();
     void buildConnectionList();
     void buildMonitorList();
     void device();
     void connection();
     void monitor();
+    void nameCheck();
+    void type();
+    void option();
     
 };
 
