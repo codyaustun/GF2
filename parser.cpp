@@ -116,12 +116,15 @@ void parser::error(string message, symbol stop) throw (runtime_error)
         scan.getSymbol(curSym, curName, curInt);
     }
 
-    // TO DO Throw an exception in the case curSym == EOFSYM
+    // an exception in the case curSym == EOFSYM
     if (curSym == EOFSYM) {
         throw runtime_error("Got to the end of the file");
     }
 }
 
+// Same as the other error method, but handles the case where there 2 possible
+// stopping symbols.
+// EX: an error in a device could start again after a colon or semicolon.
 void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_error)
 {
     
@@ -147,7 +150,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
         scan.getSymbol(curSym, curName, curInt);
     }
     
-    // TO DO Throw an exception in the case curSym == EOFSYM
+    // Throw an exception in the case curSym == EOFSYM
     if (curSym == EOFSYM) {
         throw runtime_error("Got to the end of the file");
     }
@@ -186,6 +189,8 @@ void parser::device()
 {   
     // Throw exception to prevent double error reporting
     nameCheck();
+    
+    // Outer if statement prevents double error reporting
     if (curSym != COMMA && curSym != SEMICOL){
         if (curSym == EQUALS){
             scan.getSymbol(curSym, curName, curInt);
