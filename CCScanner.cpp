@@ -9,7 +9,7 @@
 
 #include "CCScanner.h"
 
-symbol ss[] = {BADSYM, COLON, NAMESYM, EQUALS, 
+symbol ss[] = {DEVSYM, COLON, NAMESYM, EQUALS, 
     TYPESYM, DOLLAR, NUMSYM, COMMA, EOFSYM};
 
 void symbolToString(symbol s){

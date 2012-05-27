@@ -32,12 +32,13 @@ private:
     void buildDeviceList();
     void buildConnectionList();
     void buildMonitorList();
-    void device();
-    void connection();
-    void monitor();
-    void nameCheck();
-    void type();
-    void option();
+    void device() throw (runtime_error);
+    void connection() throw (runtime_error);
+    void monitor() throw (runtime_error);
+    void nameCheck() throw (runtime_error);
+    void signalCheck();
+    name type() throw (runtime_error);
+    void option(name type) throw (runtime_error);
     
 };
 
