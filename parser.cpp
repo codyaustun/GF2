@@ -12,7 +12,6 @@
 
 parser::parser(scanner s)
 {
-    outputBool = false;
     errorCount = 0;
     scan = s;
 }
@@ -53,10 +52,10 @@ bool parser::readline()
     }
     
     // Check syntax rule that End of file symbol should be fourth
-    if (curSym == EOFSYM) {
-        return (errors == 0);
+    if (curSym == FINSYM) {
+        return (errorCount == 0);
     }else{
-        stopSym = EOFSYM
+        stopSym = FINSYM;
         error("'FIN' should follow the monitors list", stopSym);
         return false;
     }
@@ -75,21 +74,87 @@ bool parser::readline()
 void parser::error(string message, symbol stop)
 {
     
+    // Increment error count
+    errorCount++; 
+    
+    // Scanner should print out current line
+    scan.getCurrentLine(); 
+    
+    // TO DO Make this sound better
+    if (curSym == BADSYM) {
+        cout << "This line contains an invalid symbol." << endl;
+    }
+    
+    // Print error message
+    cout << "Error (" << errorCount << "): " << message << endl;
+    
+    // Advance to the next instance of the stop symbol
+    while ((curSym != stop) && (curSym != EOFSYM)) {
+        scan.getSymbol(curSym, curName, curInt);
+    }
+
+    // TO DO Throw an exception in the case curSym == EOFSYM
 }
 
 void parser::buildDeviceList()
 {
+    scan.getSymbol(curSym, curName, curInt);
     
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'DEVICES'.",
+              stopSym);
+    }
+    
+    device();
+    while (curSym == COMMA) {
+        scan.getSymbol(curSym, curName, curInt);
+        device();
+    } 
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::buildConnectionList()
 {
+    scan.getSymbol(curSym, curName, curInt); 
     
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'CONNECTIONS'.",
+              stopSym);
+    }
+
+    
+    connection();
+    while (curSym == COMMA) {
+        scan.getSymbol(curSym, curName, curInt);
+        connection();
+    }
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::buildMonitorList()
 {
+    scan.getSymbol(curSym, curName, curInt);
+    // check for colon
+    if (curSym != COLON) {
+        stopSym = NAMESYM;
+        error("There should be a colon following the keyword 'MONITORS'.",
+              stopSym);
+    }
     
+    monitor();
+    
+    while (curSym == COMMA) {
+        scan.getSymbol(curSym, curName, curInt);
+        monitor();
+    }
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::device()
