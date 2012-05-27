@@ -12,7 +12,7 @@
 
 parser::parser(scanner s)
 {
-    outputBool = false;
+    outputBool = true;
     errorCount = 0;
     scan = s;
 }
@@ -74,46 +74,61 @@ bool parser::readline()
  */
 void parser::error(string message, symbol stop)
 {
+    outputBool == false;
+    // Increment error count
+    errorCount++; 
     
+    // Scanner should print out current line
+    scan.getCurrentLine(); 
+    
+    // Print error message
+    cout << "Error (" << errorCount << "): " << message << endl;
+    
+    // Advance to the next instance of the stop symbol
+    while ((curSym != stop) && (curSym != EOFSYM)) {
+        scan.getSymbol(curSym, curName, curInt);
+    }
+
+    // TO DO Throw an exception in the case curSym == EOFSYM
 }
 
 void parser::buildDeviceList()
 {
-    scan.getSymbol(curSym, curName, curInt); 
+    scan.getSymbol(curSym, curName, curInt);
+    // TO DO check for colon 
     device();
-    while (curSym == SEMICOL) {
+    while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
-        if (curSym == CONSYM) {
-            break;
-        }
         device();
     } 
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::buildConnectionList()
 {
     scan.getSymbol(curSym, curName, curInt); 
+    // TO DO check for colon
     connection();
-    while (curSym == SEMICOL) {
+    while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
-        if (curSym == MONSYM) {
-            break;
-        }
         connection();
     }
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::buildMonitorList()
 {
-    scan.getSymbol(curSym, curName, curInt); 
+    scan.getSymbol(curSym, curName, curInt);
+    // TO DO check for colon
     monitor();
-    while (curSym == SEMICOL) {
+    while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
-        if (curSym == EOFSYM) {
-            break;
-        }
         monitor();
     }
+    
+    // TO DO check for SEMICOLON
 }
 
 void parser::device()
