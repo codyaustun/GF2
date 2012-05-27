@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 MIT. All rights reserved.
 //
 
-#include <iostream>
 #include "parser.h"
 
 
@@ -16,47 +15,71 @@ parser::parser(scanner s)
     scan = s;
 }
 
+int main(){
+    scanner s1;
+    
+    parser p1(s1);
+    
+    p1.readline();
+    
+}
+
 bool parser::readline()
 {
-    // Get first Symbol
-    scan.getSymbol(curSym, curName, curInt);
-    
-    // Check syntax rule that device list should be first
-    // Create device list
-    if (curSym == DEVSYM) {
-        buildDeviceList();
-    }else{
-        stopSym = DEVSYM;
-        error("The devices list must come first.", stopSym);
-        buildDeviceList();
+    try {
+        // Get first Symbol
+        scan.getSymbol(curSym, curName, curInt);
+        
+        // Check syntax rule that device list should be first
+        // Create device list
+        if (curSym == DEVSYM) {
+            scan.getSymbol(curSym, curName, curInt);
+            buildDeviceList();
+        }else{
+            stopSym = COLON;
+            error("The devices list must come first.", stopSym);
+            buildDeviceList();
+        }
+        
+        // For testing
+        cout << "test over" << endl;
+        return false;
+        
+        // Check syntax rule that Connection list should be second
+        // Create connection list
+        if (curSym == CONSYM) {
+            buildConnectionList();
+        }else{
+            stopSym = COLON;
+            error("The connections list should follow the devices list", stopSym);
+            buildConnectionList();
+        }
+        
+        
+        
+        // Check syntax rule that Monitor list should be third
+        // Create Monitor List
+        if (curSym == MONSYM) {
+            buildMonitorList();
+        }else{
+            stopSym = COLON;
+            error("The monitors list should follow the connections list", stopSym);
+            buildMonitorList();
+        }
+        
+        // Check syntax rule that End of file symbol should be fourth
+        if (curSym == FINSYM) {
+            return (errorCount == 0);
+        }else{
+            stopSym = EOFSYM;
+            error("'FIN' should follow the monitors list", stopSym);
+            return false;
+        }
     }
-    
-    // Check syntax rule that Connection list should be second
-    // Create connection list
-    if (curSym == CONSYM) {
-        buildConnectionList();
-    }else{
-        stopSym = DEVSYM;
-        error("The connections list should follow the devices list", stopSym);
-        buildConnectionList();
-    }
-    
-    // Check syntax rule that Monitor list should be third
-    // Create Monitor List
-    if (curSym == MONSYM) {
-        buildMonitorList();
-    }else{
-        stopSym = MONSYM;
-        error("The monitors list should follow the connections list", stopSym);
-        buildMonitorList();
-    }
-    
-    // Check syntax rule that End of file symbol should be fourth
-    if (curSym == FINSYM) {
-        return (errorCount == 0);
-    }else{
-        stopSym = FINSYM;
-        error("'FIN' should follow the monitors list", stopSym);
+    // Handling the case where the error function gets to the end of file.
+    // No point in continuing to parse at that point.
+    catch ( runtime_error e ){
+        cout << e.what() << endl;
         return false;
     }
 }
@@ -71,7 +94,7 @@ bool parser::readline()
  to the specific error. Stop symbol ensures the parser can start
  parsing again as fast as possbile. 
  */
-void parser::error(string message, symbol stop)
+void parser::error(string message, symbol stop) throw (runtime_error)
 {
     
     // Increment error count
@@ -80,13 +103,13 @@ void parser::error(string message, symbol stop)
     // Scanner should print out current line
     scan.getCurrentLine(); 
     
-    // TO DO Make this sound better
-    if (curSym == BADSYM) {
-        cout << "This line contains an invalid symbol." << endl;
-    }
-    
     // Print error message
-    cout << "Error (" << errorCount << "): " << message << endl;
+    // TO DO make this sounds better
+    cout << "Error (" << errorCount << "): ";
+    if (curSym == BADSYM) {
+        cout << "Detected an invalid symbol." << endl;
+    }
+    cout << message << endl;
     
     // Advance to the next instance of the stop symbol
     while ((curSym != stop) && (curSym != EOFSYM)) {
@@ -94,19 +117,55 @@ void parser::error(string message, symbol stop)
     }
 
     // TO DO Throw an exception in the case curSym == EOFSYM
+    if (curSym == EOFSYM) {
+        throw runtime_error("Got to the end of the file");
+    }
 }
+
+void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_error)
+{
+    
+    // Increment error count
+    errorCount++; 
+    
+    // Scanner should print out current line
+    scan.getCurrentLine(); 
+    
+    
+    
+    // Print error message
+    // TO DO make this sounds better
+    cout << "Error (" << errorCount << "): ";
+    if (curSym == BADSYM) {
+        cout << "Detected an invalid symbol.";
+    }
+    cout << message << endl;
+    
+    // Advance to the next instance of the stop symbol
+    // For best performance make less likely stop symbol stop2
+    while ((curSym != stop1) && (curSym != stop2) && (curSym != EOFSYM)) {
+        scan.getSymbol(curSym, curName, curInt);
+    }
+    
+    // TO DO Throw an exception in the case curSym == EOFSYM
+    if (curSym == EOFSYM) {
+        throw runtime_error("Got to the end of the file");
+    }
+}
+
+
 
 void parser::buildDeviceList()
 {
-    scan.getSymbol(curSym, curName, curInt);
     
     // check for colon
-    if (curSym != COLON) {
+    if (curSym == COLON) {
+        scan.getSymbol(curSym, curName, curInt);
+    }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'DEVICES'.",
               stopSym);
     }
-    
     device();
     while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
@@ -114,11 +173,43 @@ void parser::buildDeviceList()
     } 
     
     // TO DO check for SEMICOLON
+    // This maybe unneeded depending on how I implement device()
+    if (curSym != SEMICOL) {
+        stopSym = SEMICOL;
+        error("There should be a ';' at the end of the devices section.", stopSym);
+    }
+    scan.getSymbol(curSym, curName, curInt);
+
+}
+
+void parser::device()
+{   
+    // Throw exception to prevent double error reporting
+    nameCheck();
+    if (curSym != COMMA && curSym != SEMICOL){
+        if (curSym == EQUALS){
+            scan.getSymbol(curSym, curName, curInt);
+            type();
+            if (curSym == DOLLAR) {
+                scan.getSymbol(curSym, curName, curInt);
+                option();
+            }else{
+                stopSym = COMMA;
+                stopSym2 = SEMICOL;
+                error("Expected a dollar sign.", stopSym,
+                      stopSym2);  
+            }
+        }else{
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("Expected an equals sign.", stopSym, stopSym2);
+        }
+    }
+    
 }
 
 void parser::buildConnectionList()
 {
-    scan.getSymbol(curSym, curName, curInt); 
     
     // check for colon
     if (curSym != COLON) {
@@ -139,7 +230,6 @@ void parser::buildConnectionList()
 
 void parser::buildMonitorList()
 {
-    scan.getSymbol(curSym, curName, curInt);
     // check for colon
     if (curSym != COLON) {
         stopSym = NAMESYM;
@@ -157,10 +247,7 @@ void parser::buildMonitorList()
     // TO DO check for SEMICOLON
 }
 
-void parser::device()
-{
-    
-}
+
 
 void parser::connection()
 {
@@ -169,5 +256,29 @@ void parser::connection()
 
 void parser::monitor()
 {
+    
+}
+
+void parser::nameCheck(){
+    if(curSym == NAMESYM){
+        name newName = curName;
+        
+        // TO DO checkly semantically if name is okay.
+        
+        scan.getSymbol(curSym, curName, curInt);
+        
+    }else{
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Expected a name", stopSym,
+              stopSym2);   
+    }
+}
+
+void parser::type(){
+    
+}
+
+void parser::option(){
     
 }
