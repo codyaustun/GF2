@@ -20,9 +20,10 @@ int main(){
     
     parser p1(s1);
     
-    p1.readline();
+    bool output = p1.readline();
     
     // For testing
+    cout << "Was the file correct " << output << endl;
     cout << "test over" << endl;
     
 }

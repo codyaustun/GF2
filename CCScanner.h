@@ -46,6 +46,7 @@ public:
     void getCurrentLine();
 private:
     int index;
+    symbol syms[]; 
 };
 
 
