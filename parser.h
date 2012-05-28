@@ -10,6 +10,7 @@
 #define _Parser_h
 #include "CCScanner.h"
 #include <stdexcept>;
+#include <vector>;
 
 using std::runtime_error;
 
@@ -18,15 +19,25 @@ public:
     bool readline();
     parser(scanner s);
 private:
-    symbol curSym; // Current symbol
-    name curName; // Current name if curSym is a namesym
-    int curInt; // Current integer value if curSym is a numsym
+    symbol curSym;  // Current symbol
+    name curName;   // Current name if curSym is a namesym
+    int curInt;     // Current integer value if curSym is a numsym
     int errorCount; // Number of errors
-    symbol stopSym;
-    symbol stopSym2;
-    scanner scan; // Scanner for getting symbols
+    symbol stopSym; // First stop symbol for error control
+    symbol stopSym2;// Second stop symbol for error control
+    scanner scan;   // Scanner for getting symbols
     
-   
+    // Needed for semantic error control
+    vector<string> devNames;
+    vector<string> monNames;
+    
+    struct deviceTemp{
+        string name;
+        int type;
+        int option;
+    };
+    
+    // Needed for syntax error control
     void error(string message, symbol stop) throw (runtime_error); 
     void error(string message, symbol stop1, symbol stop2) throw (runtime_error);
     void buildDeviceList();
