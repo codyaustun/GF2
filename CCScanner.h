@@ -39,6 +39,8 @@ typedef enum{
     BADSYM,
     } symbol;
 
+typedef string namestring;
+
 class scanner {
 public:
     scanner();

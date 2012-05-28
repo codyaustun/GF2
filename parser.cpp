@@ -8,6 +8,14 @@
 
 #include "parser.h"
 
+/* TO DO hook up to names.cpp
+parser::parser(scanner s, names n)
+{
+    errorCount = 0;
+    scan = s;
+    namesTable = n;
+}
+ */
 
 parser::parser(scanner s)
 {
@@ -16,6 +24,7 @@ parser::parser(scanner s)
 }
 
 int main(){
+    
     scanner s1(2,2,2);
     
     parser p1(s1);
@@ -25,6 +34,7 @@ int main(){
     // For testing
     cout << "Was the file correct " << output << endl;
     cout << "test over" << endl;
+    
     
 }
 
@@ -188,11 +198,13 @@ void parser::buildDeviceList()
     
     // check for SEMICOLON
     if (curSym != SEMICOL) {
-        stopSym = SEMICOL;
+        stopSym = curSym;
         error("There should be a ';' at the end of the devices section.",
               stopSym);
     }
-    scan.getSymbol(curSym, curName, curInt);
+    
+    // TO DO decide if we need this line
+    //scan.getSymbol(curSym, curName, curInt);
 
 }
 
@@ -350,28 +362,28 @@ void parser::connection() throw (runtime_error)
     
     try {
         // check for first name
-        nameCheck(DEV);
+        namestring devName1 = nameCheck();
         
         // check for first period
         if(curSym == PERIOD){
             scan.getSymbol(curSym, curName, curInt);
             
             // check signal
-            signalCheck();
+            signalCheck(devName1);
             
             // check for dash
             if (curSym == DASH) {
                 scan.getSymbol(curSym, curName, curInt);
                 
                 // check for second name
-                nameCheck(DEV);
+                namestring devName2 = nameCheck();
                 
                 // check for second period
                 if(curSym == PERIOD){
                     scan.getSymbol(curSym, curName, curInt);
                     
                     // check for second signal
-                    signalCheck();
+                    signalCheck(devName2);
                     
                     // TO DO make connection
                     
@@ -446,29 +458,27 @@ void parser::monitor() throw (runtime_error)
     
 }
 
-void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
+namestring parser::nameCheck() throw (runtime_error)
 {
-    // TO DO figure out a way to tell between monitors and devices
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
-        name newName = curName;
         
+        // TO DO hook up to names.cpp
+        namestring newName = "temp"; 
+        // namestring newName = namesTable.getname(curName);
         
-        switch (deviceOrMonitor) {
-            case DEV:
-                // TO DO
-                break;
-            case MON:
-                // TO DO
-                break;
-                
-            default:
-                break;
+        if (!nameExist(devNames, newName)){
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("The device "+newName+" does not exist", stopSym,
+                  stopSym2);
+            throw runtime_error("Skipping to next line");
         }
-        // TO DO check semantically if name is okay.
         
         scan.getSymbol(curSym, curName, curInt);
+        
+        return newName;
         
     }else{
         stopSym = COMMA;
@@ -477,16 +487,123 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
               stopSym2);
         throw runtime_error("Skipping to next line");
     }
+
 }
 
-void parser::signalCheck() throw (runtime_error)
+void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
+{
+    // TO DO figure out a way to tell between monitors and devices
+    // EBNF: letter {letter|digit}
+    
+    if(curSym == NAMESYM){
+        
+        // TO DO hook up to names.cpp
+        namestring newName = "temp"; 
+        // namestring newName = namesTable.getname(curName);
+        
+        
+        // TO DO Test this
+        // check semantically if name is okay.
+        switch (deviceOrMonitor) {
+            // Don't want device to exist
+            case DEV:
+                // Does not add name to monNames.
+                // Calling function must do that.
+                if (nameExist(devNames, newName)){
+                    stopSym = COMMA;
+                    stopSym2 = SEMICOL;
+                    error("The name "+newName+" has already been used", stopSym,
+                          stopSym2);
+                    throw runtime_error("Skipping to next line");
+                }
+                break;
+                
+            // Don't want Monitor to exist
+            case MON:
+                // Does not add name to monNames.
+                // Calling function must do that.
+                if (nameExist(monNames, newName)){
+                    stopSym = COMMA;
+                    stopSym2 = SEMICOL;
+                    error("The name "+newName+" has already been used", stopSym,
+                          stopSym2);
+                    throw runtime_error("Skipping to next line");
+                }
+                break;
+                
+            default:
+                stopSym = COMMA;
+                stopSym2 = SEMICOL;
+                error("Unexpected error", stopSym,
+                      stopSym2);
+                throw runtime_error("Skipping to next line");
+                break;
+        }
+        
+        
+        scan.getSymbol(curSym, curName, curInt);
+     
+    // TO DO figure out a nicer way to do this
+    }else if((curSym == TYPESYM) || (curSym == SIGSYM) || (curSym == CONSYM) ||
+             (curSym == DEVSYM) || (curSym == MONSYM)){
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Keywords cannot be names", stopSym,
+              stopSym2);
+        throw runtime_error("Skipping to next line");
+        
+    }
+    else{
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("Expected a name", stopSym,
+              stopSym2);
+        throw runtime_error("Skipping to next line");
+    }
+}
+
+bool parser::nameExist(vector<string> names, namestring str)
+{
+    bool found = 0;
+    
+    for (vector<string>::iterator i = names.begin(); i != names.end(); ++i) {
+        if (str == (*i)) {
+            found = 1;
+        }
+    }
+    return found;
+}
+
+// TO DO remove this
+/*
+bool parser::nameExist(vector<deviceTemp> devices, deviceTemp d){
+    bool found = 0;
+    
+    for (vector<deviceTemp>::iterator i = devices.begin(); i != devices.end(); ++i) {
+        if (d.name == i->name) {
+            found = 1;
+        }
+    }
+    return found;
+}
+*/
+
+
+void parser::signalCheck(namestring deviceName) throw (runtime_error)
 {
     // EBNF: (“O”|”I”(numberlt17not0)|”DATA”|”CLK”|”SET”|”CLEAR”|’Q’|”QBAR”)
     
+    
+    // device must exists by the time this function is called
     if(curSym == SIGSYM){
         name devSignal = curName;
         
+        
         // TO DO check semantically if name is okay.
+        // ONLY need to check if data type is right
+        deviceTemp dev = getDeviceTemp(deviceName);
+       
+        
         
         scan.getSymbol(curSym, curName, curInt);
         
@@ -509,6 +626,7 @@ name parser::type() throw (runtime_error)
         name devType = curName;
         
         // TO DO check semantically if type is okay
+        // Dond by definition
         
         // TO ASK will devType be changed when getSymbol is called?
         scan.getSymbol(curSym, curName, curInt);
@@ -541,4 +659,19 @@ void parser::option(name devType) throw (runtime_error)
         error("Expected a device option.", stopSym, stopSym2); 
         throw runtime_error("Skipping to next line");
     }
+}
+
+deviceTemp parser::getDeviceTemp(namestring d){
+    
+    for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
+        if (d == i->name) {
+            deviceTemp dev = (*i);
+            return dev;
+        }
+    }
+    
+    cout << "UNEXPECTED ERROR IN getDeviceTemp" << endl;
+    
+   
+    
 }
