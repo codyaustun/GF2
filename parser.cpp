@@ -16,7 +16,7 @@ parser::parser(scanner s)
 }
 
 int main(){
-    scanner s1;
+    scanner s1(2,2,2);
     
     parser p1(s1);
     
@@ -110,7 +110,7 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     // TO DO make this sounds better
     cout << "Error (" << errorCount << "): ";
     if (curSym == BADSYM) {
-        cout << "Detected an invalid symbol." << endl;
+        cout << "Detected an invalid symbol. " << endl;
     }
     cout << message << endl;
     
@@ -147,7 +147,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     // TO DO make this sounds better
     cout << "Error (" << errorCount << "): ";
     if (curSym == BADSYM) {
-        cout << "Detected an invalid symbol.";
+        cout << "Detected an invalid symbol. ";
     }
     cout << message << endl;
     

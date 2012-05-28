@@ -42,11 +42,12 @@ typedef enum{
 class scanner {
 public:
     scanner();
+    scanner(int a, int b, int c);
     void getSymbol(symbol& s, name& nameid, int& num);
     void getCurrentLine();
 private:
     int index;
-    symbol syms[]; 
+    vector<symbol> syms; 
 };
 
 

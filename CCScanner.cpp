@@ -69,30 +69,80 @@ void symbolToString(symbol s){
     }
 }
 
-symbol ss[] = {DEVSYM, COLON, NAMESYM, EQUALS, 
-    TYPESYM, DOLLAR, NUMSYM, COMMA, NAMESYM, EQUALS, TYPESYM, DOLLAR, NUMSYM,
-    SEMICOL, CONSYM, COLON, NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM,
-    COMMA, NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM,
-    SEMICOL, MONSYM, COLON, NAMESYM, PERIOD, SIGSYM, COMMA,
-    NAMESYM, PERIOD, SIGSYM, SEMICOL, FINSYM, EOFSYM};
+scanner::scanner(int a, int b, int c){
+    symbol dev[] = {NAMESYM, EQUALS,  TYPESYM, DOLLAR, NUMSYM};
+    symbol conn[] = {NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM};
+    symbol mon1[] = {NAMESYM, PERIOD, SIGSYM};
+    symbol mon2[] = {NAMESYM, EQUALS, NAMESYM,PERIOD, SIGSYM};
 
+    syms.push_back(DEVSYM);
+    syms.push_back(COLON);
+    int len = 0;
+    for (int x = 0; x < a; x++) {
+        len = sizeof(dev)/sizeof(symbol);
+        for(int x2 = 0; x2 < len; x2++){
+            syms.push_back(dev[x2]);
+        }
+        
+        if ((a-x) != 1) {
+            syms.push_back(COMMA);
+        }else{
+            syms.push_back(SEMICOL);
+        }
+    }
+    
+    
+    
+    syms.push_back(CONSYM);
+    syms.push_back(COLON);
+    for (int y = 0; y < b; y++) {
+        len = sizeof(conn)/sizeof(symbol);
+        for(int y2 = 0; y2 < len; y2++){
+            syms.push_back(conn[y2]);
+        }
+        
+        if ((a-y) != 1) {
+            syms.push_back(COMMA);
+        }else{
+            syms.push_back(SEMICOL);
+        }
+    }
+    
+    syms.push_back(MONSYM);
+    syms.push_back(COLON);
+    for (int z = 0; z < c; z++) {
+        len = sizeof(mon1)/sizeof(symbol);
+        for(int z2 = 0; z2 < len; z2++){
+            syms.push_back(mon1[z2]);
+        }
+        
+        if ((a-z) != 1) {
+            syms.push_back(COMMA);
+        }else{
+            syms.push_back(SEMICOL);
+        }
+    }
+    
+    syms.push_back(FINSYM);
+    syms.push_back(EOFSYM);
+    
+    index = 0;
+    
+    
+
+    
+}
 
 scanner::scanner(){
     index = 0;
-    /* syms = {DEVSYM, COLON, NAMESYM, EQUALS, 
-        TYPESYM, DOLLAR, NUMSYM, COMMA, NAMESYM, EQUALS, TYPESYM, DOLLAR, NUMSYM,
-        SEMICOL, CONSYM, COLON, NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM,
-        COMMA, NAMESYM, PERIOD, SIGSYM, DASH, NAMESYM, PERIOD, SIGSYM,
-        SEMICOL, MONSYM, COLON, NAMESYM, PERIOD, SIGSYM, COMMA,
-        NAMESYM, PERIOD, SIGSYM, SEMICOL, FINSYM, EOFSYM};
-     */
 }
 
 
 void scanner::getSymbol(symbol& s, name& nameid, int& num){
+    
     if(s != EOFSYM){
         
-        s = ss[index];
+        s = syms[index];
         symbolToString(s);
         cout << " " << index << endl;
         ++index;
