@@ -302,7 +302,7 @@ void parser::device() throw (runtime_error)
     try {
         
         // check for name
-        nameCheck();
+        nameCheck(DEV);
         
         // check for equals sign
         if (curSym == EQUALS){
@@ -350,7 +350,7 @@ void parser::connection() throw (runtime_error)
     
     try {
         // check for first name
-        nameCheck();
+        nameCheck(DEV);
         
         // check for first period
         if(curSym == PERIOD){
@@ -364,7 +364,7 @@ void parser::connection() throw (runtime_error)
                 scan.getSymbol(curSym, curName, curInt);
                 
                 // check for second name
-                nameCheck();
+                nameCheck(DEV);
                 
                 // check for second period
                 if(curSym == PERIOD){
@@ -410,12 +410,12 @@ void parser::monitor() throw (runtime_error)
     try {
         // TO DO
         // check for name
-        nameCheck();
+        nameCheck(MON);
         
         if(curSym == EQUALS){
             scan.getSymbol(curSym, curName, curInt);
             // check for second name
-            nameCheck();
+            nameCheck(MON);
         }
         
         if (curSym == PERIOD) {
@@ -446,7 +446,7 @@ void parser::monitor() throw (runtime_error)
     
 }
 
-void parser::nameCheck() throw (runtime_error)
+void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
 {
     // TO DO figure out a way to tell between monitors and devices
     // EBNF: letter {letter|digit}
@@ -454,6 +454,18 @@ void parser::nameCheck() throw (runtime_error)
     if(curSym == NAMESYM){
         name newName = curName;
         
+        
+        switch (deviceOrMonitor) {
+            case DEV:
+                // TO DO
+                break;
+            case MON:
+                // TO DO
+                break;
+                
+            default:
+                break;
+        }
         // TO DO check semantically if name is okay.
         
         scan.getSymbol(curSym, curName, curInt);

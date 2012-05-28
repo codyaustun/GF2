@@ -13,6 +13,11 @@
 
 using std::runtime_error;
 
+typedef enum {
+    DEV = 1,
+    MON = 0
+} dom;
+
 class parser {
 public:
     bool readline();
@@ -35,11 +40,10 @@ private:
     void device() throw (runtime_error);
     void connection() throw (runtime_error);
     void monitor() throw (runtime_error);
-    void nameCheck() throw (runtime_error);
+    void nameCheck(dom deviceOrMonitor) throw (runtime_error);
     void signalCheck() throw (runtime_error);
     name type() throw (runtime_error);
     void option(name type) throw (runtime_error);
-    
 };
 
 
