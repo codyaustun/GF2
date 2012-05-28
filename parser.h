@@ -17,8 +17,7 @@ using std::runtime_error;
 
 typedef enum {
     DEV = 1,
-    MON = 0,
-    CON = 2
+    MON = 0
 } dom;
 
 struct deviceTemp{
@@ -63,8 +62,12 @@ private:
     void device() throw (runtime_error);
     void connection() throw (runtime_error);
     void monitor() throw (runtime_error);
+    
+    // TO DO see if you could compress this down
     namestring nameCheck() throw (runtime_error);
     void nameCheck(dom deviceOrMonitor) throw (runtime_error);
+    namestring nameCheck(namestring d) throw (runtime_error);
+    
     void signalCheck(namestring deviceName) throw (runtime_error);
     name type() throw (runtime_error);
     void option(name type) throw (runtime_error);

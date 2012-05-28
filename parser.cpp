@@ -420,19 +420,38 @@ void parser::monitor() throw (runtime_error)
     // EBNF: monitor = [name  ‘=’] name ‘.’ signal (',' | ‘;’)
     
     try {
-        // TO DO
+        // TO DO fix this mess
+        
+        
+        /*
+        // TO ASK ask team about this
         // check for name
+        if (!existsDevNames) {
+            if(curSYm == NAMESYM){
+                // TO DO hook up to names.cpp
+                namestring temp = "temp"; 
+                // namestring temp = namesTable.getname(curName);
+                nameCheck(MON);
+            }
+        }
+        */
         nameCheck(MON);
         
+        
+        // TO DO determine how to fix device vs monitor name confusion
         if(curSym == EQUALS){
             scan.getSymbol(curSym, curName, curInt);
             // check for second name
-            nameCheck(MON);
+            namestring devName = nameCheck();
         }
+        
         
         if (curSym == PERIOD) {
             scan.getSymbol(curSym, curName, curInt);
-            signalCheck();
+            
+            
+            // TO DO fix this
+            // signalCheck(devName);
             
             // TO DO make monitor
             
@@ -457,6 +476,21 @@ void parser::monitor() throw (runtime_error)
     }
     
 }
+
+/*
+namestring parser::nameCheck(namestring d) throw (runtime_error){
+    
+    if (!nameExist(devNames, d)){
+        stopSym = COMMA;
+        stopSym2 = SEMICOL;
+        error("The device "+d+" does not exist", stopSym,
+              stopSym2);
+        throw runtime_error("Skipping to next line");
+    }
+    
+    return d;
+}
+*/
 
 namestring parser::nameCheck() throw (runtime_error)
 {
