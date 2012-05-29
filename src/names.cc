@@ -7,7 +7,7 @@ using namespace std;
 
 /* Name storage and retrieval routines */
 
-names::names(void)
+names::names(void) //Initializes nametable with reserved keywords
 {
   nametable [0] = "DEVICES"; nametable [1] = "CONNECTIONS";
   nametable [2] = "MONITORS"; nametable [3] = "FIN";
@@ -15,64 +15,77 @@ names::names(void)
   nametable [6] = "AND"; nametable [7] = "NAND";
   nametable [8] = "OR"; nametable [9] = "NOR";
   nametable [10] = "DTYPE"; nametable [11] = "XOR";
-  nametable [12] = "0"; nametable [13] = "I1"; nametable [14] = "I2";
-  nametable [15] = "I3"; nametable [16] = "I4"; nametable [17] = "I5";
-  nametable [18] = "I6"; nametable [19] = "I7"; nametable [20] = "I8";
-  nametable [21] = "I9"; nametable [22] = "I10"; nametable [23] = "I11";
-  nametable [24] = "I12"; nametable [25] = "I13";
-  nametable [26] = "I14"; nametable [27] = "I15";
-  nametable [28] = "I16"; nametable [29] = "DATA";
-  nametable [30] = "CLK"; nametable [31] = "SET";
-  nametable [32] = "CLR"; nametable [33] = "Q";
-  nametable [34] = "QBAR";
+  nametable [12] = "I1"; nametable [13] = "I2";
+  nametable [14] = "I3"; nametable [15] = "I4"; 
+  nametable [16] = "I5"; nametable [17] = "I6"; 
+  nametable [18] = "I7"; nametable [19] = "I8";
+  nametable [20] = "I9"; nametable [21] = "I10"; 
+  nametable [22] = "I11"; nametable [23] = "I12";
+  nametable [24] = "I13"; nametable [25] = "I14"; 
+  nametable [26] = "I15"; nametable [27] = "I16"; 
+  nametable [28] = "DATA"; nametable [29] = "CLK";
+  nametable [30] = "SET"; nametable [31] = "CLR"; 
+  nametable [32] = "Q"; nametable [33] = "QBAR";
 }
 
-name names::lookup (namestring str)
+name names::cvtname (namestring str) 
 {
-  int i = 0;
+  name id = 0;
   bool found = false; 
-  while (found == false && i < nametable.size()) {
-    if ( nametable[i] == str ) {
+  while (found == false && id < nametable.size()) {
+    if ( nametable[id] == str ) {
       found = true;
-      return i;
-      exit;
-    }else {
-      i++;
-    }
-  }
-  if (found == false){
-    nametable.push_back(str);
-    return i;
-  }   
-}
-
-name names::cvtname (namestring str)
-{
-  int i = 0;
-  bool found = false; 
-  while (found == false && i < nametable.size()) {
-    if ( nametable[i] == str ) {
-      found = true;
-      return i;
-      exit;
+      return id;        
+      exit;               // Name found, id returned, search stopped
     } else {
-      i++;
+      id++;
     }
   }
   if (found == false){
-    return blankname;
+    return blankname;     // Name not found, blankname returned
   }
 }
+
+name names::lookup (namestring str) 
+{
+  name id = cvtname(str);
+  if (id == blankname) {
+    id = newname(str);
+    return id;
+  } else {
+    return id;
+  }
+}
+
+name names::newname (namestring str)
+{
+  if (str.length() > maxlength) {
+    str = str.substr(0,maxlength);
+  }
+  nametable.push_back(str);
+  name id = cvtname(str);
+  return id;
+}
+
+namestring names::getname(name id)
+ {
+   if (blankname < id < nametable.size()) {
+     namestring namestr = nametable[id];
+     return namestr;
+   } else return "Invalid Name ID";
+ }
 
 void names::writename (name id)
 {
-   cout << nametable[id] ;
+  cout << getname(id) ;
 }
 
 length names::namelength (name id)
 {
-  length strlength = nametable[id].length();
-  return strlength;
+  if (blankname < id < nametable.size()) {
+    length strlength = nametable[id].length();
+    return strlength;
+  } else return blankname;
 }
 
 

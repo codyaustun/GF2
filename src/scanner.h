@@ -14,20 +14,25 @@ typedef enum {DEVSYM, CONSYM, MONSYM, FINSYM, EOFSYM,
 	      DASH, PERIOD, COLON} symbol;
 
 class scanner {
-  char curch;                    // current input character
-  names* namesMod, char* defFile
+ private:
+  char curch;
+  string currentLine;
+  bool eofile; 
+  void getnumber(int& num);
+  void getname(name& id);
+  void getch();
+  void skipspaces();
 
-public:
-    scanner(names* namesMod, char* defFile);
-    ~scanner();
-    void getSymbol(symbol& s, name& id, int& num);
-    void getCurrentLine();
-    num getnumber(ifstream *infp, char &curch, bool &eofile, int &number);
-    name getname(ifstream *infp, char &curch, bool &eofile, namestring &str);
+ public:
+
+  scanner(names* namesMod, char* defFile);
+  ~scanner();
+  void getSymbol(symbol& s, name& id, int& num);
+  void getCurrentLine();
+
+ 
+  name lookup(namestring str);
+  
 };
-
-
-
-
 
 #endif
