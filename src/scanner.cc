@@ -10,24 +10,10 @@ using namespace std;
 
 scanner::scanner(names* namesMod, char* defFile)
 {
-  ifstream defFile;    // open defFile
-  defFile.open();
-  curch = "";
-  currentLine = "";
-}
-scanner::~scanner()
-{
-  defFile.close();    //close defFile
-}
+  ifstream defFile;  
+  inf.open(defFile);
 
-int openFile(int argc, char **argv){
-  ifstream inf;   //input file
-  char ch;        //current character
-  bool eofile;    //true when end of file is reached
-  int number = 0;
-  namestring str;
-
-  if (argc != 2) {
+  /*  if (argc != 2) {
     cout << "Usage:" << argv[0] << " [filename] " << endl;
     exit(1);
   }
@@ -36,8 +22,12 @@ int openFile(int argc, char **argv){
   if (!inf) {
     cout << "Error: Cannot open Definition file" << argv[1] << " for reading" << endl;
     exit(1);
-  } 
+    } */
+
 }
+
+scanner::~scanner() { defFile.close(); }
+
 
 void getSymbol(symbol& s, name& id, int& num){
   skipspaces();

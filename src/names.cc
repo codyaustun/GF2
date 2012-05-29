@@ -7,7 +7,7 @@ using namespace std;
 
 /* Name storage and retrieval routines */
 
-names::names(void)
+names::names(void) //Initializes nametable with reserved keywords
 {
   nametable [0] = "DEVICES"; nametable [1] = "CONNECTIONS";
   nametable [2] = "MONITORS"; nametable [3] = "FIN";
@@ -28,56 +28,64 @@ names::names(void)
   nametable [32] = "Q"; nametable [33] = "QBAR";
 }
 
-name names::lookup (namestring str)
+name names::cvtname (namestring str) 
 {
-  int i = 0;
+  name id = 0;
   bool found = false; 
-  while (found == false && i < nametable.size()) {
-    if ( nametable[i] == str ) {
+  while (found == false && id < nametable.size()) {
+    if ( nametable[id] == str ) {
       found = true;
-      return i;
-      exit;
-    }else {
-      i++;
+      return id;        
+      exit;               // Name found, id returned, search stopped
+    } else {
+      id++;
     }
   }
   if (found == false){
-    nametable.push_back(str);
-    return i;
-  }   
+    return blankname;     // Name not found, blankname returned
+  }
 }
 
-name names::cvtname (namestring str)
+name names::lookup (namestring str) 
 {
-  int i = 0;
-  bool found = false; 
-  while (found == false && i < nametable.size()) {
-    if ( nametable[i] == str ) {
-      found = true;
-      return i;
-      exit;
-    } else {
-      i++;
-    }
-  }
-  if (found == false){
-    return blankname;
+  name id = cvtname(str);
+  if (id == blankname) {
+    id = newname(str);
+    return id;
+  } else {
+    return id;
   }
 }
+
+name names::newname (namestring str)
+{
+  if (str.length() > maxlength) {
+    str = str.substr(0,maxlength);
+  }
+  nametable.push_back(str);
+  name id = cvtname(str);
+  return id;
+}
+
 namestring names::getname(name id)
  {
-   namestring namestr = nametable[id];
-   return namestr;
+   if (blankname < id < nametable.size()) {
+     namestring namestr = nametable[id];
+     return namestr;
+   } else return "Invalid Name ID";
  }
+
 void names::writename (name id)
 {
-   cout << nametable[id] ;
+  cout << getname(id) ;
 }
 
 length names::namelength (name id)
 {
-  length strlength = nametable[id].length();
-  return strlength;
+  if (blankname < id < nametable.size()) {
+    length strlength = nametable[id].length();
+    return strlength;
+  } else return blankname;
 }
 
 

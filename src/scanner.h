@@ -16,18 +16,23 @@ typedef enum {DEVSYM, CONSYM, MONSYM, FINSYM, EOFSYM,
 class scanner {
  private:
   char curch;
-  string currentLine; 
+  string currentLine;
+  bool eofile; 
+  void getnumber(int& num);
+  void getname(name& id);
+  void getch();
+  void skipspaces();
 
  public:
+
   scanner(names* namesMod, char* defFile);
   ~scanner();
   void getSymbol(symbol& s, name& id, int& num);
   void getCurrentLine();
-  void getnumber(int& num);
-  void getname(name& id);
-  void getch();
+
+ 
   name lookup(namestring str);
-  void skipspaces();
+  
 };
 
 #endif
