@@ -67,8 +67,6 @@ bool parser::readline()
             buildConnectionList();
         }
         
-        
-        
         // Check syntax rule that Monitor list should be third
         // Create Monitor List
         if (curSym == MONSYM) {
@@ -202,13 +200,8 @@ void parser::buildDeviceList()
         error("There should be a ';' at the end of the devices section.",
               stopSym);
     }
-    
-    // TO DO decide if we need this line
-    //scan.getSymbol(curSym, curName, curInt);
 
 }
-
-
 
 void parser::buildConnectionList()
 {
@@ -232,11 +225,10 @@ void parser::buildConnectionList()
     
     // check for SEMICOLON
     if (curSym != SEMICOL) {
-        stopSym = SEMICOL;
+        stopSym = curSym;
         error("There should be a ';' at the end of the connections section.",
               stopSym);
     }
-    scan.getSymbol(curSym, curName, curInt);
 }
 
 void parser::buildMonitorList()
@@ -261,55 +253,15 @@ void parser::buildMonitorList()
     
     // check for SEMICOLON
     if (curSym != SEMICOL) {
-        stopSym = SEMICOL;
+        stopSym = curSym;
         error("There should be a ';' at the end of the monitors section.",
               stopSym);
     }
-    scan.getSymbol(curSym, curName, curInt);
 }
 
 void parser::device() throw (runtime_error)
 {   
     // EBNF: device = name "=" type ['$' option] (',' or ';')
-    /* OLD WAY without exceptions
-    
-    nameCheck();
-    
-    // Outer if statement prevents double error reporting
-    // TO DO Try to find a better way of doing this.
-    // Maybe do exceptions... See if there is any memory I need to release.
-    // Possibly need to release information that is saved for actually creating the 
-    // device.
-    if (curSym != COMMA && curSym != SEMICOL){
-        if (curSym == EQUALS){
-            scan.getSymbol(curSym, curName, curInt);
-            name devType = type();
-            // TO ASK will devType be changed when getSymbol is called?
-            // Outer if statement prevents double error reporting
-            if (curSym != COMMA && curSym != SEMICOL){
-                scan.getSymbol(curSym, curName, curInt);
-                if (curSym == DOLLAR) {
-                    scan.getSymbol(curSym, curName, curInt);
-                    option(devType);
-                    
-                    // TO DO build device
-                    
-                    scan.getSymbol(curSym, curName, curInt);
-                    
-                }else{
-                    stopSym = COMMA;
-                    stopSym2 = SEMICOL;
-                    error("Expected a dollar sign.", stopSym,
-                          stopSym2);  
-                }
-            }
-        }else{
-            stopSym = COMMA;
-            stopSym2 = SEMICOL;
-            error("Expected an equals sign.", stopSym, stopSym2);
-        }
-    }
-    */
     
     try {
         
@@ -325,7 +277,7 @@ void parser::device() throw (runtime_error)
             
             
             // XOR doesn't have options
-            if (devType != 11){
+            if (devType < 10){
             // check for dollar sign
                 if (curSym == DOLLAR) {
                     scan.getSymbol(curSym, curName, curInt);
@@ -425,41 +377,17 @@ void parser::connection() throw (runtime_error)
 
 void parser::monitor() throw (runtime_error)
 {
-    // EBNF: monitor = [name  ‘=’] name ‘.’ signal (',' | ‘;’)
+    // EBNF: monitor = name ‘.’ signal (',' | ‘;’)
     
     try {
-        // TO DO fix this mess
-        
-        
-        /*
-        // TO ASK ask team about this
-        // check for name
-        if (!existsDevNames) {
-            if(curSYm == NAMESYM){
-                // TO DO hook up to names.cpp
-                namestring temp = "temp"; 
-                // namestring temp = namesTable.getname(curName);
-                nameCheck(MON);
-            }
-        }
-        */
-        nameCheck(MON);
-        
-        
-        // TO DO determine how to fix device vs monitor name confusion
-        if(curSym == EQUALS){
-            scan.getSymbol(curSym, curName, curInt);
-            // check for second name
-            namestring devName = nameCheck();
-        }
-        
+            
+        namestring devName = nameCheck();
         
         if (curSym == PERIOD) {
             scan.getSymbol(curSym, curName, curInt);
             
             
-            // TO DO fix this
-            // signalCheck(devName);
+            signalCheck(devName);
             
             // TO DO make monitor
             
@@ -467,7 +395,7 @@ void parser::monitor() throw (runtime_error)
         }else{
             stopSym = COMMA;
             stopSym2 = SEMICOL;
-            error("Expected a period or equals sign", stopSym,
+            error("Expected a period sign", stopSym,
                   stopSym2); 
         }
         
@@ -484,21 +412,6 @@ void parser::monitor() throw (runtime_error)
     }
     
 }
-
-/*
-namestring parser::nameCheck(namestring d) throw (runtime_error){
-    
-    if (!nameExist(devNames, d)){
-        stopSym = COMMA;
-        stopSym2 = SEMICOL;
-        error("The device "+d+" does not exist", stopSym,
-              stopSym2);
-        throw runtime_error("Skipping to next line");
-    }
-    
-    return d;
-}
-*/
 
 namestring parser::nameCheck() throw (runtime_error)
 {
@@ -546,42 +459,13 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
         
         // TO DO Test this
         // check semantically if name is okay.
-        switch (deviceOrMonitor) {
-            // Don't want device to exist
-            case DEV:
-                // Does not add name to monNames.
-                // Calling function must do that.
-                if (nameExist(devNames, newName)){
-                    stopSym = COMMA;
-                    stopSym2 = SEMICOL;
-                    error("The name "+newName+" has already been used", stopSym,
-                          stopSym2);
-                    throw runtime_error("Skipping to next line");
-                }
-                break;
-                
-            // Don't want Monitor to exist
-            case MON:
-                // Does not add name to monNames.
-                // Calling function must do that.
-                if (nameExist(monNames, newName)){
-                    stopSym = COMMA;
-                    stopSym2 = SEMICOL;
-                    error("The name "+newName+" has already been used", stopSym,
-                          stopSym2);
-                    throw runtime_error("Skipping to next line");
-                }
-                break;
-                
-            default:
-                stopSym = COMMA;
-                stopSym2 = SEMICOL;
-                error("Unexpected error", stopSym,
-                      stopSym2);
-                throw runtime_error("Skipping to next line");
-                break;
+        if (nameExist(devNames, newName)){
+            stopSym = COMMA;
+            stopSym2 = SEMICOL;
+            error("The name "+newName+" has already been used", stopSym,
+                  stopSym2);
+            throw runtime_error("Skipping to next line");
         }
-        
         
         scan.getSymbol(curSym, curName, curInt);
      
@@ -616,20 +500,6 @@ bool parser::nameExist(vector<string> names, namestring str)
     return found;
 }
 
-// TO DO remove this
-/*
-bool parser::nameExist(vector<deviceTemp> devices, deviceTemp d){
-    bool found = 0;
-    
-    for (vector<deviceTemp>::iterator i = devices.begin(); i != devices.end(); ++i) {
-        if (d.name == i->name) {
-            found = 1;
-        }
-    }
-    return found;
-}
-*/
-
 
 void parser::signalCheck(namestring deviceName) throw (runtime_error)
 {
@@ -656,8 +526,9 @@ void parser::signalCheck(namestring deviceName) throw (runtime_error)
                 }
                 break;
             case 2:
+                // TO DO figure this out
                 if ((devSignal > 11) && (devSignal < 29)) {
-                    if (dev.option < devSignal-12){
+                    if ((dev.option >= (devSignal-12))){
                         // TO DO figure out how to do this with Niran
                     }
                 }else{
@@ -707,6 +578,7 @@ name parser::type() throw (runtime_error)
     // EBNF: type = (“CLOCK”|”SWITCH”|”AND”|”NAND”|”OR”|”NOR”|”DTYPE”|”XOR”)
     
     if (curSym == TYPESYM) {
+        // PBUG could change with getSymbol
         name devType = curName;
         
         // TO DO check semantically if type is okay
