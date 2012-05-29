@@ -63,7 +63,11 @@ name names::cvtname (namestring str)
     return blankname;
   }
 }
-
+ namestring getname(name id)
+ {
+   name = nametable[id];
+   return name;
+ }
 void names::writename (name id)
 {
    cout << nametable[id] ;

@@ -65,17 +65,74 @@ void getSymbol(symbol& s, name& id, int& num){
 void skipspaces(ifstream *infp, char &curch, bool &eofile)
 {
  eofile = (infp->get(curch) == 0 ); 
-
  while (!eofile) {
    if (isspace(curch) == 0) {
-     cout << curch;
+     //cout << curch;
      eofile = (infp->get(curch) == 0);
    }
    else { eofile = (infp->get(curch) == 0); } 
  }
- cout << endl;
 }
 
-void getCurrentLine(){
-    
+void getCurrentLine(ifstream *infp, char &curch, bool &eofile)
+{
+   eofile = (infp->get(curch) == 0 ); 
+   while (!eofile) {
+     if (isspace(curch) == 0) {
+       cout << curch;
+       eofile = (infp->get(curch) == 0);
+     }
+     else { eofile = (infp->get(curch) == 0); } 
+   }
 };
+
+
+
+ name getname(ifstream *infp, char &curch, bool &eofile, namestring &str)
+{
+  eofile = (infp->get(curch) == 0 ); 
+  int i = 1;
+  while (!eofile) {
+
+    if (isalpha(curch)) {
+      while (!eofile && isalnum(curch)) {
+	str.push_back(curch) ;                 
+	if ( i == maxlength) {
+	  cout << lookup(str) << endl;
+	  nametable.push_back(str);
+	  return lookup(str);
+	}  
+	i = i+1;
+	eofile = (infp->get(curch) == 0);
+      }
+      if (i < maxlength) {
+	cout << lookup(str) << endl;
+	nametable.push_back(str);
+	return lookup(str);
+      } else {
+	cout << "Warning: name " << str << " was truncated. " << endl;
+      }
+
+      str.clear();
+      i = 1;
+    }
+    else {
+      eofile = (infp->get(curch) == 0);
+    }
+  }
+}
+
+void getnumber(ifstream *infp, char &curch, bool &eofile, int &number)
+{
+ eofile = (infp->get(curch) == 0 ); 
+ while (!eofile) {
+   if (isspace(curch) == 0) {
+     number = 10*number + atoi(&curch) ;
+     eofile = (infp->get(curch) == 0);
+   }
+   else { 
+     eofile = (infp->get(curch) == 0);
+   } 
+ }
+ cout << number << endl;
+}
