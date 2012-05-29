@@ -15,16 +15,17 @@ names::names(void)
   nametable [6] = "AND"; nametable [7] = "NAND";
   nametable [8] = "OR"; nametable [9] = "NOR";
   nametable [10] = "DTYPE"; nametable [11] = "XOR";
-  nametable [12] = "0"; nametable [13] = "I1"; nametable [14] = "I2";
-  nametable [15] = "I3"; nametable [16] = "I4"; nametable [17] = "I5";
-  nametable [18] = "I6"; nametable [19] = "I7"; nametable [20] = "I8";
-  nametable [21] = "I9"; nametable [22] = "I10"; nametable [23] = "I11";
-  nametable [24] = "I12"; nametable [25] = "I13";
-  nametable [26] = "I14"; nametable [27] = "I15";
-  nametable [28] = "I16"; nametable [29] = "DATA";
-  nametable [30] = "CLK"; nametable [31] = "SET";
-  nametable [32] = "CLR"; nametable [33] = "Q";
-  nametable [34] = "QBAR";
+  nametable [12] = "I1"; nametable [13] = "I2";
+  nametable [14] = "I3"; nametable [15] = "I4"; 
+  nametable [16] = "I5"; nametable [17] = "I6"; 
+  nametable [18] = "I7"; nametable [19] = "I8";
+  nametable [20] = "I9"; nametable [21] = "I10"; 
+  nametable [22] = "I11"; nametable [23] = "I12";
+  nametable [24] = "I13"; nametable [25] = "I14"; 
+  nametable [26] = "I15"; nametable [27] = "I16"; 
+  nametable [28] = "DATA"; nametable [29] = "CLK";
+  nametable [30] = "SET"; nametable [31] = "CLR"; 
+  nametable [32] = "Q"; nametable [33] = "QBAR";
 }
 
 name names::lookup (namestring str)
@@ -63,10 +64,10 @@ name names::cvtname (namestring str)
     return blankname;
   }
 }
- namestring getname(name id)
+namestring names::getname(name id)
  {
-   name = nametable[id];
-   return name;
+   namestring namestr = nametable[id];
+   return namestr;
  }
 void names::writename (name id)
 {

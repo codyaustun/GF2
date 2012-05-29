@@ -15,10 +15,10 @@ typedef string namestring;
 typedef unsigned int length;
 
 class names{
-
+ private:
   vector<namestring> nametable;
 
-public:
+ public:
 
   name lookup (namestring str);
     /* Returns the internal representation of the name given in character  */

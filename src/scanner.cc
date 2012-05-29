@@ -8,7 +8,19 @@
 
 using namespace std;
 
-int main(int argc, char **argv){
+scanner::scanner(names* namesMod, char* defFile)
+{
+  ifstream defFile;    // open defFile
+  defFile.open();
+  curch = "";
+  currentLine = "";
+}
+scanner::~scanner()
+{
+  defFile.close();    //close defFile
+}
+
+int openFile(int argc, char **argv){
   ifstream inf;   //input file
   char ch;        //current character
   bool eofile;    //true when end of file is reached
@@ -24,8 +36,7 @@ int main(int argc, char **argv){
   if (!inf) {
     cout << "Error: Cannot open Definition file" << argv[1] << " for reading" << endl;
     exit(1);
-  }
- 
+  } 
 }
 
 void getSymbol(symbol& s, name& id, int& num){
@@ -34,10 +45,10 @@ void getSymbol(symbol& s, name& id, int& num){
   else {
     if (isdigit(curch)) {
       s = NUMSYM;
-      //getnumber(num);
+      getnumber(num);
     } else {
       if (isalpha(curch)) {
-	//getname(id);
+	getname(id);
 	if (id == 0) s = DEVSYM; else
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
@@ -56,7 +67,7 @@ void getSymbol(symbol& s, name& id, int& num){
 	case '-': s = DASH; break;
 	default: s = BADSYM; break;
 	}
-	//getch();
+	getch();
       } 
     }
   }		    
@@ -68,9 +79,9 @@ void skipspaces(ifstream *infp, char &curch, bool &eofile)
  while (!eofile) {
    if (isspace(curch) == 0) {
      //cout << curch;
-     eofile = (infp->get(curch) == 0);
+    getch();
    }
-   else { eofile = (infp->get(curch) == 0); } 
+   else {getch(); } 
  }
 }
 
@@ -80,59 +91,64 @@ void getCurrentLine(ifstream *infp, char &curch, bool &eofile)
    while (!eofile) {
      if (isspace(curch) == 0) {
        cout << curch;
-       eofile = (infp->get(curch) == 0);
+      getch();
      }
-     else { eofile = (infp->get(curch) == 0); } 
+     else {getch(); } 
    }
 };
 
-
-
- name getname(ifstream *infp, char &curch, bool &eofile, namestring &str)
+void getname(ifstream *infp, char &curch, bool &eofile, namestring &str)
 {
   eofile = (infp->get(curch) == 0 ); 
   int i = 1;
-  while (!eofile) {
-
-    if (isalpha(curch)) {
-      while (!eofile && isalnum(curch)) {
-	str.push_back(curch) ;                 
-	if ( i == maxlength) {
-	  cout << lookup(str) << endl;
-	  nametable.push_back(str);
-	  return lookup(str);
-	}  
-	i = i+1;
-	eofile = (infp->get(curch) == 0);
-      }
-      if (i < maxlength) {
-	cout << lookup(str) << endl;
-	nametable.push_back(str);
-	return lookup(str);
-      } else {
-	cout << "Warning: name " << str << " was truncated. " << endl;
-      }
-
-      str.clear();
-      i = 1;
-    }
-    else {
-      eofile = (infp->get(curch) == 0);
-    }
+  while (isalnum(curch)) {
+    str.push_back(curch) ;        
+    if ( i == maxlength) {
+      id = lookup(str);
+    } 
+    i = i+1;
+   getch();
   }
+
+  if (i < maxlength) {
+    id = lookup(str);
+  } else {
+    cout << "Warning: name " << str << " was truncated. " << endl;
+  }   
 }
 
 void getnumber(ifstream *infp, char &curch, bool &eofile, int &number)
 {
  eofile = (infp->get(curch) == 0 ); 
- while (!eofile) {
-   if (isspace(curch) == 0) {
+ while (isnum(curch)) {
      number = 10*number + atoi(&curch) ;
-     eofile = (infp->get(curch) == 0);
+    getch();
    }
-   else { 
-     eofile = (infp->get(curch) == 0);
-   } 
- }
- cout << number << endl;
+   num = number;
+}
+
+name lookup(namestring str)
+{
+  int i = 0;
+  bool found = false; 
+  while (found == false && i < nametable.size()) {
+    if ( nametable[i] == str ) {
+      found = true;
+      return i;
+      exit;
+    } else {
+      i++;
+    }
+  }
+  if (found == false){
+    nametable.push_back(str);
+    return i;
+  }   
+ 
+}
+
+void getch()
+{
+  defFileP = *defFile;
+  eofile = (defFileP->get(curch) == 0);
 }
