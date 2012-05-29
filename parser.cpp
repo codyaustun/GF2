@@ -383,23 +383,9 @@ void parser::monitor() throw (runtime_error)
             
         name devName = nameCheck();
         
-        if (curSym == PERIOD) {
-            scan.getSymbol(curSym, curName, curInt);
-            
-            
-            signalCheck(devName);
-            
-            // TO DO make monitor
-            
-            
-        }else{
-            
-                        
-            stopSym = COMMA;
-            stopSym2 = SEMICOL;
-            error("Expected a period sign", stopSym,
-                  stopSym2); 
-        }
+        signalCheck(devName);
+        
+        // TO DO make monitor
         
         
     } catch (runtime_error e) {
@@ -520,70 +506,92 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
     
     
     // device must exist by the time this function is called
-    if(curSym == SIGSYM){
-        name devSignal = curName;
-        
-        
-        // TO DO check semantically if name is okay.
-        // ONLY need to check if data type is right
-        deviceTemp dev = getDeviceTemp(deviceName);
-        switch (dev.type) {
-            case 0:
-                if (devSignal != 12){
-                    nextLine("A clock only has an output.");
-                }
-                break;
-            case 1:
-                if (devSignal != 12){
-                    nextLine("A switch only has an output.");
-                }
-                break;
-            case 2:
-                // TO DO figure this out
-                if ((devSignal > 11) && (devSignal < 29)) {
-                    if ((dev.option >= (devSignal-12))){
-                        // TO DO figure out how to do this with Niran
-                    }
-                }else{
-                    nextLine("A device only has standard inputs and outputs.");
-                }
-                break;
-            case 3:
-                // TO DO same as case 2
-                break;
-            case 4:
-                // TO DO same as case 2
-                break;
-            case 5:
-                // TO DO same as case 2
-                break;
-            case 6:
-                // TO DO
-                break;
-            case 7:
-                if (!((devSignal > 11) && (devSignal < 15))){
-                    nextLine("A XOR only has 1 output and 2 inputs.");
-                }
-                break;
-                
-            default:
-                nextLine("Unexpected error");
-                break;
-        }
-       
-        
-        
+    deviceTemp dev = getDeviceTemp(deviceName);
+    if (curSym == PERIOD) {
         scan.getSymbol(curSym, curName, curInt);
+        if(curSym == SIGSYM){
+            name devSignal = curName;
+            
+            
+            // TO DO check semantically if name is okay.
+            // ONLY need to check if data type is right
+            deviceTemp dev = getDeviceTemp(deviceName);
+            switch (dev.type) {
+                case 0:
+                    nextLine("A clock's output is just specified by the clock's name.");
+                    break;
+                case 1:
+                    nextLine("A switch's output is just specified by the clock's name.");
+                    break;
+                case 2:
+                    if ((devSignal > 11) && (devSignal < 28)) {
+                        if (!(dev.option >= (devSignal-11))){
+                            nextLine("This gate doesn't have that many inputs.");
+                        }
+                    }else{
+                        nextLine("A gate only has standard inputs and an output.");
+                    }
+                    break;
+                case 3:
+                    if ((devSignal > 11) && (devSignal < 28)) {
+                        if (!(dev.option >= (devSignal-11))){
+                            nextLine("This gate doesn't have that many inputs.");
+                        }
+                    }else{
+                        nextLine("A gate only has standard inputs and an output.");
+                    }
+                    break;
+                case 4:
+                    if ((devSignal > 11) && (devSignal < 28)) {
+                        if (!(dev.option >= (devSignal-11))){
+                            nextLine("This gate doesn't have that many inputs.");
+                        }
+                    }else{
+                        nextLine("A gate only has standard inputs and an output.");
+                    }
+                    break;
+                case 5:
+                    if ((devSignal > 11) && (devSignal < 28)) {
+                        if (!(dev.option >= (devSignal-11))){
+                            nextLine("This gate doesn't have that many inputs.");
+                        }
+                    }else{
+                        nextLine("A gate only has standard inputs and an output.");
+                    }
+                    break;
+                case 6:
+                    if (!((devSignal > 27) && (devSignal < 34))) {
+                        nextLine("A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR");
+                    }
+                    break;
+                case 7:
+                    if (!((devSignal > 11) && (devSignal < 14))){
+                        nextLine("A XOR only 2 inputs.");
+                    }
+                    break;
+                    
+                default:
+                    nextLine("Unexpected error");
+                    break;
+            }
+            
+            
+            
+            scan.getSymbol(curSym, curName, curInt);
+            
+        }else{
+            nextLine("Expected an input or output");
+        }
+
         
     }else{
-        stopSym = COMMA;
-        stopSym2 = SEMICOL;
-        error("Expected an input or output", stopSym,
-              stopSym2);
-        throw runtime_error("Skipping to next line");
+        if (dev.type == 6){
+            nextLine("You must specify either an input or output of a DTYPE");
+        }
+        
+        // Assuming wanted signal is a device output
+        // TO DO check if output has already been used
     }
-    
-    
 }
 
 name parser::type() throw (runtime_error)
