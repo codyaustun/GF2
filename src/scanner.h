@@ -1,7 +1,12 @@
 #ifndef scanner_h
 #define scanner_h
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <cctype>
 #include <string>
 #include <vector>
+#include "names.h"
 
 using namespace std;
 
@@ -9,30 +14,37 @@ using namespace std;
 
 typedef int name;
 typedef enum {DEVSYM, CONSYM, MONSYM, FINSYM, EOFSYM,
-	      NAMESYM, NUMSYM, SIGSYM, TYPESYM, BADSYM,
+	      NAMESYM, NUMSYM, SIGSYM, TYPSYM, BADSYM,
 	      EQUALS, SEMICOL, COMMA, DOLLAR,
 	      DASH, PERIOD, COLON} symbol;
 
 class scanner {
+
  private:
-  char curch;
-  string currentLine;
-  bool eofile; 
-  void getnumber(int& num);
-  void getname(name& id);
-  void getch();
-  void skipspaces();
+  ifstream inf;          // Input definition file
+  bool fileOpened;       // True when definition file opened
+  char curch;            // Current character
+  string currentLine;    // Current Line
+  bool eofile;           // True when end of file is reached
+  names* dfnames;         // Names table
+  void skipspaces();     // Skips white spaces
+  void skipcomments();   // Skips commments
+
+  void getnumber(int &number);  /* Reads number from defFile */
+
+  void getname(name& id);   /* Reads names (alphanumeric) from defFile */
+
+  void getch();   /* Reads next character, updates curch and currentLine string */
 
  public:
-
   scanner(names* namesMod, char* defFile);
   ~scanner();
   void getSymbol(symbol& s, name& id, int& num);
-  void getCurrentLine();
+  string getCurrentLine();
 
  
   name lookup(namestring str);
   
 };
 
-#endif
+#endif /* scanner_h */

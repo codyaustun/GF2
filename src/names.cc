@@ -35,8 +35,7 @@ name names::cvtname (namestring str)
   while (found == false && id < nametable.size()) {
     if ( nametable[id] == str ) {
       found = true;
-      return id;        
-      exit;               // Name found, id returned, search stopped
+      return id;          // Name found, id returned, search stopped
     } else {
       id++;
     }

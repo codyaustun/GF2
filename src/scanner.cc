@@ -5,32 +5,37 @@
 #include <vector>
 #include <string>
 #include "scanner.h"
+#include "names.h"
 
 using namespace std;
 
 scanner::scanner(names* namesMod, char* defFile)
 {
-  ifstream defFile;  
-  inf.open(defFile);
-
-  /*  if (argc != 2) {
-    cout << "Usage:" << argv[0] << " [filename] " << endl;
-    exit(1);
-  }
-
-  inf.open(argv[1]);
+  inf.open(defFile); // Open defFile
   if (!inf) {
-    cout << "Error: Cannot open Definition file" << argv[1] << " for reading" << endl;
-    exit(1);
-    } */
-
+    cout << "Cannot open file " << defFile << endl;
+    fileOpened = false;
+    exit;
+  }
+ 
+  fileOpened = true;
+  inf.clear();
+  inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
+  currentLine.clear();
 }
 
-scanner::~scanner() { defFile.close(); }
+scanner::~scanner()
+{
+  inf.close(); // Close defFile
+}
 
 
-void getSymbol(symbol& s, name& id, int& num){
+void scanner::getSymbol(symbol& s, name& id, int& num)
+{
+  eofile = (inf.get(curch) == 0);
   skipspaces();
+  skipcomments();
+
   if (eofile) s = EOFSYM;
   else {
     if (isdigit(curch)) {
@@ -43,8 +48,8 @@ void getSymbol(symbol& s, name& id, int& num){
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
 	      if (id == 3) s = FINSYM; else
-		if (3 < id < 12) s = TYPSYM; else
-		  if(11 < id < 35) s = SIGSYM; else
+		if (3 < id < 12) s = TYPSYM; else    //4-11
+		  if(11 < id < 34) s = SIGSYM; else  //12-33
 		    s = NAMESYM;
       } else {
 	switch (curch) {
@@ -63,82 +68,70 @@ void getSymbol(symbol& s, name& id, int& num){
   }		    
 };
 
-void skipspaces(ifstream *infp, char &curch, bool &eofile)
+void scanner::skipspaces()
 {
- eofile = (infp->get(curch) == 0 ); 
- while (!eofile) {
-   if (isspace(curch) == 0) {
-     //cout << curch;
+  while (!eofile && isspace(curch)) {
     getch();
    }
-   else {getch(); } 
  }
+void scanner::skipcomments()
+{
+  if (curch == '/') {
+  //currentLine.clear();
+    eofile = (inf.get(curch) == 0);
+    while (!eofile && curch != '/') {
+      eofile = (inf.get(curch) == 0);
+    }
+  }
+  if (eofile) {
+    cout << " Comment not closed " << endl;
+  }
+}
+string scanner::getCurrentLine()
+{
+  while (curch == ':' || curch == ';' || curch == ',') {
+    currentLine.push_back(curch);
+  }
+  return currentLine;
 }
 
-void getCurrentLine(ifstream *infp, char &curch, bool &eofile)
+void scanner::getname(name &id)
 {
-   eofile = (infp->get(curch) == 0 ); 
-   while (!eofile) {
-     if (isspace(curch) == 0) {
-       cout << curch;
-      getch();
-     }
-     else {getch(); } 
-   }
-};
-
-void getname(ifstream *infp, char &curch, bool &eofile, namestring &str)
-{
-  eofile = (infp->get(curch) == 0 ); 
   int i = 1;
-  while (isalnum(curch)) {
+  namestring str;
+  while (isalnum(curch)) {     // Read characters, save to str
     str.push_back(curch) ;        
-    if ( i == maxlength) {
-      id = lookup(str);
+    if ( i == maxlength) {     // If str reaches maxlength, put in table, keep reading 
+      id = dfnames->lookup(str);
     } 
     i = i+1;
-   getch();
+    getch();
   }
+ 
+  // if (!isspace(curch)) cout << "Check name; alphanumeric beginning stored" << endl;
 
-  if (i < maxlength) {
-    id = lookup(str);
-  } else {
+  if (i < maxlength) {         // If str < maxlength, put in table
+    id = dfnames->lookup(str);
+  } else {                     // If str > maxlength, inform user
     cout << "Warning: name " << str << " was truncated. " << endl;
   }   
 }
 
-void getnumber(ifstream *infp, char &curch, bool &eofile, int &number)
+void scanner::getnumber(int &number)
 {
- eofile = (infp->get(curch) == 0 ); 
- while (isnum(curch)) {
-     number = 10*number + atoi(&curch) ;
+  number = 0;                 // Clear variable
+  while (isdigit(curch)) {      // Read number from file
+     number = 10*number + atoi(&curch);
     getch();
    }
-   num = number;
 }
 
-name lookup(namestring str)
+void scanner::getch()
 {
-  int i = 0;
-  bool found = false; 
-  while (found == false && i < nametable.size()) {
-    if ( nametable[i] == str ) {
-      found = true;
-      return i;
-      exit;
-    } else {
-      i++;
-    }
+  eofile = (inf.get(curch) == 0);
+  if (curch == ':' || curch == ';' || curch == ',') {
+    currentLine.clear();
+  } else {
+    currentLine.push_back(curch);
   }
-  if (found == false){
-    nametable.push_back(str);
-    return i;
-  }   
- 
-}
-
-void getch()
-{
-  defFileP = *defFile;
-  eofile = (defFileP->get(curch) == 0);
 }
