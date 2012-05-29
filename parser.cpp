@@ -393,6 +393,8 @@ void parser::monitor() throw (runtime_error)
             
             
         }else{
+            
+                        
             stopSym = COMMA;
             stopSym2 = SEMICOL;
             error("Expected a period sign", stopSym,

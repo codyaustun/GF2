@@ -1,0 +1,8 @@
+Shit To Do (STD):
+- Define a semantic rule for max clock option
+- modify EBNF to reflect changes to device rule
+- modify EBNF to reflect removal of option monitor names
+- modify EBNF to reflect the fact that not all signals are in the form name.signal
+-- change connection rule
+-- change monitor rule
+ 
