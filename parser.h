@@ -35,7 +35,7 @@ public:
     */
 private:
     symbol curSym;    // Current symbol
-    name curName;     // Current name if curSym is a namesym
+    name curName;     // Current name if curSym is a name, type, or sig symbol
     int curInt;       // Current integer value if curSym is a numsym
     int errorCount;   // Number of errors
     symbol stopSym;   // First stop symbol for error control
@@ -47,15 +47,18 @@ private:
     */
     
     // Needed for semantic error control
-    vector<string> devNames;
-    vector<string> monNames;
-    vector<deviceTemp> madeD;
+    vector<string> devNames;    // Vector of successfully create device names
+    vector<string> monNames;    // Vector of successfully create monitor names
+    vector<deviceTemp> madeD;   // Vector of successfully created devices
     
 
     
-    // Needed for syntax error control
+    // Needed for error reporting
     void error(string message, symbol stop) throw (runtime_error); 
     void error(string message, symbol stop1, symbol stop2) throw (runtime_error);
+    void nextLine(string message);
+    
+    // Needed for structure and syntax error handling
     void buildDeviceList();
     void buildConnectionList();
     void buildMonitorList();

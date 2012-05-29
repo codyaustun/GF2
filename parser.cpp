@@ -323,14 +323,22 @@ void parser::device() throw (runtime_error)
             // check type
             name devType = type();
             
+            
+            // XOR doesn't have options
+            if (devType != 11){
             // check for dollar sign
-            if (curSym == DOLLAR) {
-                scan.getSymbol(curSym, curName, curInt);
-                
-                // check for device option
-                option(devType);
+                if (curSym == DOLLAR) {
+                    scan.getSymbol(curSym, curName, curInt);
+                    
+                    // check for device option
+                    option(devType);
+            }
                 
                 // TO DO build device
+                // add name to devNames
+                // create deviceTemp
+                // when creating deviceTemp subtract 4 from devType
+                
                 
             }else{
                 stopSym = COMMA;
@@ -530,7 +538,7 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
-        
+        // TO DO possibly change this to used name id
         // TO DO hook up to names.cpp
         namestring newName = "temp"; 
         // namestring newName = namesTable.getname(curName);
@@ -636,6 +644,48 @@ void parser::signalCheck(namestring deviceName) throw (runtime_error)
         // TO DO check semantically if name is okay.
         // ONLY need to check if data type is right
         deviceTemp dev = getDeviceTemp(deviceName);
+        switch (dev.type) {
+            case 0:
+                if (devSignal != 12){
+                    nextLine("A clock only has an output.");
+                }
+                break;
+            case 1:
+                if (devSignal != 12){
+                    nextLine("A switch only has an output.");
+                }
+                break;
+            case 2:
+                if ((devSignal > 11) && (devSignal < 29)) {
+                    if (dev.option < devSignal-12){
+                        // TO DO figure out how to do this with Niran
+                    }
+                }else{
+                    nextLine("A device only has standard inputs and outputs.");
+                }
+                break;
+            case 3:
+                // TO DO same as case 2
+                break;
+            case 4:
+                // TO DO same as case 2
+                break;
+            case 5:
+                // TO DO same as case 2
+                break;
+            case 6:
+                // TO DO
+                break;
+            case 7:
+                if (!((devSignal > 11) && (devSignal < 15))){
+                    nextLine("A XOR only has 1 output and 2 inputs.");
+                }
+                break;
+                
+            default:
+                nextLine("Unexpected error");
+                break;
+        }
        
         
         
@@ -660,7 +710,7 @@ name parser::type() throw (runtime_error)
         name devType = curName;
         
         // TO DO check semantically if type is okay
-        // Dond by definition
+        // Done by definition
         
         // TO ASK will devType be changed when getSymbol is called?
         scan.getSymbol(curSym, curName, curInt);
@@ -684,6 +734,68 @@ void parser::option(name devType) throw (runtime_error)
         int option = curInt;
         
         // TO DO check semantically if option is okay
+        switch (devType) {
+            case 4:
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A clock does not have this option.");
+                }
+                break;
+            case 5:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A switch does not have this option.");
+                }
+                break;
+            case 6:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("An AND does not have this option.");
+                }
+                break;
+            case 7:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A NAND does not have this option.");
+                }
+                break;
+            case 8:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A OR does not have this option.");
+                }
+                
+                break;
+            case 9:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A NOR does not have this option.");
+                }
+                break;
+            case 10:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A DTYPE does not have this option.");
+                }
+                break;
+            case 11:
+                // TO DO
+                // TO DO Figure out actual condition
+                if (option != 0){
+                    nextLine("A XOR does not have this option.");
+                }
+                break;
+                
+            default:
+                nextLine("Unexpected error");
+                break;
+        }
         
         scan.getSymbol(curSym, curName, curInt);
         
@@ -708,4 +820,14 @@ deviceTemp parser::getDeviceTemp(namestring d){
     
    
     
+}
+
+
+// TO DO replace old method with this
+void parser::nextLine(string message){
+    stopSym = COMMA;
+    stopSym2 = SEMICOL;
+    error(message, stopSym,
+          stopSym2);
+    throw runtime_error("Skipping to next line");
 }
