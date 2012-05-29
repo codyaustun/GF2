@@ -322,7 +322,7 @@ void parser::connection() throw (runtime_error)
     
     try {
         // check for first name
-        namestring devName1 = nameCheck();
+        name devName1 = nameCheck();
         
         // check for first period
         if(curSym == PERIOD){
@@ -336,7 +336,7 @@ void parser::connection() throw (runtime_error)
                 scan.getSymbol(curSym, curName, curInt);
                 
                 // check for second name
-                namestring devName2 = nameCheck();
+                name devName2 = nameCheck();
                 
                 // check for second period
                 if(curSym == PERIOD){
@@ -381,7 +381,7 @@ void parser::monitor() throw (runtime_error)
     
     try {
             
-        namestring devName = nameCheck();
+        name devName = nameCheck();
         
         if (curSym == PERIOD) {
             scan.getSymbol(curSym, curName, curInt);
@@ -413,21 +413,26 @@ void parser::monitor() throw (runtime_error)
     
 }
 
-namestring parser::nameCheck() throw (runtime_error)
+name parser::nameCheck() throw (runtime_error)
 {
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
         
         // TO DO hook up to names.cpp
-        namestring newName = "temp"; 
-        // namestring newName = namesTable.getname(curName);
+        name newName = 2; 
+        // name newName = namesTable.getname(curName);
         
         if (!nameExist(devNames, newName)){
             stopSym = COMMA;
             stopSym2 = SEMICOL;
-            error("The device "+newName+" does not exist", stopSym,
+            error("The device does not exist", stopSym,
                   stopSym2);
+            // TO DO Enable This
+            /*
+            error("The device "+namestable.getName(newName)+" does not exist", stopSym,
+                  stopSym2);
+            */
             throw runtime_error("Skipping to next line");
         }
         
@@ -453,8 +458,8 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
     if(curSym == NAMESYM){
         // TO DO possibly change this to used name id
         // TO DO hook up to names.cpp
-        namestring newName = "temp"; 
-        // namestring newName = namesTable.getname(curName);
+        name newName = 1; 
+        // name newName = namesTable.getname(curName);
         
         
         // TO DO Test this
@@ -462,9 +467,15 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
         if (nameExist(devNames, newName)){
             stopSym = COMMA;
             stopSym2 = SEMICOL;
-            error("The name "+newName+" has already been used", stopSym,
+            error("The name has already been used",
+                  stopSym,stopSym2);
+            
+            // TO DO Enable this
+            /*
+            error("The name "+namestable.getName(newName)+" has already been used", stopSym,
                   stopSym2);
             throw runtime_error("Skipping to next line");
+            */
         }
         
         scan.getSymbol(curSym, curName, curInt);
@@ -488,12 +499,12 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
     }
 }
 
-bool parser::nameExist(vector<string> names, namestring str)
+bool parser::nameExist(vector<name> names, name n)
 {
     bool found = 0;
     
-    for (vector<string>::iterator i = names.begin(); i != names.end(); ++i) {
-        if (str == (*i)) {
+    for (vector<name>::iterator i = names.begin(); i != names.end(); ++i) {
+        if (n == (*i)) {
             found = 1;
         }
     }
@@ -501,12 +512,12 @@ bool parser::nameExist(vector<string> names, namestring str)
 }
 
 
-void parser::signalCheck(namestring deviceName) throw (runtime_error)
+void parser::signalCheck(name deviceName) throw (runtime_error)
 {
     // EBNF: (“O”|”I”(numberlt17not0)|”DATA”|”CLK”|”SET”|”CLEAR”|’Q’|”QBAR”)
     
     
-    // device must exists by the time this function is called
+    // device must exist by the time this function is called
     if(curSym == SIGSYM){
         name devSignal = curName;
         
@@ -679,10 +690,10 @@ void parser::option(name devType) throw (runtime_error)
     }
 }
 
-deviceTemp parser::getDeviceTemp(namestring d){
+deviceTemp parser::getDeviceTemp(name d){
     
     for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
-        if (d == i->name) {
+        if (d == i->n) {
             deviceTemp dev = (*i);
             return dev;
         }

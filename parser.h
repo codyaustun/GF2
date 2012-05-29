@@ -21,7 +21,7 @@ typedef enum {
 } dom;
 
 struct deviceTemp{
-    namestring name;
+    name n;
     int type;
     int option;
 };
@@ -47,8 +47,7 @@ private:
     */
     
     // Needed for semantic error control
-    vector<string> devNames;    // Vector of successfully create device names
-    vector<string> monNames;    // Vector of successfully create monitor names
+    vector<name> devNames;     // Vector of successfully create device names
     vector<deviceTemp> madeD;   // Vector of successfully created devices
     
 
@@ -67,14 +66,14 @@ private:
     void monitor() throw (runtime_error);
     
     // TO DO see if you could compress this down
-    namestring nameCheck() throw (runtime_error);
+    name nameCheck() throw (runtime_error);
     void nameCheck(dom deviceOrMonitor) throw (runtime_error);
     
-    void signalCheck(namestring deviceName) throw (runtime_error);
+    void signalCheck(name deviceName) throw (runtime_error);
     name type() throw (runtime_error);
     void option(name type) throw (runtime_error);
-    bool nameExist(vector<string> names, namestring str);
-    deviceTemp getDeviceTemp(namestring d);
+    bool nameExist(vector<name> names, name n);
+    deviceTemp getDeviceTemp(name d);
 };
 
 
