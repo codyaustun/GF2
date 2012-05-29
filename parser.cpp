@@ -276,7 +276,7 @@ void parser::device() throw (runtime_error)
             name devType = type();
             
             
-            // XOR doesn't have options
+            // XOR and DTYPE don't have options
             if (devType < 10){
             // check for dollar sign
                 if (curSym == DOLLAR) {
@@ -629,60 +629,48 @@ void parser::option(name devType) throw (runtime_error)
         // TO DO check semantically if option is okay
         switch (devType) {
             case 4:
-                // TO DO Figure out actual condition
-                if (option != 0){
+                // TO DO determine max clock
+                if (option < 1){
                     nextLine("A clock does not have this option.");
                 }
                 break;
             case 5:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
+                // option -> initial value (1 or 0)
+                if (!((option >= 0) && (option <= 1))){
                     nextLine("A switch does not have this option.");
                 }
                 break;
             case 6:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
+                // 1 <= option <= 16 -> number of inputs
+                if (!((option >= 1) && (option <= 16))){
                     nextLine("An AND does not have this option.");
                 }
                 break;
             case 7:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
-                    nextLine("A NAND does not have this option.");
+               // 1 <= option <= 16 -> number of inputs
+                if (!((option >= 1) && (option <= 16))){
+                    nextLine("An NAND does not have this option.");
                 }
                 break;
             case 8:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
-                    nextLine("A OR does not have this option.");
+                // 1 <= option <= 16 -> number of inputs
+                if (!((option >= 1) && (option <= 16))){
+                    nextLine("An OR does not have this option.");
                 }
-                
                 break;
             case 9:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
-                    nextLine("A NOR does not have this option.");
+                // 1 <= option <= 16 -> number of inputs
+                if (!((option >= 1) && (option <= 16))){
+                    nextLine("An NOR does not have this option.");
                 }
                 break;
             case 10:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
-                    nextLine("A DTYPE does not have this option.");
-                }
+                // TO DO remove this case
+                nextLine("Unexpected error");
                 break;
             case 11:
-                // TO DO
-                // TO DO Figure out actual condition
-                if (option != 0){
-                    nextLine("A XOR does not have this option.");
-                }
+                // TO DO remove this case
+                nextLine("Unexpected error");
                 break;
                 
             default:
@@ -693,10 +681,7 @@ void parser::option(name devType) throw (runtime_error)
         scan.getSymbol(curSym, curName, curInt);
         
     }else{
-        stopSym = COMMA;
-        stopSym2 = SEMICOL;
-        error("Expected a device option.", stopSym, stopSym2); 
-        throw runtime_error("Skipping to next line");
+        nextLine("Expected a device option.");
     }
 }
 
