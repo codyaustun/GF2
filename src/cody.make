@@ -1,4 +1,4 @@
-cody: parser.o CCScanner.o
+cody: parser.o CCScanner.o 
 	g++ -g -o cody parser.o CCScanner.o
 parser.o: parser.cpp parser.h CCScanner.h
 	g++ -g -c parser.cpp

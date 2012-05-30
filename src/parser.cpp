@@ -8,21 +8,16 @@
 
 #include "parser.h"
 
-/* TO DO hook up to names.cpp
-parser::parser(scanner s, names n)
+parser::parser(scanner* s, names* n, network* net, devices* dev)
 {
     errorCount = 0;
-    scan = s;
-    namesTable = n;
-}
- */
-
-parser::parser(scanner s)
-{
-    errorCount = 0;
-    scan = s;
+    scan = *s;
+    namesTable = *n;
+    netMod = *net;
+    devMod = *dev;
 }
 
+/*
 int main(){
     
     scanner s1(2,2,2);
@@ -37,6 +32,7 @@ int main(){
     
     
 }
+ */
 
 bool parser::readline()
 {
@@ -705,7 +701,6 @@ deviceTemp parser::getDeviceTemp(name d){
 void parser::nextLine(string message){
     stopSym = COMMA;
     stopSym2 = SEMICOL;
-    error(message, stopSym,
-          stopSym2);
+    error(message, stopSym, stopSym2);
     throw runtime_error("Skipping to next line");
 }
