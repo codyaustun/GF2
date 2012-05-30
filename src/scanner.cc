@@ -13,12 +13,10 @@ scanner::scanner(names* namesMod, char* defFile)
 {
   inf.open(defFile); // Open defFile
   if (!inf) {
-    cout << "Cannot open file " << defFile << endl;
-    fileOpened = false;
+    displayError("Cannot open file");
     exit;
   }
- 
-  fileOpened = true;
+  // If file successfully opened:
   inf.clear();
   inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
   currentLine.clear();
@@ -76,7 +74,7 @@ void scanner::skipspaces()
  }
 void scanner::skipcomments()
 {
-  if (curch == '/') {
+  if (curch == '/') {                  //If '/' read, skip through until another '/' is read or eof reached  
   //currentLine.clear();
     eofile = (inf.get(curch) == 0);
     while (!eofile && curch != '/') {
@@ -84,7 +82,7 @@ void scanner::skipcomments()
     }
   }
   if (eofile) {
-    cout << " Comment not closed " << endl;
+    displayError("Comment not closed");
   }
 }
 string scanner::getCurrentLine()
@@ -107,20 +105,21 @@ void scanner::getname(name &id)
     i = i+1;
     getch();
   }
- 
-  // if (!isspace(curch)) cout << "Check name; alphanumeric beginning stored" << endl;
 
-  if (i < maxlength) {         // If str < maxlength, put in table
+  if (i < maxlength) {                             // If str < maxlength, put in table
     id = dfnames->lookup(str);
-  } else {                     // If str > maxlength, inform user
-    cout << "Warning: name " << str << " was truncated. " << endl;
+  } else {                                         // If str > maxlength, inform user
+    string errM = "Name "; 
+    errM.append(str); 
+    errM.append(" was truncated."); 
+    displayError(errM);
   }   
 }
 
-void scanner::getnumber(int &number)
+void scanner::getnumber(int &number)               // Check for max possible number here?
 {
-  number = 0;                 // Clear variable
-  while (isdigit(curch)) {      // Read number from file
+  number = 0;                                      // Clear variable
+  while (isdigit(curch)) {                         // Read number from file
      number = 10*number + atoi(&curch);
     getch();
    }
@@ -130,8 +129,13 @@ void scanner::getch()
 {
   eofile = (inf.get(curch) == 0);
   if (curch == ':' || curch == ';' || curch == ',') {
-    currentLine.clear();
+    currentLine.clear();                              // Clear string to start new line
   } else {
-    currentLine.push_back(curch);
+    currentLine.push_back(curch);                     // Add new character to string
   }
+}
+
+void scanner::displayError (string errorMessage)
+{
+   cout << "Error: " << errorMessage << endl;
 }

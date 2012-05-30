@@ -1,0 +1,12 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <cctype>
+#include <vector>
+#include <string>
+#include "scanner.h"
+#include "names.h"
+
+using namespace std;
+
+int main

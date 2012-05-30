@@ -22,7 +22,6 @@ class scanner {
 
  private:
   ifstream inf;          // Input definition file
-  bool fileOpened;       // True when definition file opened
   char curch;            // Current character
   string currentLine;    // Current Line
   bool eofile;           // True when end of file is reached
@@ -35,6 +34,8 @@ class scanner {
   void getname(name& id);   /* Reads names (alphanumeric) from defFile */
 
   void getch();   /* Reads next character, updates curch and currentLine string */
+
+  void displayError(string errorMessage);
 
  public:
   scanner(names* namesMod, char* defFile);
