@@ -349,6 +349,26 @@ void devices::updateclocks (void)
   }
 }
 
+/*
+Returns a linked list of the switches
+tm402 31/05/2012
+ */
+devlink devices::getSwitches(){
+  devlink d,s,switches;
+  switches = NULL;
+  for (d = netz->devicelist (); d != NULL; d = d->next) {
+    if (d->kind == aswitch) {
+      s=new devicerec;
+      s->id = d->id;
+      s->kind = aswitch;
+      s->ilist = NULL;
+      s->olist = NULL;
+      s->next = switches;
+      switches = s;    
+    }
+  }
+  return switches;
+}
 
 /***********************************************************************
  *

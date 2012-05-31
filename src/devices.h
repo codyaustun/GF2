@@ -54,7 +54,9 @@ public:
  
   void debug (bool on);
     /* Used to set debugging switch.                                       */
- 
+
+  devlink getSwitches();
+
   devices (names* names_mod, network* net_mod);
     /* Called to initialise module.                                        */
 };
