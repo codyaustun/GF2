@@ -10,23 +10,40 @@ using namespace std;
 names::names(void) //Initializes nametable with reserved keywords
 {
   nametable.clear();
-  nametable [0] = "DEVICES"; nametable [1] = "CONNECTIONS";
-  nametable [2] = "MONITORS"; nametable [3] = "FIN";
-  nametable [4] = "CLOCK"; nametable [5] = "SWITCH";
-  nametable [6] = "AND"; nametable [7] = "NAND";
-  nametable [8] = "OR"; nametable [9] = "NOR";
-  nametable [10] = "DTYPE"; nametable [11] = "XOR";
-  nametable [12] = "I1"; nametable [13] = "I2";
-  nametable [14] = "I3"; nametable [15] = "I4"; 
-  nametable [16] = "I5"; nametable [17] = "I6"; 
-  nametable [18] = "I7"; nametable [19] = "I8";
-  nametable [20] = "I9"; nametable [21] = "I10"; 
-  nametable [22] = "I11"; nametable [23] = "I12";
-  nametable [24] = "I13"; nametable [25] = "I14"; 
-  nametable [26] = "I15"; nametable [27] = "I16"; 
-  nametable [28] = "DATA"; nametable [29] = "CLK";
-  nametable [30] = "SET"; nametable [31] = "CLR"; 
-  nametable [32] = "Q"; nametable [33] = "QBAR";
+  nametable.push_back("DEVICES");
+  nametable.push_back("CONNECTIONS");
+  nametable.push_back("MONITORS");
+  nametable.push_back("CLOCK");
+  nametable.push_back("SWITCH");
+  nametable.push_back("AND");
+  nametable.push_back("NAND");
+  nametable.push_back("OR");
+  nametable.push_back("NOR");
+  nametable.push_back("");
+  nametable.push_back("DTYPE");
+  nametable.push_back("XOR");
+  nametable.push_back("I1");
+  nametable.push_back("I2");
+  nametable.push_back("I3");
+  nametable.push_back("I4");
+  nametable.push_back("I5");
+  nametable.push_back("I6");
+  nametable.push_back("I7");
+  nametable.push_back("I8");
+  nametable.push_back("I9");
+  nametable.push_back("I10");
+  nametable.push_back("I11");
+  nametable.push_back("I12");
+  nametable.push_back("I13");
+  nametable.push_back("I14");
+  nametable.push_back("I15");
+  nametable.push_back("I16");
+  nametable.push_back("DATA");
+  nametable.push_back("CLK");
+  nametable.push_back("SET");
+  nametable.push_back("CLR");
+  nametable.push_back("Q");
+  nametable.push_back("QBAR");
 }
 
 name names::cvtname (namestring str) 

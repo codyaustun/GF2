@@ -12,6 +12,6 @@ using namespace std;
 int main()
 {
   names initNames;
-  // cout << "Hello" << endl;
-  // cout << initNames.lookup("AND") << endl;
+  //cout << "Hello" << endl;
+   // cout << initNames.lookup("AND") << endl;
 }
