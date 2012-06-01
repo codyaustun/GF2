@@ -204,48 +204,6 @@ void parser::buildDeviceList()
         error("There should be a ';' at the end of the devices section.",
               stopSym);
     }
-    
-    
-    /*
-    // TO DO Move this to the end of readline to prevent building with errors in 
-    // other sections.
-    for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
-        
-        
-        // TO DO TO ASK Figure out why this gives an error.
-        switch (i->type) {
-            case 0:
-                devz->makedevice(aclock,i->n,i->option, ok);
-                break;
-            case 1:
-                devz->makedevice(aswitch,i->n,i->option, ok);
-                break;
-            case 2:
-                devz->makedevice(andgate,i->n,i->option, ok);
-                break;
-            case 3:
-                devz->makedevice(nandgate,i->n,i->option, ok);
-                break;
-            case 4:
-                devz->makedevice(orgate,i->n,i->option, ok);
-                break;
-            case 5:
-                devz->makedevice(norgate,i->n,i->option, ok);
-                break;
-            case 6:
-                devz->makedevice(dtype,i->n,i->option, ok);
-                break;
-            case 7:
-                devz->makedevice(xorgate,i->n,i->option, ok);
-                break;
-                
-            default:
-                break;
-            
-                
-        }
-    }
-    */
 
 }
 
@@ -275,6 +233,8 @@ void parser::buildConnectionList()
         error("There should be a ';' at the end of the connections section.",
               stopSym);
     }
+    
+    // TO DO check to make sure all inputs are connected
 }
 
 void parser::buildMonitorList()
@@ -375,11 +335,6 @@ void parser::device() throw (runtime_error)
                             
                     }
                     
-                    
-                    
-                    
-                    
-                    
                 }else{
                     nextLine("Expected a ',' or ';'");
                 }
@@ -429,6 +384,12 @@ void parser::connection() throw (runtime_error)
                     // check for second signal
                     name sig2 = signalCheck(devName2);
                     
+                    // Add input to list of used inputs for future error handling
+                    inpTemp usedIn;
+                    usedIn.dev = devName2;
+                    usedIn.sig = sig2;
+                    
+                    // Make connection
                     netz->makeconnection(devName2, sig2, devName1, sig1,ok);
                     
                     
@@ -461,9 +422,12 @@ void parser::mon() throw (runtime_error)
             
         name devName = nameCheck();
         name sig = signalCheck(devName);
-        monz->makemonitor(devName, sig, ok);
         
-        
+        if ((sig == blankname) || ((sig > 31)&& (sig < 34))) {
+            monz->makemonitor(devName, sig, ok);
+        }else{
+            nextLine("Monitors can only be connected outputs");
+        }
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
             // rethrow in case of EOFSYM error
@@ -598,44 +562,19 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
                     nextLine("A switch's output is just specified by the clock's name.");
                     break;
                 case 2:
-                    if ((devSignal > 11) && (devSignal < 28)) {
-                        if (!(dev.option >= (devSignal-11))){
-                            nextLine("This gate doesn't have that many inputs.");
-                        }else{
-                            return devSignal;
-                        }
-                    }else{
-                        nextLine("A gate only has standard inputs and an output.");
-                    }
-                    break;
                 case 3:
-                    if ((devSignal > 11) && (devSignal < 28)) {
-                        if (!(dev.option >= (devSignal-11))){
-                            nextLine("This gate doesn't have that many inputs.");
-                        }else{
-                            return devSignal;
-                        }
-                    }else{
-                        nextLine("A gate only has standard inputs and an output.");
-                    }
-                    break;
                 case 4:
-                    if ((devSignal > 11) && (devSignal < 28)) {
-                        if (!(dev.option >= (devSignal-11))){
-                            nextLine("This gate doesn't have that many inputs.");
-                        }else{
-                            return devSignal;
-                        }
-                    }else{
-                        nextLine("A gate only has standard inputs and an output.");
-                    }
-                    break;
                 case 5:
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
                         }else{
-                            return devSignal;
+                            if (!usedInput(dev.n, devSignal)){
+                                return devSignal; 
+                            }else{
+                                nextLine("This input has already been used"); 
+                            }
+                            
                         }
                     }else{
                         nextLine("A gate only has standard inputs and an output.");
@@ -777,7 +716,8 @@ int parser::option(name devType) throw (runtime_error)
     }
 }
 
-deviceTemp parser::getDeviceTemp(name d){
+deviceTemp parser::getDeviceTemp(name d)
+{
     
     for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
         if (d == i->n) {
@@ -794,9 +734,24 @@ deviceTemp parser::getDeviceTemp(name d){
 
 
 // TO DO replace old method with this
-void parser::nextLine(string message){
+void parser::nextLine(string message)
+{
     stopSym = COMMA;
     stopSym2 = SEMICOL;
     error(message, stopSym, stopSym2);
     throw runtime_error("Skipping to next line");
 }
+/*
+ * Return true if input has already been used
+ * Return false otherwise
+ */
+bool parser::usedInput(name d, name s)
+{
+    for (vector<inpTemp>::iterator i = usedIns.begin(); i != usedIns.end(); ++i) {
+        if ((d == i->dev) && (s == i->sig)) {
+            return true;
+        }
+    } 
+    return false;
+}
+

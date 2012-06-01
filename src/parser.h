@@ -23,10 +23,19 @@ typedef enum {
     DEV = 1,
 } dom;
 
+
+// Structure to store created devices
 struct deviceTemp{
     name n;
     int type;
     int option;
+};
+
+
+// Structure to store used inputs
+struct inpTemp{
+    name dev;
+    name sig;
 };
 
 class parser {
@@ -45,14 +54,15 @@ private:
     scanner scan;     // Scanner for getting symbols
     // TO DO change all references to scan to snz
     scanner* snz;     // Scanner for getting symbols
-    names* nmz;       // Names table with all names
     network* netz;
     devices* devz;
     monitor* monz;
+   
     
     // Needed for semantic error control
     vector<name> devNames;     // Vector of successfully create device names
     vector<deviceTemp> madeD;   // Vector of successfully created devices
+    vector<inpTemp> usedIns; // Vector of created inputs
     
 
     
@@ -70,14 +80,17 @@ private:
     void mon() throw (runtime_error);
     
     // TO DO see if you could compress this down
+    // Checks if symbols are semantically ok
     name nameCheck() throw (runtime_error);
     name nameCheck(dom deviceOrMonitor) throw (runtime_error);
-    
     name signalCheck(name deviceName) throw (runtime_error);
     name type() throw (runtime_error);
     int option(name type) throw (runtime_error);
+    
+    // Helper functions
     bool nameExist(vector<name> names, name n);
     deviceTemp getDeviceTemp(name d);
+    bool usedInput(name d, name s);
 };
 
 
