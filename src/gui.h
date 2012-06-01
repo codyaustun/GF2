@@ -8,14 +8,28 @@
 #include "names.h"
 #include "devices.h"
 #include "monitor.h"
+#include <vector>
 
 enum { 
   MY_SPINCNTRL_ID = wxID_HIGHEST + 1,
   MY_TEXTCTRL_ID,
-  MY_BUTTON_ID,
+  RUN_BUTTON_ID,
+  CONTINUE_BUTTON_ID,
+  SWITCH_BUTTON_ID,
+  MONITOR_BUTTON_ID,
+  MONITORREMOVE_CHOICE_ID,
+  MONITORADDDEV_CHOICE_ID,
+  MONITORADDSIG_CHOICE_ID,
+  MONITORADD_BUTTON_ID,
+  MONITORREMOVE_BUTTON_ID,
+  SWITCH_CHOICE_ID,
+  SWITCHON_BUTTON_ID,
+  SWITCHOFF_BUTTON_ID,
 }; // widget identifiers
 
 class MyGLCanvas;
+class SwitchPanel;
+class MonitorPanel;
 
 class MyFrame: public wxFrame
 {
@@ -29,11 +43,16 @@ class MyFrame: public wxFrame
   names *nmz;                             // pointer to names class
   devices *dmz;                           // pointer to devices class
   monitor *mmz;                           // pointer to monitor class
+  SwitchPanel *switches;
+  MonitorPanel *monitors;
   int cyclescompleted;                    // how many simulation cycles have been completed
   void runnetwork(int ncycles);           // function to run the logic network
   void OnExit(wxCommandEvent& event);     // callback for exit menu item
   void OnAbout(wxCommandEvent& event);    // callback for about menu item
-  void OnButton(wxCommandEvent& event);   // callback for push button
+  void OnRun(wxCommandEvent& event);   // callback for run button
+  void OnContinue(wxCommandEvent& event); 
+  void OnSwitches(wxCommandEvent& event); 
+  void OnMonitors(wxCommandEvent& event); 
   void OnSpin(wxSpinEvent& event);        // callback for spin control
   void OnText(wxCommandEvent& event);     // callback for text entry field
   DECLARE_EVENT_TABLE()
@@ -45,7 +64,7 @@ class MyGLCanvas: public wxGLCanvas
   MyGLCanvas(wxWindow *parent, wxWindowID id = wxID_ANY, monitor* monitor_mod = NULL, names* names_mod = NULL,
 	     const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0,
 	     const wxString& name = wxT("MyGLCanvas")); // constructor
-  void Render(wxString example_text = wxT(""), int cycles = -1); // function to draw canvas contents
+  void Render(int cycles = -1); // function to draw canvas contents
  private:
   bool init;                         // has the GL context been initialised?
   int cyclesdisplayed;               // how many simulation cycles have been displayed
@@ -55,6 +74,53 @@ class MyGLCanvas: public wxGLCanvas
   void OnSize(wxSizeEvent& event);   // callback for when canvas is resized
   void OnPaint(wxPaintEvent& event); // callback for when canvas is exposed
   void OnMouse(wxMouseEvent& event); // callback for mouse events inside canvas
+  void WriteText(wxString message, float x, float y);
+  DECLARE_EVENT_TABLE()
+};
+
+
+class SwitchPanel: public wxFrame {
+ public:
+  SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
+	  names *names_mod, devices *devices_mod, monitor *monitor_mod, 
+	  long style = wxDEFAULT_FRAME_STYLE);
+ private:
+  void OnExit(wxCloseEvent& event);
+  void OnOn(wxCommandEvent &event);
+  void OnOff(wxCommandEvent &event);
+  // wxString getState(int selection);
+  //wxStaticText *state;
+  devices *devs;
+  wxChoice *switchChoice;
+  vector<name> *switcharray;
+  DECLARE_EVENT_TABLE()
+};
+
+class MonitorPanel: public wxFrame {
+
+ public:
+  MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
+	  names *names_mod, devices *devices_mod, monitor *monitor_mod, 
+	  long style = wxDEFAULT_FRAME_STYLE);
+ private:
+  struct devio{
+  devio(name id, inplink ilist, outplink olist):id(id),ilist(ilist),olist(olist){}
+    name id;
+    inplink ilist;
+    outplink olist;
+  };
+  void OnExit(wxCloseEvent& event);
+  void OnAdd(wxCommandEvent &event);
+  void OnRemove(wxCommandEvent &event);
+  void OnDeviceSelect(wxCommandEvent &event);
+  wxChoice *removeChoice;
+  wxChoice *addDevice;
+  wxChoice *addSignal;
+  monitor *mons;
+  names *nmz;
+  vector<name*> *monnames;
+  vector<devio*> *devios;
+  vector<name> *sigs;
   DECLARE_EVENT_TABLE()
 };
     

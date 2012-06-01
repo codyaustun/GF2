@@ -44,7 +44,9 @@ class scanner {
 
   void getSymbol(symbol& s, name& id, int& num);
 
-  string getCurrentLine();
+  void getCurrentLine();
+
+  string getLine();
 
   void getch();   /* Reads next character, updates curch and currentLine string */
 

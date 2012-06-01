@@ -57,6 +57,8 @@ public:
 
   devlink getSwitches();
 
+  devlink getDevices();
+
   devices (names* names_mod, network* net_mod);
     /* Called to initialise module.                                        */
 };
