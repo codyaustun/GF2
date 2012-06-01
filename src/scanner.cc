@@ -154,6 +154,7 @@ void scanner::getCurrentLine() //called by parser, displays parser errors, locat
   string errorMarker;
   for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
   errorMarker.append("^");
-  cout << errorMarker << endl;
+  
   cout << getLine() << endl;
+  cout << errorMarker << endl;
 }
