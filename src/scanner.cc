@@ -6,10 +6,11 @@
 #include <string>
 #include "scanner.h"
 #include "names.h"
+#include "parser.h"
 
 using namespace std;
 
-scanner::scanner(names* namesMod, char* defFile)
+scanner::scanner(names* namesMod, const char* defFile)
 {
   dfnames = namesMod;
   inf.open(defFile); // Open defFile
@@ -50,7 +51,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 		    s = NAMESYM;
       } else {
 	switch (curch) {
-	case '/': skipcomments(); break;
+	case '/': skipcomments(); getSymbol(s, id, num); break;
 	case '=': s = EQUALS; break;
 	case ':': s = COLON; break;
 	case ';': s = SEMICOL; break;
@@ -85,7 +86,7 @@ void scanner::skipcomments()
    }
 }
 
-string scanner::getCurrentLine()
+string scanner::getLine()
 {
   while (curch != ':' && curch != ';' && curch != ',') {
     getch();
@@ -148,3 +149,11 @@ void scanner::initch()
   eofile = (inf.get(curch) == 0);
 }
 
+void scanner::getCurrentLine() //called by parser, displays parser errors, location
+{
+  string errorMarker;
+  for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
+  errorMarker.append("^");
+  cout << errorMarker << endl;
+  cout << getLine() << endl;
+}
