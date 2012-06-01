@@ -370,6 +370,10 @@ void parser::connection() throw (runtime_error)
             // check signal
             name sig1 = signalCheck(devName1);
             
+            if (!((sig1 == blankname) || ((sig1 > 31)&& (sig1 < 34)))){
+                nextLine("An output must come first in a connection");
+            }
+            
             // check for dash
             if (curSym == DASH) {
                 scan.getSymbol(curSym, curName, curInt);
@@ -383,6 +387,10 @@ void parser::connection() throw (runtime_error)
                     
                     // check for second signal
                     name sig2 = signalCheck(devName2);
+                    
+                    if (((sig2 == blankname) || ((sig2 > 31)&& (sig2 < 34)))){
+                        nextLine("An input must be second in a connection");
+                    }
                     
                     // Add input to list of used inputs for future error handling
                     inpTemp usedIn;
