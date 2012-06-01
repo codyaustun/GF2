@@ -21,7 +21,7 @@ scanner::scanner(names* namesMod, char* defFile)
   inf.clear();
   inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
   currentLine.clear();
-  cout << "File open: " << defFile << endl;
+  initch();
 }
 
 scanner::~scanner()
@@ -29,12 +29,10 @@ scanner::~scanner()
   inf.close(); // Close defFile
 }
 
-
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {
   id = blankname; num = 0;
   skipspaces();
-  skipcomments();
   if (eofile) s = EOFSYM;
   else {
     if (isdigit(curch)) {
@@ -47,11 +45,12 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
 	      if (id == 3) s = FINSYM; else
-		if (id >= 3 && id <= 11) s = TYPSYM; else    
+		if (id >= 3 && id <= 11) s = TYPESYM; else    
 		  if(id >=12 && id <= 33) s = SIGSYM; else
 		    s = NAMESYM;
       } else {
 	switch (curch) {
+	case '/': skipcomments(); break;
 	case '=': s = EQUALS; break;
 	case ':': s = COLON; break;
 	case ';': s = SEMICOL; break;
@@ -74,17 +73,16 @@ void scanner::skipspaces()
    }
  }
 void scanner::skipcomments()
-{
-  if (curch == '/') {                  //If '/' read, skip through until another '/' is read or eof reached  
+{         
     currentLine.clear();
     eofile = (inf.get(curch) == 0);
-    while (!eofile && curch != '/') {
+    while (!eofile && prevch != '/') { //If '/' read, skip through until another '/' is read or eof reached 
+      prevch = curch;
       eofile = (inf.get(curch) == 0);
     }
-  }
-  if (eofile) {
-    displayError("Comment not closed");
-  }
+   if (eofile) {
+     displayError("Comment not closed");
+   }
 }
 
 string scanner::getCurrentLine()
@@ -149,3 +147,4 @@ void scanner::initch()
 {
   eofile = (inf.get(curch) == 0);
 }
+

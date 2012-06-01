@@ -11,13 +11,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "names.h"
 
 using namespace std;
 
 
 /* Constants and Types */
-typedef int name;
-// vector<string> names;
 
 typedef enum{
     DEVSYM,
@@ -38,8 +37,6 @@ typedef enum{
     FINSYM,
     BADSYM,
     } symbol;
-
-typedef string namestring;
 
 class scanner {
 public:

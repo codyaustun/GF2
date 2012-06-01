@@ -14,7 +14,7 @@ using namespace std;
 
 typedef int name;
 typedef enum {DEVSYM, CONSYM, MONSYM, FINSYM, EOFSYM,
-	      NAMESYM, NUMSYM, SIGSYM, TYPSYM, BADSYM,
+	      NAMESYM, NUMSYM, SIGSYM, TYPESYM, BADSYM,
 	      EQUALS, SEMICOL, COMMA, DOLLAR,
 	      DASH, PERIOD, COLON} symbol;
 

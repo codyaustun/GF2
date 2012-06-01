@@ -1,6 +1,6 @@
 #include "devices.h"
 #include <iostream>
-#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -125,14 +125,10 @@ void devices::makegate (devicekind dkind, name did, int ninputs, bool& ok)
     netz->adddevice (dkind, did, d);
     netz->addoutput (d, blankname);
     for (n = 1; n <= ninputs; n++) {
-      iname = "I";
-      if (n < 10) {
-	iname += ((char) n) + '0';
-      } else {
-	iname += ((char) (n / 10)) + '0';
-	iname += ((char) (n % 10)) + '0';
-      }
-      netz->addinput (d, nmz->lookup (iname));
+        stringstream ss;
+        ss << "I" << n;
+        iname = ss.str();
+        netz->addinput (d, nmz->lookup (iname));
     }
   }
 }
