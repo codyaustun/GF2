@@ -91,10 +91,13 @@ name names::newname (namestring str)
 namestring names::getname(name id)
  {
    if (id > blankname && id < nametable.size()) {
-     cout << "valid" << endl;
      namestring namestr = nametable[id];
      return namestr;
-   } else return "Invalid Name ID";
+   } else if (id == blankname){
+     return "Output";
+   } else {
+       return "Invalid Name ID";
+     }
  }
 
 void names::writename (name id)
