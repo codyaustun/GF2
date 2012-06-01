@@ -11,6 +11,7 @@ using namespace std;
 
 scanner::scanner(names* namesMod, char* defFile)
 {
+  dfnames = namesMod;
   inf.open(defFile); // Open defFile
   if (!inf) {
     displayError("Cannot open file");
@@ -20,6 +21,8 @@ scanner::scanner(names* namesMod, char* defFile)
   inf.clear();
   inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
   currentLine.clear();
+  cout << "File open: " << defFile << endl;
+  initch();
 }
 
 scanner::~scanner()
@@ -27,13 +30,12 @@ scanner::~scanner()
   inf.close(); // Close defFile
 }
 
-
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {
-  eofile = (inf.get(curch) == 0);
+  id = blankname; num = 0;
+  //initch();
   skipspaces();
   skipcomments();
-
   if (eofile) s = EOFSYM;
   else {
     if (isdigit(curch)) {
@@ -46,8 +48,8 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
 	      if (id == 3) s = FINSYM; else
-		if (3 < id < 12) s = TYPSYM; else    //4-11
-		  if(11 < id < 34) s = SIGSYM; else  //12-33
+		if (id >= 3 && id <= 11) s = TYPSYM; else    
+		  if(id >=12 && id <= 33) s = SIGSYM; else
 		    s = NAMESYM;
       } else {
 	switch (curch) {
@@ -75,7 +77,7 @@ void scanner::skipspaces()
 void scanner::skipcomments()
 {
   if (curch == '/') {                  //If '/' read, skip through until another '/' is read or eof reached  
-  //currentLine.clear();
+    currentLine.clear();
     eofile = (inf.get(curch) == 0);
     while (!eofile && curch != '/') {
       eofile = (inf.get(curch) == 0);
@@ -85,10 +87,11 @@ void scanner::skipcomments()
     displayError("Comment not closed");
   }
 }
+
 string scanner::getCurrentLine()
 {
-  while (curch == ':' || curch == ';' || curch == ',') {
-    currentLine.push_back(curch);
+  while (curch != ':' && curch != ';' && curch != ',') {
+    getch();
   }
   return currentLine;
 }
@@ -101,6 +104,7 @@ void scanner::getname(name &id)
     str.push_back(curch) ;        
     if ( i == maxlength) {     // If str reaches maxlength, put in table, keep reading 
       id = dfnames->lookup(str);
+      cout << dfnames->getname(id) << endl;
     } 
     i = i+1;
     getch();
@@ -127,11 +131,13 @@ void scanner::getnumber(int &number)               // Check for max possible num
 
 void scanner::getch()
 {
+  prevch = curch;
   eofile = (inf.get(curch) == 0);
-  if (curch == ':' || curch == ';' || curch == ',') {
-    currentLine.clear();                              // Clear string to start new line
-  } else {
-    currentLine.push_back(curch);                     // Add new character to string
+  currentLine.push_back(curch);                     // Add new character to string
+
+  if (prevch == ':' || prevch == ';' || prevch == ',') {
+    currentLine.clear();                             // Clear string to start new line
+    skipspaces();
   }
 }
 
@@ -139,3 +145,9 @@ void scanner::displayError (string errorMessage)
 {
    cout << "Error: " << errorMessage << endl;
 }
+
+void scanner::initch()
+{
+  eofile = (inf.get(curch) == 0);
+}
+

@@ -23,29 +23,37 @@ class scanner {
  private:
   ifstream inf;          // Input definition file
   char curch;            // Current character
+  char prevch;           // Previous character
   string currentLine;    // Current Line
   bool eofile;           // True when end of file is reached
-  names* dfnames;         // Names table
+  names* dfnames;        // Names table
+  
   void skipspaces();     // Skips white spaces
+
   void skipcomments();   // Skips commments
-
-  void getnumber(int &number);  /* Reads number from defFile */
-
-  void getname(name& id);   /* Reads names (alphanumeric) from defFile */
-
-  void getch();   /* Reads next character, updates curch and currentLine string */
 
   void displayError(string errorMessage);
 
  public:
+  symbol s;
+  name id;
+  int num;
+
   scanner(names* namesMod, char* defFile);
   ~scanner();
+
   void getSymbol(symbol& s, name& id, int& num);
+
   string getCurrentLine();
 
- 
-  name lookup(namestring str);
-  
+  void getch();   /* Reads next character, updates curch and currentLine string */
+
+  void getnumber(int &number);  /* Reads number from defFile */
+
+  void initch();
+
+  void getname(name& id);   /* Reads names (alphanumeric) from defFile */
+
 };
 
 #endif /* scanner_h */
