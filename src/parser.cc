@@ -75,7 +75,6 @@ bool parser::readin()
         if (curSym == FINSYM) {
             
             // TO DO decide if it should be both
-	    cout << "hi";
             netz->checknetwork(ok);
             return ((errorCount == 0) && ok);
         }else{
@@ -111,7 +110,7 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     errorCount++; 
     
     // Scanner should print out current line
-    cout << snz->getCurrentLine() << endl; 
+    snz->getCurrentLine(); 
     
     // Print error message
     // TO DO make this sounds better
@@ -148,7 +147,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     errorCount++; 
     
     // Scanner should print out current line
-    cout << snz->getCurrentLine() << endl; 
+    snz->getCurrentLine(); 
     
     
     
@@ -438,7 +437,7 @@ void parser::connection() throw (runtime_error)
                     inpTemp usedIn;
                     usedIn.dev = devName2;
                     usedIn.sig = sig2;
-		    // usedIns.push_back(usedIn);
+		    usedIns.push_back(usedIn);
                     
                     // Make connection
                     netz->makeconnection(devName2, sig2, devName1, sig1,ok);

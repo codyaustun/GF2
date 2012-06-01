@@ -13,8 +13,6 @@ using namespace std;
 scanner::scanner(names* namesMod, const char* defFile)
 {
   dfnames = namesMod;
-  cout << "Hello" << endl;
-  cout << defFile << endl;
   inf.open(defFile); // Open defFile
   if (!inf) {
     displayError("Cannot open file");
@@ -156,6 +154,7 @@ void scanner::getCurrentLine() //called by parser, displays parser errors, locat
   string errorMarker;
   for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
   errorMarker.append("^");
-  cout << errorMarker << endl;
+  
   cout << getLine() << endl;
+  cout << errorMarker << endl;
 }

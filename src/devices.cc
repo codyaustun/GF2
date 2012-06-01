@@ -474,7 +474,7 @@ devices::devices (names* names_mod, network* net_mod)
   datapin = nmz->lookup("DATA");
   clkpin  = nmz->lookup("CLK");
   setpin  = nmz->lookup("SET");
-  clrpin  = nmz->lookup("CLEAR");
+  clrpin  = nmz->lookup("CLR");
   qpin    = nmz->lookup("Q");
   qbarpin = nmz->lookup("QBAR");
 }
