@@ -8,18 +8,20 @@
 
 #include "parser.h"
 
-parser::parser(scanner* s, names* n, network* net, devices* dev)
+
+parser::parser(network* net, devices* dev, monitor* mon, scanner* s)
 {
     errorCount = 0;
-    scan = *s;
-    namesTable = *n;
-    netMod = *net;
-    devMod = *dev;
+    snz = s;
+    netz = net;
+    devz = dev;
+    monz = mon;
 }
 
-/*
+
+
 int main(){
-    
+    /*
     scanner s1(2,2,2);
     
     parser p1(s1);
@@ -29,10 +31,11 @@ int main(){
     // For testing
     cout << "Was the file correct " << output << endl;
     cout << "test over" << endl;
+    */
     
     
 }
- */
+
 
 bool parser::readline()
 {
@@ -76,7 +79,10 @@ bool parser::readline()
         
         // Check syntax rule that End of file symbol should be fourth
         if (curSym == FINSYM) {
-            return (errorCount == 0);
+            
+            // TO DO decide if it should be both
+            netz->checknetwork(ok);
+            return ((errorCount == 0) && ok);
         }else{
             stopSym = EOFSYM;
             error("'FIN' should follow the monitors list", stopSym);
@@ -89,6 +95,8 @@ bool parser::readline()
         cout << e.what() << endl;
         return false;
     }
+    
+    // TO DO Add check network
 }
 
 /* Error Handling
@@ -196,6 +204,48 @@ void parser::buildDeviceList()
         error("There should be a ';' at the end of the devices section.",
               stopSym);
     }
+    
+    
+    /*
+    // TO DO Move this to the end of readline to prevent building with errors in 
+    // other sections.
+    for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
+        
+        
+        // TO DO TO ASK Figure out why this gives an error.
+        switch (i->type) {
+            case 0:
+                devz->makedevice(aclock,i->n,i->option, ok);
+                break;
+            case 1:
+                devz->makedevice(aswitch,i->n,i->option, ok);
+                break;
+            case 2:
+                devz->makedevice(andgate,i->n,i->option, ok);
+                break;
+            case 3:
+                devz->makedevice(nandgate,i->n,i->option, ok);
+                break;
+            case 4:
+                devz->makedevice(orgate,i->n,i->option, ok);
+                break;
+            case 5:
+                devz->makedevice(norgate,i->n,i->option, ok);
+                break;
+            case 6:
+                devz->makedevice(dtype,i->n,i->option, ok);
+                break;
+            case 7:
+                devz->makedevice(xorgate,i->n,i->option, ok);
+                break;
+                
+            default:
+                break;
+            
+                
+        }
+    }
+    */
 
 }
 
@@ -240,11 +290,11 @@ void parser::buildMonitorList()
               stopSym);
     }
     
-    monitor();
+    mon();
     
     while (curSym == COMMA) {
         scan.getSymbol(curSym, curName, curInt);
-        monitor();
+        mon();
     }
     
     // check for SEMICOLON
@@ -262,7 +312,7 @@ void parser::device() throw (runtime_error)
     try {
         
         // check for name
-        nameCheck(DEV);
+        name devName = nameCheck(DEV);
         
         // check for equals sign
         if (curSym == EQUALS){
@@ -271,7 +321,8 @@ void parser::device() throw (runtime_error)
             // check type
             name devType = type();
             
-            
+            // create deviceTemp
+            deviceTemp newDev;
             // XOR and DTYPE don't have options
             if (devType < 10){
             // check for dollar sign
@@ -279,25 +330,62 @@ void parser::device() throw (runtime_error)
                     scan.getSymbol(curSym, curName, curInt);
                     
                     // check for device option
-                    option(devType);
-            }
-                
-                // TO DO build device
-                // add name to devNames
-                // create deviceTemp
-                // when creating deviceTemp subtract 4 from devType
-                
-                
+                    int devOpt = option(devType);
+                    newDev.option = devOpt;
+                }else{
+                    nextLine("Expected a dollar sign.");  
+                }
             }else{
-                stopSym = COMMA;
-                stopSym2 = SEMICOL;
-                error("Expected a dollar sign.", stopSym,
-                      stopSym2);  
+                if ((curSym == COMMA) || (curSym == SEMICOL)) {
+                    
+                    // add name to devNames
+                    newDev.n = devName;
+                    // when creating deviceTemp subtract 4 from devType
+                    newDev.type = (devType - 4);
+                    madeD.push_back(newDev);
+                    switch (newDev.type) {
+                        case 0:
+                            devz->makedevice(aclock,newDev.n,newDev.option, ok);
+                            break;
+                        case 1:
+                            devz->makedevice(aswitch,newDev.n,newDev.option, ok);
+                            break;
+                        case 2:
+                            devz->makedevice(andgate,newDev.n,newDev.option, ok);
+                            break;
+                        case 3:
+                            devz->makedevice(nandgate,newDev.n,newDev.option, ok);
+                            break;
+                        case 4:
+                            devz->makedevice(orgate,newDev.n,newDev.option, ok);
+                            break;
+                        case 5:
+                            devz->makedevice(norgate,newDev.n,newDev.option, ok);
+                            break;
+                        case 6:
+                            devz->makedevice(dtype,newDev.n,newDev.option, ok);
+                            break;
+                        case 7:
+                            devz->makedevice(xorgate,newDev.n,newDev.option, ok);
+                            break;
+                            
+                        default:
+                            break;
+                            
+                            
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
+                }else{
+                    nextLine("Expected a ',' or ';'");
+                }
             }
         }else{
-            stopSym = COMMA;
-            stopSym2 = SEMICOL;
-            error("Expected an equals sign.", stopSym, stopSym2);
+            nextLine("Expected an equals sign.");
         }
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
@@ -325,7 +413,7 @@ void parser::connection() throw (runtime_error)
             scan.getSymbol(curSym, curName, curInt);
             
             // check signal
-            signalCheck(devName1);
+            name sig1 = signalCheck(devName1);
             
             // check for dash
             if (curSym == DASH) {
@@ -339,25 +427,19 @@ void parser::connection() throw (runtime_error)
                     scan.getSymbol(curSym, curName, curInt);
                     
                     // check for second signal
-                    signalCheck(devName2);
+                    name sig2 = signalCheck(devName2);
                     
-                    // TO DO make connection
+                    netz->makeconnection(devName2, sig2, devName1, sig1,ok);
                     
                     
                 }else{
-                    stopSym = COMMA;
-                    stopSym2 = SEMICOL;
-                    error("Expected a period.", stopSym, stopSym2);
+                   nextLine("Expected a period.");
                 }
             }else{
-                stopSym = COMMA;
-                stopSym2 = SEMICOL;
-                error("Expected a dash.", stopSym, stopSym2); 
+                nextLine("Expected a dash."); 
             }
         }else{
-            stopSym = COMMA;
-            stopSym2 = SEMICOL;
-            error("Expected a period.", stopSym, stopSym2);
+            nextLine("Expected a period.");
         }
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
@@ -371,17 +453,15 @@ void parser::connection() throw (runtime_error)
     }
 }
 
-void parser::monitor() throw (runtime_error)
+void parser::mon() throw (runtime_error)
 {
     // EBNF: monitor = name ‘.’ signal (',' | ‘;’)
     
     try {
             
         name devName = nameCheck();
-        
-        signalCheck(devName);
-        
-        // TO DO make monitor
+        name sig = signalCheck(devName);
+        monz->makemonitor(devName, sig, ok);
         
         
     } catch (runtime_error e) {
@@ -397,15 +477,15 @@ void parser::monitor() throw (runtime_error)
     
 }
 
+
+// TO DO Fuse these two function
 name parser::nameCheck() throw (runtime_error)
 {
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
         
-        // TO DO hook up to names.cpp
-        name newName = 2; 
-        // name newName = namesTable.getname(curName);
+        name newName = curName;
         
         if (!nameExist(devNames, newName)){
             stopSym = COMMA;
@@ -434,17 +514,14 @@ name parser::nameCheck() throw (runtime_error)
 
 }
 
-void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
+name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
 {
     // TO DO figure out a way to tell between monitors and devices
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
-        // TO DO possibly change this to used name id
-        // TO DO hook up to names.cpp
-        name newName = 1; 
-        // name newName = namesTable.getname(curName);
         
+        name newName = curName; 
         
         // TO DO Test this
         // check semantically if name is okay.
@@ -463,6 +540,7 @@ void parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
         }
         
         scan.getSymbol(curSym, curName, curInt);
+        return newName;
      
     // TO DO figure out a nicer way to do this
     }else if((curSym == TYPESYM) || (curSym == SIGSYM) || (curSym == CONSYM) ||
@@ -496,7 +574,7 @@ bool parser::nameExist(vector<name> names, name n)
 }
 
 
-void parser::signalCheck(name deviceName) throw (runtime_error)
+name parser::signalCheck(name deviceName) throw (runtime_error)
 {
     // EBNF: (“O”|”I”(numberlt17not0)|”DATA”|”CLK”|”SET”|”CLEAR”|’Q’|”QBAR”)
     
@@ -523,6 +601,8 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
+                        }else{
+                            return devSignal;
                         }
                     }else{
                         nextLine("A gate only has standard inputs and an output.");
@@ -532,6 +612,8 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
+                        }else{
+                            return devSignal;
                         }
                     }else{
                         nextLine("A gate only has standard inputs and an output.");
@@ -541,6 +623,8 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
+                        }else{
+                            return devSignal;
                         }
                     }else{
                         nextLine("A gate only has standard inputs and an output.");
@@ -550,6 +634,8 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
+                        }else{
+                            return devSignal;
                         }
                     }else{
                         nextLine("A gate only has standard inputs and an output.");
@@ -558,11 +644,15 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
                 case 6:
                     if (!((devSignal > 27) && (devSignal < 34))) {
                         nextLine("A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR");
+                    }else{
+                        return devSignal;
                     }
                     break;
                 case 7:
                     if (!((devSignal > 11) && (devSignal < 14))){
                         nextLine("A XOR only 2 inputs.");
+                    }else{
+                        return devSignal;
                     }
                     break;
                     
@@ -579,15 +669,20 @@ void parser::signalCheck(name deviceName) throw (runtime_error)
             nextLine("Expected an input or output");
         }
 
-        
+    // TO DO check for NAMSYM since we have the semantic rule that connections must
+    // be output to input. UPDATE think about that
     }else{
+        
         if (dev.type == 6){
             nextLine("You must specify either an input or output of a DTYPE");
+        }else{
+            return blankname;
         }
         
         // Assuming wanted signal is a device output
         // TO DO check if output has already been used
     }
+    
 }
 
 name parser::type() throw (runtime_error)
@@ -613,7 +708,7 @@ name parser::type() throw (runtime_error)
     }
 }
 
-void parser::option(name devType) throw (runtime_error)
+int parser::option(name devType) throw (runtime_error)
 {
     //EBNF: digit {digit}
     
@@ -675,6 +770,7 @@ void parser::option(name devType) throw (runtime_error)
         }
         
         scan.getSymbol(curSym, curName, curInt);
+        return option;
         
     }else{
         nextLine("Expected a device option.");

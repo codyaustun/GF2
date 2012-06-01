@@ -11,9 +11,10 @@
 #include "CCScanner.h"
 #include <stdexcept>;
 #include <vector>;
-#include "src/names.h";
-#include "src/devices.h";
-#include "src/network.h";
+#include "names.h";
+#include "devices.h";
+#include "network.h";
+#include "monitor.h";
 
 using std::runtime_error;
 
@@ -32,8 +33,9 @@ class parser {
 public:
     bool readline();
     // Proper constructor
-    parser(scanner* s, names* n, network* net, devices* dev);
+    parser(network* net, devices* dev, monitor* mon, scanner* s);
 private:
+    bool ok;          // Output bool
     symbol curSym;    // Current symbol
     name curName;     // Current name if curSym is a name, type, or sig symbol
     int curInt;       // Current integer value if curSym is a numsym
@@ -41,9 +43,12 @@ private:
     symbol stopSym;   // First stop symbol for error control
     symbol stopSym2;  // Second stop symbol for error control
     scanner scan;     // Scanner for getting symbols
-    names namesTable; // Names table with all names
-    network netMod;
-    devices devMod;
+    // TO DO change all references to scan to snz
+    scanner* snz;     // Scanner for getting symbols
+    names* nmz;       // Names table with all names
+    network* netz;
+    devices* devz;
+    monitor* monz;
     
     // Needed for semantic error control
     vector<name> devNames;     // Vector of successfully create device names
@@ -62,15 +67,15 @@ private:
     void buildMonitorList();
     void device() throw (runtime_error);
     void connection() throw (runtime_error);
-    void monitor() throw (runtime_error);
+    void mon() throw (runtime_error);
     
     // TO DO see if you could compress this down
     name nameCheck() throw (runtime_error);
-    void nameCheck(dom deviceOrMonitor) throw (runtime_error);
+    name nameCheck(dom deviceOrMonitor) throw (runtime_error);
     
-    void signalCheck(name deviceName) throw (runtime_error);
+    name signalCheck(name deviceName) throw (runtime_error);
     name type() throw (runtime_error);
-    void option(name type) throw (runtime_error);
+    int option(name type) throw (runtime_error);
     bool nameExist(vector<name> names, name n);
     deviceTemp getDeviceTemp(name d);
 };
