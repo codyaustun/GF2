@@ -27,12 +27,13 @@ class scanner {
   string currentLine;    // Current Line
   bool eofile;           // True when end of file is reached
   names* dfnames;        // Names table
-  
+  bool lineEnd;
   void skipspaces();     // Skips white spaces
 
   void skipcomments();   // Skips commments
 
   void displayError(string errorMessage);
+  symbol curSym;
 
  public:
   symbol s;

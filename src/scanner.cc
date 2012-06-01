@@ -31,7 +31,7 @@ scanner::~scanner()
 }
 
 void scanner::getSymbol(symbol& s, name& id, int& num)
-{
+{	
   id = blankname; num = 0;
   skipspaces();
   if (eofile) s = EOFSYM;
@@ -54,7 +54,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 	case '/': skipcomments(); getSymbol(s, id, num); break;
 	case '=': s = EQUALS; break;
 	case ':': s = COLON; break;
-	case ';': s = SEMICOL; break;
+	case ';': s = SEMICOL;break;
 	case ',': s = COMMA; break;
 	case '.': s = PERIOD; break;
 	case '$': s = DOLLAR; break;
@@ -62,9 +62,13 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 	default: s = BADSYM; break;
 	}
 	getch();
+	if (prevch == ':' || prevch == ';' || prevch == ','){
+		lineEnd = true;
+	}
       } 
     }
-  }		    
+  }
+  curSym = s;		    
 };
 
 void scanner::skipspaces()
@@ -88,8 +92,10 @@ void scanner::skipcomments()
 
 string scanner::getLine()
 {
-  while (curch != ':' && curch != ';' && curch != ',') {
-    getch();
+  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
+	  while (curch != ':' && curch != ';' && curch != ',') {
+	    getch();
+	  }
   }
   return currentLine;
 }
@@ -133,9 +139,10 @@ void scanner::getch()
   eofile = (inf.get(curch) == 0);
   currentLine.push_back(curch);                     // Add new character to string
 
-  if (prevch == ':' || prevch == ';' || prevch == ',') {
+  if (lineEnd) {
     currentLine.clear();                             // Clear string to start new line
     skipspaces();
+    lineEnd = false;
   }
 }
 
