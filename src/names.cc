@@ -10,16 +10,16 @@ using namespace std;
 names::names(void) //Initializes nametable with reserved keywords
 {
   nametable.clear();
-  nametable.push_back("DEVICES");
-  nametable.push_back("CONNECTIONS");
-  nametable.push_back("MONITORS");
+  nametable.push_back("DEVICES");     //0
+  nametable.push_back("CONNECTIONS"); //1
+  nametable.push_back("MONITORS");    //2..
+  nametable.push_back("FIN");
   nametable.push_back("CLOCK");
   nametable.push_back("SWITCH");
   nametable.push_back("AND");
   nametable.push_back("NAND");
   nametable.push_back("OR");
   nametable.push_back("NOR");
-  nametable.push_back("");
   nametable.push_back("DTYPE");
   nametable.push_back("XOR");
   nametable.push_back("I1");
@@ -43,7 +43,7 @@ names::names(void) //Initializes nametable with reserved keywords
   nametable.push_back("SET");
   nametable.push_back("CLR");
   nametable.push_back("Q");
-  nametable.push_back("QBAR");
+  nametable.push_back("QBAR");        //..33
 }
 
 name names::cvtname (namestring str) 
@@ -66,7 +66,7 @@ name names::cvtname (namestring str)
 name names::lookup (namestring str) 
 {
   name id = cvtname(str);
-  if (id == blankname) {
+  if (id == blankname) {  // i.e. if not found
     id = newname(str);
     return id;
   } else {
@@ -77,16 +77,21 @@ name names::lookup (namestring str)
 name names::newname (namestring str)
 {
   if (str.length() > maxlength) {
-    str = str.substr(0,maxlength);
+    str = str.substr(0,maxlength); //truncate
   }
-  nametable.push_back(str);
-  name id = cvtname(str);
-  return id;
+  if (str == ""){
+    return blankname;    // empty string - don't insert
+  }else {
+    nametable.push_back(str); // insert string in table
+    name id = cvtname(str);
+    return id;
+  }
 }
 
 namestring names::getname(name id)
  {
-   if (blankname < id < nametable.size()) {
+   if (id > blankname && id < nametable.size()) {
+     cout << "valid" << endl;
      namestring namestr = nametable[id];
      return namestr;
    } else return "Invalid Name ID";
@@ -94,12 +99,12 @@ namestring names::getname(name id)
 
 void names::writename (name id)
 {
-  cout << getname(id) ;
+  cout << getname(id) << endl ;
 }
 
 length names::namelength (name id)
 {
-  if (blankname < id < nametable.size()) {
+  if (id > blankname && id < nametable.size()) {
     length strlength = nametable[id].length();
     return strlength;
   } else return blankname;
