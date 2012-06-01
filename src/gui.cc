@@ -75,18 +75,26 @@ void MyGLCanvas::Render(int cycles)
 	break;
       }
       glBegin(GL_LINE_STRIP);
+      xdiff=(width-60)/cyclesdisplayed;
+      if(xdiff>20) xdiff=20;
       for (int i=0; i<cyclesdisplayed; i++) {
 	if (mmz->getsignaltrace(j, i, s)) {
 	  if (s==low) ydiff = -10.0;
 	  if (s==high) ydiff = 10.0;
-	  xdiff=(width-60)/cyclesdisplayed;
-	  if(xdiff>20) xdiff=20;
 	  glVertex2f(xdiff*i+20.0, y+ydiff); 
 	  glVertex2f(xdiff*(i+1)+20.0, y+ydiff);
 	}
       }
-      y-=50;
       glEnd();
+      glEnable(GL_LINE_STIPPLE);
+      glLineStipple(1,0xBBBB);
+      glColor3f(0.0, 0.0, 0.0);
+      glBegin(GL_LINE_STRIP);
+      glVertex2f(20.0, y); 
+      glVertex2f(xdiff*cyclesdisplayed+20.0, y);
+      glEnd();
+      glDisable(GL_LINE_STIPPLE);
+      y-=50;
     }
   }
   // We've been drawing to the back buffer, flush the graphics pipeline and swap the back buffer to the front
@@ -144,6 +152,7 @@ void MyGLCanvas::OnMouse(wxMouseEvent& event)
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_MENU(wxID_EXIT, MyFrame::OnExit)
   EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
+  EVT_MENU(wxID_LOAD, MyFrame::OnLoad)
   EVT_BUTTON(RUN_BUTTON_ID, MyFrame::OnRun)
   EVT_BUTTON(CONTINUE_BUTTON_ID, MyFrame::OnContinue)
   EVT_BUTTON(SWITCH_BUTTON_ID, MyFrame::OnSwitches)
@@ -171,8 +180,14 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 
   switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, mmz);
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz);
+  console = new wxTextCtrl(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
+  console ->SetMinSize(wxSize(0,60));
+  console ->SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
+
+  wxStreamToTextRedirector redirect(console);
 
   wxMenu *fileMenu = new wxMenu;
+  fileMenu->Append(wxID_LOAD, wxT("&Parse File") );
   fileMenu->Append(wxID_ABOUT, wxT("&About"));
   fileMenu->Append(wxID_EXIT, wxT("&Quit"));
   wxMenuBar *menuBar = new wxMenuBar;
@@ -180,8 +195,11 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   SetMenuBar(menuBar);
 
   wxBoxSizer *topsizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *canvassizer = new wxBoxSizer(wxVERTICAL);
   canvas = new MyGLCanvas(this, wxID_ANY, monitor_mod, names_mod);
-  topsizer->Add(canvas, 1, wxEXPAND | wxALL, 10);
+  topsizer->Add(canvassizer, 1, wxEXPAND | wxALL, 10);
+  canvassizer->Add(canvas, 1, wxEXPAND | wxALL, 10);
+  canvassizer->Add(console, 0, wxEXPAND | wxRIGHT | wxLEFT, 10);
 
   wxBoxSizer *button_sizer = new wxBoxSizer(wxVERTICAL);
   //Run Button
@@ -201,6 +219,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 
   SetSizeHints(400, 400);
   SetSizer(topsizer);
+
 }
 
 void MyFrame::OnExit(wxCommandEvent &event)
@@ -212,8 +231,16 @@ void MyFrame::OnExit(wxCommandEvent &event)
 void MyFrame::OnAbout(wxCommandEvent &event)
   // Callback for the about menu item
 {
-  wxMessageDialog about(this, wxT("Example wxWidgets GUI\nAndrew Gee\nFebruary 2011"), wxT("About Logsim"), wxICON_INFORMATION | wxOK);
+  wxMessageDialog about(this, wxT("Logic Simulator GUI\nTom Mottram\nMay 2012"), wxT("About Logsim"), wxICON_INFORMATION | wxOK);
   about.ShowModal();
+}
+
+void MyFrame::OnLoad(wxCommandEvent &event)
+{
+  wxString filename = wxFileSelector(wxT("Choose file to parse"));
+  if(!filename.IsEmpty()){
+    //TODO:Run Parser
+  }
 }
 
 void MyFrame::OnRun(wxCommandEvent &event)
@@ -261,7 +288,8 @@ void MyFrame::OnMonitors(wxCommandEvent &event){
      position.y+=(currentSize.GetHeight()-150)/2;
   }
   monitors->SetPosition(position);
-  monitors->Iconize(false);
+
+ monitors->Iconize(false);
   monitors->SetFocus();
   monitors->Raise();  
   monitors->Show(true);
@@ -425,17 +453,22 @@ void MonitorPanel::OnAdd(wxCommandEvent &event){
   name sig = sigs->at(sigindex);
   bool ok;
   mons->makemonitor(dev,sig,ok);
-  name* mon = new name[2];
-  mon[0]=dev;
-  mon[1]=sig;
-  monnames->push_back(mon);
-  namestring monname = nmz->getname(dev);
-  if(sig!=blankname){
-    monname+=".";
-    monname+=nmz->getname(sig);
+  if(ok){
+    name* mon = new name[2];
+    mon[0]=dev;
+    mon[1]=sig;
+    monnames->push_back(mon);
+    namestring monname = nmz->getname(dev);
+    if(sig!=blankname){
+      monname+=".";
+      monname+=nmz->getname(sig);
+    }
+    removeChoice->Append(wxString::FromUTF8(monname.c_str()));
+    removeChoice->SetSelection(0);
+  }else{
+    wxMessageDialog warning(this, wxT("Max number of monitors reached: 10"), wxT("Warning"), wxICON_ERROR | wxOK);
+    warning.ShowModal();
   }
-  removeChoice->Append(wxString::FromUTF8(monname.c_str()));
-  removeChoice->SetSelection(0);
 }
 
 void MonitorPanel::OnRemove(wxCommandEvent &event){
