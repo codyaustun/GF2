@@ -11,6 +11,7 @@
 
 
 
+
 void symbolToString(symbol s){
     switch (s) {
         case BADSYM:
