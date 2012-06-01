@@ -8,7 +8,7 @@ SW6 = SWITCH $ 0,
 AND1 = AND $ 2, 
 NAND1 = NAND $ 2, 
 AND2 = AND $ 2, 
-OR1 = OR $ 3; /3-input OR gate/
+OR1 = OR $ 3;
 
 CONNECTIONS: 
 SW1 - AND1.I1, 

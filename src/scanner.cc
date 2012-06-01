@@ -9,9 +9,11 @@
 
 using namespace std;
 
-scanner::scanner(names* namesMod, char* defFile)
+scanner::scanner(names* namesMod, const char* defFile)
 {
   dfnames = namesMod;
+  cout << "Hello" << endl;
+  cout << defFile << endl;
   inf.open(defFile); // Open defFile
   if (!inf) {
     displayError("Cannot open file");

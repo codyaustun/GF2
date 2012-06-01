@@ -9,12 +9,12 @@
 #ifndef _Parser_h
 #define _Parser_h
 #include "scanner.h"
-#include <stdexcept>;
-#include <vector>;
-#include "names.h";
-#include "devices.h";
-#include "network.h";
-#include "monitor.h";
+#include <stdexcept>
+#include <vector>
+#include "names.h"
+#include "devices.h"
+#include "network.h"
+#include "monitor.h"
 
 using std::runtime_error;
 
@@ -40,7 +40,7 @@ struct inpTemp{
 
 class parser {
 public:
-    bool readline();
+    bool readin();
     // Proper constructor
     parser(network* net, devices* dev, monitor* mon, scanner* s);
 private:
@@ -91,6 +91,7 @@ private:
     bool nameExist(vector<name> names, name n);
     deviceTemp getDeviceTemp(name d);
     bool usedInput(name d, name s);
+    void symbolToString(symbol s);
 };
 
 

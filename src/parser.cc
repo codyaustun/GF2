@@ -9,6 +9,7 @@
 #include "parser.h"
 
 
+
 parser::parser(network* net, devices* dev, monitor* mon, scanner* s)
 {
     errorCount = 0;
@@ -20,24 +21,10 @@ parser::parser(network* net, devices* dev, monitor* mon, scanner* s)
 
 
 
-int main(){
-    /*
-    scanner s1(2,2,2);
-    
-    parser p1(s1);
-    
-    bool output = p1.readline();
-    
-    // For testing
-    cout << "Was the file correct " << output << endl;
-    cout << "test over" << endl;
-    */
-    
-    
-}
 
 
-bool parser::readline()
+
+bool parser::readin()
 {
     try {
         // Get first Symbol
@@ -57,6 +44,7 @@ bool parser::readline()
         
         // Check syntax rule that Connection list should be second
         // Create connection list
+	snz->getSymbol(curSym, curName, curInt);
         if (curSym == CONSYM) {
             snz->getSymbol(curSym, curName, curInt);
             buildConnectionList();
@@ -68,6 +56,11 @@ bool parser::readline()
         
         // Check syntax rule that Monitor list should be third
         // Create Monitor List
+	symbolToString(curSym);
+	cout << endl;
+	snz->getSymbol(curSym, curName, curInt);
+	symbolToString(curSym);
+	cout << endl;
         if (curSym == MONSYM) {
             snz->getSymbol(curSym, curName, curInt);
             buildMonitorList();
@@ -78,9 +71,11 @@ bool parser::readline()
         }
         
         // Check syntax rule that End of file symbol should be fourth
+	snz->getSymbol(curSym, curName, curInt);
         if (curSym == FINSYM) {
             
             // TO DO decide if it should be both
+	    cout << "hi";
             netz->checknetwork(ok);
             return ((errorCount == 0) && ok);
         }else{
@@ -116,7 +111,7 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     errorCount++; 
     
     // Scanner should print out current line
-    snz->getCurrentLine(); 
+    cout << snz->getCurrentLine() << endl; 
     
     // Print error message
     // TO DO make this sounds better
@@ -125,6 +120,8 @@ void parser::error(string message, symbol stop) throw (runtime_error)
         cout << "Detected an invalid symbol. " << endl;
     }
     cout << message << endl;
+    symbolToString(curSym);
+    cout << endl;
     
     // Advance to the next instance of the stop symbol
     while ((curSym != stop) && (curSym != EOFSYM)) {
@@ -151,7 +148,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     errorCount++; 
     
     // Scanner should print out current line
-    snz->getCurrentLine(); 
+    cout << snz->getCurrentLine() << endl; 
     
     
     
@@ -162,6 +159,8 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
         cout << "Detected an invalid symbol. ";
     }
     cout << message << endl;
+    symbolToString(curSym);
+    cout << endl;
     
     // Advance to the next instance of the stop symbol
     // For best performance make less likely stop symbol stop2
@@ -309,6 +308,8 @@ void parser::device() throw (runtime_error)
                 // when creating deviceTemp subtract 4 from devType
                 newDev.type = (devType - 4);
                 madeD.push_back(newDev);
+		// TO DO combine madeD devNames
+		devNames.push_back(devName);
                 switch (newDev.type) {
                     case 0:
                         devz->makedevice(aclock,newDev.n,newDev.option, ok);
@@ -411,9 +412,6 @@ void parser::connection() throw (runtime_error)
         // check for first name
         name devName1 = nameCheck();
         
-        // check for first period
-        if(curSym == PERIOD){
-            snz->getSymbol(curSym, curName, curInt);
             
             // check signal
             name sig1 = signalCheck(devName1);
@@ -428,10 +426,6 @@ void parser::connection() throw (runtime_error)
                 
                 // check for second name
                 name devName2 = nameCheck();
-                
-                // check for second period
-                if(curSym == PERIOD){
-                    snz->getSymbol(curSym, curName, curInt);
                     
                     // check for second signal
                     name sig2 = signalCheck(devName2);
@@ -444,20 +438,17 @@ void parser::connection() throw (runtime_error)
                     inpTemp usedIn;
                     usedIn.dev = devName2;
                     usedIn.sig = sig2;
+		    // usedIns.push_back(usedIn);
                     
                     // Make connection
                     netz->makeconnection(devName2, sig2, devName1, sig1,ok);
                     
                     
-                }else{
-                   nextLine("Expected a period.");
-                }
+                
             }else{
                 nextLine("Expected a dash."); 
             }
-        }else{
-            nextLine("Expected a period.");
-        }
+        
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
             // rethrow in case of EOFSYM error
@@ -625,9 +616,7 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
                         if (!(dev.option >= (devSignal-11))){
                             nextLine("This gate doesn't have that many inputs.");
                         }else{
-                            if (!usedInput(dev.n, devSignal)){
-                                return devSignal; 
-                            }else{
+                            if (usedInput(dev.n, devSignal)){
                                 nextLine("This input has already been used"); 
                             }
                             
@@ -639,15 +628,11 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
                 case 6:
                     if (!((devSignal > 27) && (devSignal < 34))) {
                         nextLine("A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR");
-                    }else{
-                        return devSignal;
                     }
                     break;
                 case 7:
                     if (!((devSignal > 11) && (devSignal < 14))){
                         nextLine("A XOR only 2 inputs.");
-                    }else{
-                        return devSignal;
                     }
                     break;
                     
@@ -656,9 +641,8 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
                     break;
             }
             
-            
-            
             snz->getSymbol(curSym, curName, curInt);
+	    return devSignal;
             
         }else{
             nextLine("Expected an input or output");
@@ -674,8 +658,7 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
             return blankname;
         }
         
-        // Assuming wanted signal is a device output
-        // TO DO check if output has already been used
+        
     }
     
 }
@@ -809,5 +792,63 @@ bool parser::usedInput(name d, name s)
         }
     } 
     return false;
+}
+
+void parser::symbolToString(symbol s){
+    switch (s) {
+        case BADSYM:
+            cout << "BADSYM";
+            break;
+        case COLON:
+            cout << "COLON";
+            break;
+        case NAMESYM:
+            cout << "NAMESYM";
+            break;
+        case EQUALS:
+            cout << "EQUALS";
+            break;
+        case TYPESYM:
+            cout << "TYPESYM";
+            break;
+        case DOLLAR:
+            cout << "DOLLAR";
+            break;
+        case NUMSYM:
+            cout << "NUMSYM";
+            break;
+        case COMMA:
+            cout << "COMMA";
+            break;
+        case DEVSYM:
+            cout << "DEVSYM";
+            break;
+        case CONSYM:
+            cout << "CONSYM";
+            break;
+        case MONSYM:
+            cout << "MONSYM";
+            break;
+        case FINSYM:
+            cout << "FINSYM";
+            break;
+        case EOFSYM:
+            cout << "EOFSYM";
+            break;
+        case SIGSYM:
+            cout << "SIGSYM";
+            break;
+        case SEMICOL:
+            cout << "SEMICOL";
+            break;
+        case DASH:
+            cout << "DASH";
+            break;
+        case PERIOD:
+            cout << "PERIOD";
+            
+        default:
+            break;
+    }
 }
 

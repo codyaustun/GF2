@@ -39,7 +39,7 @@ class scanner {
   name id;
   int num;
 
-  scanner(names* namesMod, char* defFile);
+  scanner(names* namesMod, const char* defFile);
   ~scanner();
 
   void getSymbol(symbol& s, name& id, int& num);
