@@ -75,7 +75,7 @@ void MyGLCanvas::Render(int cycles)
 	break;
       }
       glBegin(GL_LINE_STRIP);
-      xdiff=(width-60)/cyclesdisplayed;
+      xdiff=(float)(width-60)/cyclesdisplayed;
       if(xdiff>20) xdiff=20;
       for (int i=0; i<cyclesdisplayed; i++) {
 	if (mmz->getsignaltrace(j, i, s)) {
