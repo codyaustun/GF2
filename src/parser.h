@@ -63,6 +63,7 @@ private:
     vector<name> devNames;     // Vector of successfully create device names
     vector<deviceTemp> madeD;   // Vector of successfully created devices
     vector<inpTemp> usedIns; // Vector of created inputs
+    vector<inpTemp> allIns; // Vector of all inputs. 
     
 
     

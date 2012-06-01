@@ -312,6 +312,12 @@ void parser::device() throw (runtime_error)
                             break;
                         case 2:
                             devz->makedevice(andgate,newDev.n,newDev.option, ok);
+                            for(int x =0; x < newDev.option; x++){
+                                inpTemp newSig;
+                                newSig.dev = devName;
+                                //
+                                newSig.sig = (x+12);
+                            }
                             break;
                         case 3:
                             devz->makedevice(nandgate,newDev.n,newDev.option, ok);
