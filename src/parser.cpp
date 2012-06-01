@@ -41,12 +41,12 @@ bool parser::readline()
 {
     try {
         // Get first Symbol
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         
         // Check syntax rule that device list should be first
         // Create device list
         if (curSym == DEVSYM) {
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             buildDeviceList();
         }else{
             stopSym = COLON;
@@ -58,7 +58,7 @@ bool parser::readline()
         // Check syntax rule that Connection list should be second
         // Create connection list
         if (curSym == CONSYM) {
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             buildConnectionList();
         }else{
             stopSym = COLON;
@@ -69,7 +69,7 @@ bool parser::readline()
         // Check syntax rule that Monitor list should be third
         // Create Monitor List
         if (curSym == MONSYM) {
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             buildMonitorList();
         }else{
             stopSym = COLON;
@@ -116,7 +116,7 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     errorCount++; 
     
     // Scanner should print out current line
-    scan.getCurrentLine(); 
+    snz->getCurrentLine(); 
     
     // Print error message
     // TO DO make this sounds better
@@ -128,7 +128,7 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     
     // Advance to the next instance of the stop symbol
     while ((curSym != stop) && (curSym != EOFSYM)) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
     }
     
     
@@ -151,7 +151,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     errorCount++; 
     
     // Scanner should print out current line
-    scan.getCurrentLine(); 
+    snz->getCurrentLine(); 
     
     
     
@@ -166,7 +166,7 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     // Advance to the next instance of the stop symbol
     // For best performance make less likely stop symbol stop2
     while ((curSym != stop1) && (curSym != stop2) && (curSym != EOFSYM)) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
     }
     
     // TO DO remove this line. For debugging only
@@ -186,7 +186,7 @@ void parser::buildDeviceList()
     
     // check for colon
     if (curSym == COLON) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'DEVICES'.",
@@ -194,7 +194,7 @@ void parser::buildDeviceList()
     }
     device();
     while (curSym == COMMA) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         device();
     } 
     
@@ -213,7 +213,7 @@ void parser::buildConnectionList()
     
     // check for colon
     if (curSym == COLON) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'CONNECTIONS'.",
@@ -223,7 +223,7 @@ void parser::buildConnectionList()
     
     connection();
     while (curSym == COMMA) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         connection();
     }
     
@@ -232,6 +232,11 @@ void parser::buildConnectionList()
         stopSym = curSym;
         error("There should be a ';' at the end of the connections section.",
               stopSym);
+    }
+    
+    if(usedIns.size() != allIns.size()){
+        stopSym = curSym;
+        error("All inputs must be connected to an output.", stopSym);
     }
     
     // TO DO check to make sure all inputs are connected
@@ -243,7 +248,7 @@ void parser::buildMonitorList()
     
     // check for colon
     if (curSym == COLON) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
         error("There should be a colon following the keyword 'MONITORS'.",
@@ -253,7 +258,7 @@ void parser::buildMonitorList()
     mon();
     
     while (curSym == COMMA) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         mon();
     }
     
@@ -276,7 +281,7 @@ void parser::device() throw (runtime_error)
         
         // check for equals sign
         if (curSym == EQUALS){
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             
             // check type
             name devType = type();
@@ -287,7 +292,7 @@ void parser::device() throw (runtime_error)
             if (devType < 10){
             // check for dollar sign
                 if (curSym == DOLLAR) {
-                    scan.getSymbol(curSym, curName, curInt);
+                    snz->getSymbol(curSym, curName, curInt);
                     
                     // check for device option
                     int devOpt = option(devType);
@@ -295,56 +300,93 @@ void parser::device() throw (runtime_error)
                 }else{
                     nextLine("Expected a dollar sign.");  
                 }
-            }else{
-                if ((curSym == COMMA) || (curSym == SEMICOL)) {
-                    
-                    // add name to devNames
-                    newDev.n = devName;
-                    // when creating deviceTemp subtract 4 from devType
-                    newDev.type = (devType - 4);
-                    madeD.push_back(newDev);
-                    switch (newDev.type) {
-                        case 0:
-                            devz->makedevice(aclock,newDev.n,newDev.option, ok);
-                            break;
-                        case 1:
-                            devz->makedevice(aswitch,newDev.n,newDev.option, ok);
-                            break;
-                        case 2:
-                            devz->makedevice(andgate,newDev.n,newDev.option, ok);
-                            for(int x =0; x < newDev.option; x++){
-                                inpTemp newSig;
-                                newSig.dev = devName;
-                                //
-                                newSig.sig = (x+12);
-                            }
-                            break;
-                        case 3:
-                            devz->makedevice(nandgate,newDev.n,newDev.option, ok);
-                            break;
-                        case 4:
-                            devz->makedevice(orgate,newDev.n,newDev.option, ok);
-                            break;
-                        case 5:
-                            devz->makedevice(norgate,newDev.n,newDev.option, ok);
-                            break;
-                        case 6:
-                            devz->makedevice(dtype,newDev.n,newDev.option, ok);
-                            break;
-                        case 7:
-                            devz->makedevice(xorgate,newDev.n,newDev.option, ok);
-                            break;
-                            
-                        default:
-                            break;
-                            
-                            
-                    }
-                    
-                }else{
-                    nextLine("Expected a ',' or ';'");
-                }
             }
+            
+            if ((curSym == COMMA) || (curSym == SEMICOL)) {
+                
+                // add name to devNames
+                newDev.n = devName;
+                // when creating deviceTemp subtract 4 from devType
+                newDev.type = (devType - 4);
+                madeD.push_back(newDev);
+                switch (newDev.type) {
+                    case 0:
+                        devz->makedevice(aclock,newDev.n,newDev.option, ok);
+                        break;
+                    case 1:
+                        devz->makedevice(aswitch,newDev.n,newDev.option, ok);
+                        break;
+                    case 2:
+                        devz->makedevice(andgate,newDev.n,newDev.option, ok);
+                        for(int x =0; x < newDev.option; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+12);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                    case 3:
+                        devz->makedevice(nandgate,newDev.n,newDev.option, ok);
+                        for(int x =0; x < newDev.option; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+12);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                    case 4:
+                        devz->makedevice(orgate,newDev.n,newDev.option, ok);
+                        for(int x =0; x < newDev.option; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+12);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                    case 5:
+                        devz->makedevice(norgate,newDev.n,newDev.option, ok);
+                        for(int x =0; x < newDev.option; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+12);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                    case 6:
+                        devz->makedevice(dtype,newDev.n,newDev.option, ok);
+                        for(int x =0; x < 4; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+28);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                    case 7:
+                        devz->makedevice(xorgate,newDev.n,newDev.option, ok);
+                        for(int x =0; x < 2; x++){
+                            inpTemp newSig;
+                            newSig.dev = devName;
+                            // Plus 12 to get right place in names table.
+                            newSig.sig = (x+12);
+                            allIns.push_back(newSig);
+                        }
+                        break;
+                        
+                    default:
+                        break;
+                        
+                        
+                }
+                    
+            }else{
+                nextLine("Expected a ',' or ';'");
+            }
+            
         }else{
             nextLine("Expected an equals sign.");
         }
@@ -371,7 +413,7 @@ void parser::connection() throw (runtime_error)
         
         // check for first period
         if(curSym == PERIOD){
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             
             // check signal
             name sig1 = signalCheck(devName1);
@@ -382,14 +424,14 @@ void parser::connection() throw (runtime_error)
             
             // check for dash
             if (curSym == DASH) {
-                scan.getSymbol(curSym, curName, curInt);
+                snz->getSymbol(curSym, curName, curInt);
                 
                 // check for second name
                 name devName2 = nameCheck();
                 
                 // check for second period
                 if(curSym == PERIOD){
-                    scan.getSymbol(curSym, curName, curInt);
+                    snz->getSymbol(curSym, curName, curInt);
                     
                     // check for second signal
                     name sig2 = signalCheck(devName2);
@@ -478,7 +520,7 @@ name parser::nameCheck() throw (runtime_error)
             throw runtime_error("Skipping to next line");
         }
         
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         
         return newName;
         
@@ -517,7 +559,7 @@ name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
             */
         }
         
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         return newName;
      
     // TO DO figure out a nicer way to do this
@@ -560,7 +602,7 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
     // device must exist by the time this function is called
     deviceTemp dev = getDeviceTemp(deviceName);
     if (curSym == PERIOD) {
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         if(curSym == SIGSYM){
             name devSignal = curName;
             
@@ -616,7 +658,7 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
             
             
             
-            scan.getSymbol(curSym, curName, curInt);
+            snz->getSymbol(curSym, curName, curInt);
             
         }else{
             nextLine("Expected an input or output");
@@ -650,7 +692,7 @@ name parser::type() throw (runtime_error)
         // Done by definition
         
         // TO ASK will devType be changed when getSymbol is called?
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         return devType;
         
     }else{
@@ -722,7 +764,7 @@ int parser::option(name devType) throw (runtime_error)
                 break;
         }
         
-        scan.getSymbol(curSym, curName, curInt);
+        snz->getSymbol(curSym, curName, curInt);
         return option;
         
     }else{

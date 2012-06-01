@@ -8,7 +8,7 @@
 
 #ifndef _Parser_h
 #define _Parser_h
-#include "CCScanner.h"
+#include "scanner.h"
 #include <stdexcept>;
 #include <vector>;
 #include "names.h";
@@ -51,7 +51,6 @@ private:
     int errorCount;   // Number of errors
     symbol stopSym;   // First stop symbol for error control
     symbol stopSym2;  // Second stop symbol for error control
-    scanner scan;     // Scanner for getting symbols
     // TO DO change all references to scan to snz
     scanner* snz;     // Scanner for getting symbols
     network* netz;
