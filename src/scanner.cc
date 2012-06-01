@@ -21,7 +21,6 @@ scanner::scanner(names* namesMod, char* defFile)
   inf.clear();
   inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
   currentLine.clear();
-  cout << "File open: " << defFile << endl;
   initch();
 }
 
@@ -33,7 +32,6 @@ scanner::~scanner()
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {
   id = blankname; num = 0;
-  //initch();
   skipspaces();
   if (eofile) s = EOFSYM;
   else {
@@ -47,7 +45,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 	  if (id == 1) s = CONSYM; else
 	    if (id == 2) s = MONSYM; else
 	      if (id == 3) s = FINSYM; else
-		if (id >= 3 && id <= 11) s = TYPSYM; else    
+		if (id >= 3 && id <= 11) s = TYPESYM; else    
 		  if(id >=12 && id <= 33) s = SIGSYM; else
 		    s = NAMESYM;
       } else {
