@@ -25,6 +25,7 @@ enum {
   SWITCH_CHOICE_ID,
   SWITCHON_BUTTON_ID,
   SWITCHOFF_BUTTON_ID,
+  wxID_LOAD,
 }; // widget identifiers
 
 class MyGLCanvas;
@@ -40,6 +41,7 @@ class MyFrame: public wxFrame
  private:
   MyGLCanvas *canvas;                     // GL drawing area widget to draw traces
   wxSpinCtrl *spin;                       // control widget to select the number of cycles
+  wxTextCtrl *console;
   names *nmz;                             // pointer to names class
   devices *dmz;                           // pointer to devices class
   monitor *mmz;                           // pointer to monitor class
@@ -49,6 +51,7 @@ class MyFrame: public wxFrame
   void runnetwork(int ncycles);           // function to run the logic network
   void OnExit(wxCommandEvent& event);     // callback for exit menu item
   void OnAbout(wxCommandEvent& event);    // callback for about menu item
+  void OnLoad(wxCommandEvent& event); 
   void OnRun(wxCommandEvent& event);   // callback for run button
   void OnContinue(wxCommandEvent& event); 
   void OnSwitches(wxCommandEvent& event); 
