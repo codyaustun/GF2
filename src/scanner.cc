@@ -35,7 +35,6 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
   id = blankname; num = 0;
   //initch();
   skipspaces();
-  skipcomments();
   if (eofile) s = EOFSYM;
   else {
     if (isdigit(curch)) {
@@ -53,6 +52,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 		    s = NAMESYM;
       } else {
 	switch (curch) {
+	case '/': skipcomments(); break;
 	case '=': s = EQUALS; break;
 	case ':': s = COLON; break;
 	case ';': s = SEMICOL; break;
@@ -75,17 +75,16 @@ void scanner::skipspaces()
    }
  }
 void scanner::skipcomments()
-{
-  if (curch == '/') {                  //If '/' read, skip through until another '/' is read or eof reached  
+{         
     currentLine.clear();
     eofile = (inf.get(curch) == 0);
-    while (!eofile && curch != '/') {
+    while (!eofile && prevch != '/') { //If '/' read, skip through until another '/' is read or eof reached 
+      prevch = curch;
       eofile = (inf.get(curch) == 0);
     }
-  }
-  if (eofile) {
-    displayError("Comment not closed");
-  }
+   if (eofile) {
+     displayError("Comment not closed");
+   }
 }
 
 string scanner::getCurrentLine()
