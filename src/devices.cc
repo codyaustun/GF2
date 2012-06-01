@@ -370,6 +370,10 @@ devlink devices::getSwitches(){
   return switches;
 }
 
+devlink devices::getDevices(){
+  return netz->devicelist();
+}
+
 /***********************************************************************
  *
  * Executes all devices in the network to simulate one complete clock 
