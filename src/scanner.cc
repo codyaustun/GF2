@@ -22,6 +22,7 @@ scanner::scanner(names* namesMod, char* defFile)
   inf.seekg(0, ios::beg); // Seek beginning of file, clear any fail bits first
   currentLine.clear();
   cout << "File open: " << defFile << endl;
+  initch();
 }
 
 scanner::~scanner()
@@ -29,10 +30,10 @@ scanner::~scanner()
   inf.close(); // Close defFile
 }
 
-
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {
   id = blankname; num = 0;
+  //initch();
   skipspaces();
   skipcomments();
   if (eofile) s = EOFSYM;
@@ -149,3 +150,4 @@ void scanner::initch()
 {
   eofile = (inf.get(curch) == 0);
 }
+

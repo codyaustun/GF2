@@ -16,12 +16,13 @@ int main()
   symbol s = BADSYM;
   name id = blankname;
   int num = 0;
-  
-  while (s != EOFSYM) {
-    scan.getSymbol(s, id, num);
-    cout << "Symbol: " <<  s << " ID: " <<  id << " Number: " << num << endl;
-  }
- 
+
+  //scan.initch();
+   while (s != EOFSYM) {
+     scan.getSymbol(s, id, num);
+     cout << "Symbol: " <<  s << " ID: " <<  id << " Number: " << num << endl;
+   }
+
   //namesMod->writename(34);
 
   //scan.getSymbol(s, id, num);
