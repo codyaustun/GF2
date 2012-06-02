@@ -166,8 +166,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 END_EVENT_TABLE()
   
 MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size,
-		 names *names_mod, devices *devices_mod, monitor *monitor_mod,  long style):
-  wxFrame(parent, wxID_ANY, title, pos, size, style)
+		 names *names_mod, devices *devices_mod, monitor *monitor_mod, wxTextCtrl *console, long style):
+  wxFrame(parent, wxID_ANY, title, pos, size, style), console(console)
   // Constructor - initialises pointers to names, devices and monitor classes, lays out widgets
   // using sizers
 {
@@ -185,12 +185,12 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 
   switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, mmz);
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
-  console = new wxTextCtrl(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
+  //console = new wxTextCtrl(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
+  console->Create(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
   console ->SetMinSize(wxSize(0,60));
-  console ->SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
+  console ->SetFont(wxFont(6, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 
-  wxStreamToTextRedirector redirect(console);
-
+  //wxStreamToTextRedirector redirect(console);
   wxMenu *fileMenu = new wxMenu;
   fileMenu->Append(wxID_LOAD, wxT("&Parse File") );
   fileMenu->Append(wxID_ABOUT, wxT("&About"));
