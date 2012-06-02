@@ -7,6 +7,7 @@
 #include "scanner.h"
 #include "names.h"
 
+
 using namespace std;
 
 scanner::scanner(names* namesMod, const char* defFile)
@@ -14,7 +15,7 @@ scanner::scanner(names* namesMod, const char* defFile)
   dfnames = namesMod;
   inf.open(defFile); // Open defFile
   if (!inf) {
-    cout << "Error: Cannot open file " << defFile << endl;
+    displayError("Cannot open file");
     exit;
   }
   // If file successfully opened:
@@ -29,14 +30,8 @@ scanner::~scanner()
   inf.close(); // Close defFile
 }
 
-void scanner::initch()
-{
-  eofile = (inf.get(curch) == 0);
-}
-
-
 void scanner::getSymbol(symbol& s, name& id, int& num)
-{	
+{
   id = blankname; num = 0;
   skipspaces();
   if (eofile) s = EOFSYM;
@@ -46,35 +41,35 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
       getnumber(num);
     } else {
       if (isalpha(curch)) {
-	getname(id);
-	if (id == 0) s = DEVSYM; else
-	  if (id == 1) s = CONSYM; else
-	    if (id == 2) s = MONSYM; else
-	      if (id == 3) s = FINSYM; else
-		if (id >= 3 && id <= 11) s = TYPESYM; else    
-		  if(id >=12 && id <= 33) s = SIGSYM; else
-		    s = NAMESYM;
+getname(id);
+if (id == 0) s = DEVSYM; else
+if (id == 1) s = CONSYM; else
+if (id == 2) s = MONSYM; else
+if (id == 3) s = FINSYM; else
+if (id >= 3 && id <= 11) s = TYPESYM; else
+if(id >=12 && id <= 33) s = SIGSYM; else
+s = NAMESYM;
       } else {
-	switch (curch) {
-	case '/': skipcomments(); getSymbol(s, id, num); break;
-	case '=': s = EQUALS; break;
-	case ':': s = COLON; break;
-	case ';': s = SEMICOL;break;
-	case ',': s = COMMA; break;
-	case '.': s = PERIOD; break;
-	case '$': s = DOLLAR; break;
-	case '-': s = DASH; break;
-	default: s = BADSYM; break;
-	}
-	getch();
-	if (prevch == ':' || prevch == ';' || prevch == ','){
-		lineEnd = true;
-	}
-      } 
+switch (curch) {
+case '/': skipcomments(); getSymbol(s, id, num); break;
+case '=': s = EQUALS; break;
+case ':': s = COLON; break;
+case ';': s = SEMICOL;break;
+case ',': s = COMMA; break;
+case '.': s = PERIOD; break;
+case '$': s = DOLLAR; break;
+case '-': s = DASH; break;
+default: s = BADSYM; break;
+}
+getch();
+if (prevch == ':' || prevch == ';' || prevch == ','){
+lineEnd = true;
+}
+      }
     }
   }
-  curSym = s;		    
-}
+  curSym = s;
+};
 
 void scanner::skipspaces()
 {
@@ -83,78 +78,90 @@ void scanner::skipspaces()
    }
  }
 void scanner::skipcomments()
-{         
+{
     currentLine.clear();
     eofile = (inf.get(curch) == 0);
-    while (!eofile && prevch != '/') { //If '/' read, skip through until another '/' is read or eof reached 
+    while (!eofile && prevch != '/') { //If '/' read, skip through until another '/' is read or eof reached
       prevch = curch;
       eofile = (inf.get(curch) == 0);
     }
    if (eofile) {
-     cout << "Error: Comment not closed" << endl;
+     displayError("Comment not closed");
    }
 }
 
-void scanner::getnumber(int &number)               // Check for max possible number here?
+string scanner::getLine()
 {
-  number = 0;                                      // Clear variable
-  while (isdigit(curch)) {                         // Read number from file
-     number = 10*number + atoi(&curch);
-    getch();
-   }
-  if (number > 2^32) number = 2^32; 
+  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
+while (curch != ':' && curch != ';' && curch != ',') {
+getch();
+}
+  }
+  return currentLine;
 }
 
 void scanner::getname(name &id)
 {
   int i = 1;
   namestring str;
-  while (isalnum(curch)) {     // Read characters, save to str
-    str.push_back(curch) ;        
-    if ( i == maxlength) {     // If str reaches maxlength, put in table, keep reading 
+  while (isalnum(curch)) { // Read characters, save to str
+    str.push_back(curch) ;
+    if ( i == maxlength) { // If str reaches maxlength, put in table, keep reading
       id = dfnames->lookup(str);
       cout << dfnames->getname(id) << endl;
-    } 
+    }
     i = i+1;
     getch();
   }
 
-  if (i < maxlength) {                             // If str < maxlength, put in table
+  if (i < maxlength) { // If str < maxlength, put in table
     id = dfnames->lookup(str);
-  } else {                                         // If str > maxlength, inform user
-    cout << "Warning: Name " << str << " was truncated." << endl;
-  }   
+  } else { // If str > maxlength, inform user
+    string errM = "Name ";
+    errM.append(str);
+    errM.append(" was truncated.");
+    displayError(errM);
+  }
 }
 
+void scanner::getnumber(int &number) // Check for max possible number here?
+{
+  number = 0; // Clear variable
+  while (isdigit(curch)) { // Read number from file
+     number = 10*number + atoi(&curch);
+    getch();
+   }
+}
 
 void scanner::getch()
 {
   prevch = curch;
   eofile = (inf.get(curch) == 0);
-  currentLine.push_back(curch);                     // Builds up string currentLine as line is read
+  currentLine.push_back(curch); // Add new character to string
 
   if (lineEnd) {
-    currentLine.clear();                             // Clear string to start new line
+    currentLine.clear(); // Clear string to start new line
     skipspaces();
     lineEnd = false;
   }
 }
 
-string scanner::getLine() 
+void scanner::displayError (string errorMessage)
 {
-  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
-	  while (curch != ':' && curch != ';' && curch != ',') {
-	    getch();
-	  }
-  }
-  return currentLine;
+   cout << "Error: " << errorMessage << endl;
 }
 
-void scanner::getCurrentLine()
+void scanner::initch()
+{
+  eofile = (inf.get(curch) == 0);
+}
+
+void scanner::getCurrentLine() //called by parser, displays parser errors, location
 {
   string errorMarker;
   for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
   errorMarker.append("^");
+  
   cout << getLine() << endl;
   cout << errorMarker << endl;
 }
