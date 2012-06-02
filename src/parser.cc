@@ -299,13 +299,11 @@ void parser::device() throw (runtime_error)
             
             if ((curSym == COMMA) || (curSym == SEMICOL)) {
                 
-                // add name to devNames
                 newDev.n = devName;
                 // when creating deviceTemp subtract 4 from devType
                 newDev.type = (devType - 4);
                 madeD.push_back(newDev);
-		// TO DO combine madeD devNames
-		devNames.push_back(devName);
+
                 switch (newDev.type) {
                     case 0:
                         devz->makedevice(aclock,newDev.n,newDev.option, ok);
@@ -494,7 +492,7 @@ name parser::nameCheck() throw (runtime_error)
         
         name newName = curName;
         
-        if (!nameExist(devNames, newName)){
+        if (!nameExist(newName)){
             stopSym = COMMA;
             stopSym2 = SEMICOL;
             error("The device does not exist", stopSym,
@@ -532,7 +530,7 @@ name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
         
         // TO DO Test this
         // check semantically if name is okay.
-        if (nameExist(devNames, newName)){
+        if (nameExist(newName)){
             stopSym = COMMA;
             stopSym2 = SEMICOL;
             error("The name has already been used",
@@ -568,13 +566,14 @@ name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
     }
 }
 
-bool parser::nameExist(vector<name> names, name n)
+bool parser::nameExist(name n)
 {
     bool found = 0;
     
-    for (vector<name>::iterator i = names.begin(); i != names.end(); ++i) {
-        if (n == (*i)) {
+    for (vector<deviceTemp>::iterator i = madeD.begin(); i != madeD.end(); ++i) {
+        if (n == i->n) {
             found = 1;
+	    break;
         }
     }
     return found;

@@ -51,15 +51,13 @@ private:
     int errorCount;   // Number of errors
     symbol stopSym;   // First stop symbol for error control
     symbol stopSym2;  // Second stop symbol for error control
-    // TO DO change all references to scan to snz
     scanner* snz;     // Scanner for getting symbols
-    network* netz;
-    devices* devz;
-    monitor* monz;
+    network* netz;    // Network for making connections
+    devices* devz;    // Devices for making devices
+    monitor* monz;    // Monitor instance for making monitors in the network
    
     
     // Needed for semantic error control
-    vector<name> devNames;     // Vector of successfully create device names
     vector<deviceTemp> madeD;   // Vector of successfully created devices
     vector<inpTemp> usedIns; // Vector of created inputs
     vector<inpTemp> allIns; // Vector of all inputs. 
@@ -88,7 +86,7 @@ private:
     int option(name type) throw (runtime_error);
     
     // Helper functions
-    bool nameExist(vector<name> names, name n);
+    bool nameExist(name n);
     deviceTemp getDeviceTemp(name d);
     bool usedInput(name d, name s);
     void symbolToString(symbol s);
