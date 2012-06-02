@@ -34,6 +34,7 @@ class scanner {
 
   void displayError(string errorMessage);
   symbol curSym;
+  int curSymLen;
 
  public:
   symbol s;

@@ -61,6 +61,7 @@ case '$': s = DOLLAR; break;
 case '-': s = DASH; break;
 default: s = BADSYM; break;
 }
+curSymLen = 1;
 getch();
 if (prevch == ':' || prevch == ';' || prevch == ','){
 lineEnd = true;
@@ -102,13 +103,16 @@ getch();
 
 void scanner::getname(name &id)
 {
+  curSymLen = 1;
   int i = 1;
   namestring str;
   while (isalnum(curch)) { // Read characters, save to str
     str.push_back(curch) ;
+    curSymLen++;
     if ( i == maxlength) { // If str reaches maxlength, put in table, keep reading
       id = dfnames->lookup(str);
       cout << dfnames->getname(id) << endl;
+      
     }
     i = i+1;
     getch();
@@ -126,10 +130,12 @@ void scanner::getname(name &id)
 
 void scanner::getnumber(int &number) // Check for max possible number here?
 {
+  curSymLen = 1;
   number = 0; // Clear variable
   while (isdigit(curch)) { // Read number from file
      number = 10*number + atoi(&curch);
     getch();
+	curSymLen++;
    }
 }
 
@@ -137,12 +143,14 @@ void scanner::getch()
 {
   prevch = curch;
   eofile = (inf.get(curch) == 0);
+  if(curch != '\n'){
   currentLine.push_back(curch); // Add new character to string
-
+}
   if (lineEnd) {
     currentLine.clear(); // Clear string to start new line
     skipspaces();
     lineEnd = false;
+	currentLine.push_back(curch);
   }
 }
 
@@ -159,7 +167,7 @@ void scanner::initch()
 void scanner::getCurrentLine() //called by parser, displays parser errors, location
 {
   string errorMarker;
-  for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
+  for (int i = 0; i < (currentLine.length()-curSymLen); i++) errorMarker.append(" ");
   errorMarker.append("^");
   
   cout << getLine() << endl;
