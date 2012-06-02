@@ -33,8 +33,8 @@ class scanner {
   void skipcomments(); // Skips commments
 
   void displayError(string errorMessage);
-  symbol curSym;
-  int curSymLen;
+  symbol cursym;
+  int cursymLen;
 
  public:
   symbol s;
