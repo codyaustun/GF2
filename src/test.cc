@@ -16,26 +16,32 @@ int main()
   symbol s = BADSYM;
   name id = blankname;
   int num = 0;
-
-   while (s != EOFSYM) {
-     scan.getSymbol(s, id, num);
-     cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
+  
+   //while (s != EOFSYM) {
+     //scan.getSymbol(s, id, num);
+     //cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
+   //}
+   //cout << endl;
+   int i = 0;
+   while (i<5) {
+   scan.getSymbol(s, id, num);
+   cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
+   i++;
    }
-
+   cout << scan.getLine() << endl;
   //namesMod->writename(34);
 
   //scan.getSymbol(s, id, num);
   // cout << s << endl;
 
   // scan.getch();
- //  for (int i = 0; i< 1; i++){
+  // for (int i = 0; i< 1; i++){
     // scan.skipspaces();
     //scan.skipcomments();
- //   scan.getch();
- // }
-  
+  //  scan.getch();
+  //}
   // cout << scan.getname(id) << endl;
-  //  cout << scan.getCurrentLine() << endl;
+   //scan.getLine();
 
   /* Testing Names  */
 

@@ -179,7 +179,6 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     snz->getCurrentLine(); 
     
     
-    
     // Print error message
     // TO DO make this sounds better
     cout << "Error (" << errorCount << "): ";
@@ -289,11 +288,12 @@ void parser::buildMonitorList()
     mon();
     
     while (curSym == COMMA) {
-        snz->getSymbol(curSym, curName, curInt);
+    
+         snz->getSymbol(curSym, curName, curInt);
         mon();
 	
     }
-    
+   
     // check for SEMICOLON
     if (curSym != SEMICOL) {
         stopSym = curSym;
@@ -514,11 +514,12 @@ name parser::nameCheck() throw (runtime_error)
     // EBNF: letter {letter|digit}
     
     if(curSym == NAMESYM){
-        
+       
         name newName = curName;
         
         if (!nameExist(newName)){
-            stopSym = COMMA;
+        
+             stopSym = COMMA;
             stopSym2 = SEMICOL;
             error("The device does not exist", stopSym,
                   stopSym2);
