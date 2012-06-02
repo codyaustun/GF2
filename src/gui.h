@@ -8,6 +8,9 @@
 #include "names.h"
 #include "devices.h"
 #include "monitor.h"
+#include "parser.h"
+#include "scanner.h"
+#include "network.h"
 #include <vector>
 
 enum { 
@@ -38,13 +41,14 @@ class MyFrame: public wxFrame
   MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, 
 	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, 
 	  long style = wxDEFAULT_FRAME_STYLE); // constructor
+  void reset();
  private:
   MyGLCanvas *canvas;                     // GL drawing area widget to draw traces
   wxSpinCtrl *spin;                       // control widget to select the number of cycles
   wxTextCtrl *console;
   names *nmz;                             // pointer to names class
   devices *dmz;                           // pointer to devices class
-  monitor *mmz;                           // pointer to monitor class
+  monitor *mmz;							  // pointer to monitor class
   SwitchPanel *switches;
   MonitorPanel *monitors;
   int cyclescompleted;                    // how many simulation cycles have been completed
@@ -57,7 +61,6 @@ class MyFrame: public wxFrame
   void OnSwitches(wxCommandEvent& event); 
   void OnMonitors(wxCommandEvent& event); 
   void OnSpin(wxSpinEvent& event);        // callback for spin control
-  void OnText(wxCommandEvent& event);     // callback for text entry field
   DECLARE_EVENT_TABLE()
 };
     
@@ -103,7 +106,7 @@ class MonitorPanel: public wxFrame {
 
  public:
   MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
-	  names *names_mod, devices *devices_mod, monitor *monitor_mod, 
+	  names *names_mod, devices *devices_mod, monitor *monitor_mod, MyFrame *frame,
 	  long style = wxDEFAULT_FRAME_STYLE);
  private:
   struct devio{
@@ -121,6 +124,7 @@ class MonitorPanel: public wxFrame {
   wxChoice *addSignal;
   monitor *mons;
   names *nmz;
+  MyFrame *frame;
   vector<name*> *monnames;
   vector<devio*> *devios;
   vector<name> *sigs;

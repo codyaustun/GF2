@@ -104,7 +104,7 @@ void MyGLCanvas::Render(int cycles)
 
 void MyGLCanvas::WriteText(wxString message, float x, float y){
   glRasterPos2f(x, y);
-  for (int i = 0; i < message.Len(); i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, message[i]);
+  for (unsigned int i = 0; i < message.Len(); i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, message[i]);
 }
 
 void MyGLCanvas::InitGL()
@@ -158,11 +158,10 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_BUTTON(SWITCH_BUTTON_ID, MyFrame::OnSwitches)
   EVT_BUTTON(MONITOR_BUTTON_ID, MyFrame::OnMonitors)
   EVT_SPINCTRL(MY_SPINCNTRL_ID, MyFrame::OnSpin)
-  EVT_TEXT_ENTER(MY_TEXTCTRL_ID, MyFrame::OnText)
 END_EVENT_TABLE()
   
 MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size,
-		 names *names_mod, devices *devices_mod, monitor *monitor_mod, long style):
+		 names *names_mod, devices *devices_mod, monitor *monitor_mod,  long style):
   wxFrame(parent, wxID_ANY, title, pos, size, style)
   // Constructor - initialises pointers to names, devices and monitor classes, lays out widgets
   // using sizers
@@ -175,11 +174,11 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   
   if (nmz == NULL || dmz == NULL || mmz == NULL) {
     cout << "Cannot operate GUI without names, devices and monitor classes" << endl;
-    //exit(1);
+    exit(1);
   }
 
   switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, mmz);
-  monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz);
+  monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
   console = new wxTextCtrl(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
   console ->SetMinSize(wxSize(0,60));
   console ->SetFont(wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
@@ -222,6 +221,14 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 
 }
 
+void MyFrame::reset()
+  // Callback for the exit menu item
+{
+  cyclescompleted=-1;
+  canvas->Render(0);
+  cout << "Logic Circuit Reset.\n";
+}
+
 void MyFrame::OnExit(wxCommandEvent &event)
   // Callback for the exit menu item
 {
@@ -239,7 +246,28 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 {
   wxString filename = wxFileSelector(wxT("Choose file to parse"));
   if(!filename.IsEmpty()){
-    //TODO:Run Parser
+	names *namz = new names();
+	network *netz = new network(namz);
+	devices *demz = new devices(namz, netz);
+	monitor *momz = new monitor(namz, netz);
+    scanner *smz = new scanner(namz, filename.mb_str());
+	parser *pmz = new parser(netz, demz, momz, smz);
+	if (pmz->readin ()){
+		cout << filename << " parsed correctly." << endl;
+		delete nmz;
+		delete dmz;
+		delete mmz;
+		nmz=namz;
+		dmz=demz;
+		mmz=momz;
+		reset();
+	}else{
+		wxString message = wxT("Could not parse ");
+		message.Append(filename);
+		message.Append(wxT(" correctly!"));
+		wxMessageDialog warning(this, message, wxT("Warning"), wxICON_ERROR | wxOK);
+		warning.ShowModal();
+	}
   }
 }
 
@@ -254,12 +282,6 @@ void MyFrame::OnRun(wxCommandEvent &event)
 
 void MyFrame::OnSpin(wxSpinEvent &event)
   // Callback for the spin control
-{
-
-}
-
-void MyFrame::OnText(wxCommandEvent &event)
-  // Callback for the text entry field
 {
 
 }
@@ -296,8 +318,13 @@ void MyFrame::OnMonitors(wxCommandEvent &event){
 }
 
 void MyFrame::OnContinue(wxCommandEvent &event){
-  runnetwork(spin->GetValue());
-  canvas->Render(cyclescompleted);
+	if(cyclescompleted>0){
+		runnetwork(spin->GetValue());
+		canvas->Render(cyclescompleted);
+	}else{
+		wxMessageDialog warning(this, wxT("Must run the network before continuing."), wxT("Warning"), wxICON_ERROR | wxOK);
+		warning.ShowModal();
+	}
 }
 
 void MyFrame::runnetwork(int ncycles)
@@ -387,8 +414,8 @@ BEGIN_EVENT_TABLE(MonitorPanel, wxFrame)
   EVT_CHOICE(MONITORADDDEV_CHOICE_ID, MonitorPanel::OnDeviceSelect)
 END_EVENT_TABLE()
 
-MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, monitor *monitor_mod, long style):
-  wxFrame(parent, wxID_ANY, title, pos,wxSize(300,150), style) {
+MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, monitor *monitor_mod, MyFrame *frame, long style):
+  wxFrame(parent, wxID_ANY, title, pos,wxSize(300,150), style),frame(frame) {
   monnames = new vector<name*>;
   devios = new vector<devio*>;
   sigs = new vector<name>;
@@ -447,11 +474,13 @@ void MonitorPanel::OnExit(wxCloseEvent &event){
 }
 
 void MonitorPanel::OnAdd(wxCommandEvent &event){
+	frame->reset();
   int devindex = addDevice->GetSelection();
   int sigindex = addSignal->GetSelection();
   name dev = devios->at(devindex)->id;
   name sig = sigs->at(sigindex);
   bool ok;
+  cout << nmz->getname(dev)<< " " << nmz->getname(sig) << endl;
   mons->makemonitor(dev,sig,ok);
   if(ok){
     name* mon = new name[2];
@@ -472,6 +501,7 @@ void MonitorPanel::OnAdd(wxCommandEvent &event){
 }
 
 void MonitorPanel::OnRemove(wxCommandEvent &event){
+  frame->reset();
   int index = removeChoice->GetSelection();
   if(index!=-1){
     removeChoice->Delete(index);
@@ -491,10 +521,12 @@ void MonitorPanel::OnDeviceSelect(wxCommandEvent &event){
   devio *dev = devios->at(index);
   addSignal->Clear();
   sigs->clear();
+  /*
   for (inplink i = dev->ilist; i != NULL; i = i->next){ 
     addSignal->Append(wxString::FromUTF8(nmz->getname(i->id).c_str()));
     sigs->push_back(i->id);
   }
+  */
   for (outplink o = dev->olist; o != NULL; o = o->next){ 
     addSignal->Append(wxString::FromUTF8(nmz->getname(o->id).c_str()));
     sigs->push_back(o->id);
