@@ -56,11 +56,7 @@ bool parser::readin()
         
         // Check syntax rule that Monitor list should be third
         // Create Monitor List
-	symbolToString(curSym);
-	cout << endl;
 	snz->getSymbol(curSym, curName, curInt);
-	symbolToString(curSym);
-	cout << endl;
         if (curSym == MONSYM) {
             snz->getSymbol(curSym, curName, curInt);
             buildMonitorList();
@@ -258,6 +254,7 @@ void parser::buildMonitorList()
     while (curSym == COMMA) {
         snz->getSymbol(curSym, curName, curInt);
         mon();
+	
     }
     
     // check for SEMICOLON
