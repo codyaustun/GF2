@@ -41,35 +41,35 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
       getnumber(num);
     } else {
       if (isalpha(curch)) {
-getname(id);
-if (id == 0) s = DEVSYM; else
-if (id == 1) s = CONSYM; else
-if (id == 2) s = MONSYM; else
-if (id == 3) s = FINSYM; else
-if (id >= 3 && id <= 11) s = TYPESYM; else
-if(id >=12 && id <= 33) s = SIGSYM; else
-s = NAMESYM;
-      } else {
-switch (curch) {
-case '/': skipcomments(); getSymbol(s, id, num); break;
-case '=': s = EQUALS; break;
-case ':': s = COLON; break;
-case ';': s = SEMICOL;break;
-case ',': s = COMMA; break;
-case '.': s = PERIOD; break;
-case '$': s = DOLLAR; break;
-case '-': s = DASH; break;
-default: s = BADSYM; break;
-}
-curSymLen = 1;
-getch();
-if (prevch == ':' || prevch == ';' || prevch == ','){
-lineEnd = true;
+		getname(id);
+		if (id == 0) s = DEVSYM; else
+		if (id == 1) s = CONSYM; else
+		if (id == 2) s = MONSYM; else
+		if (id == 3) s = FINSYM; else
+		if (id >= 3 && id <= 11) s = TYPESYM; else
+		if(id >=12 && id <= 33) s = SIGSYM; else
+		s = NAMESYM;
+			  } else {
+		switch (curch) {
+		case '/': skipcomments(); getSymbol(s, id, num); break;
+		case '=': s = EQUALS; break;
+		case ':': s = COLON; break;
+		case ';': s = SEMICOL;break;
+		case ',': s = COMMA; break;
+		case '.': s = PERIOD; break;
+		case '$': s = DOLLAR; break;
+		case '-': s = DASH; break;
+		default: s = BADSYM; break;
+		}
+		cursymLen = 1;
+		getch();
+		if (prevch == ':' || prevch == ';' || prevch == ','){
+		lineEnd = true;
 }
       }
     }
   }
-  curSym = s;
+  cursym = s;
 };
 
 void scanner::skipspaces()
@@ -78,6 +78,7 @@ void scanner::skipspaces()
     getch();
    }
  }
+
 void scanner::skipcomments()
 {
     currentLine.clear();
@@ -93,22 +94,22 @@ void scanner::skipcomments()
 
 string scanner::getLine()
 {
-  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
-while (curch != ':' && curch != ';' && curch != ',' && !eofile) {
-getch();
-}
-  }
-  return currentLine;
+  	if(cursym != SEMICOL && cursym != COLON && cursym != COMMA){
+	while (curch != ':' && curch != ';' && curch != ',' && !eofile) {
+	getch();
+	}
+  	}
+  	return currentLine;
 }
 
 void scanner::getname(name &id)
 {
-  curSymLen = 1;
+  cursymLen = 0;
   int i = 1;
   namestring str;
   while (isalnum(curch)) { // Read characters, save to str
     str.push_back(curch) ;
-    curSymLen++;
+    cursymLen++;
     if ( i == maxlength) { // If str reaches maxlength, put in table, keep reading
       id = dfnames->lookup(str);
       cout << dfnames->getname(id) << endl;
@@ -130,12 +131,12 @@ void scanner::getname(name &id)
 
 void scanner::getnumber(int &number) // Check for max possible number here?
 {
-  curSymLen = 1;
+  cursymLen = 0;
   number = 0; // Clear variable
   while (isdigit(curch)) { // Read number from file
      number = 10*number + atoi(&curch);
     getch();
-	curSymLen++;
+	cursymLen++;
    }
 }
 
@@ -143,15 +144,15 @@ void scanner::getch()
 {
   prevch = curch;
   eofile = (inf.get(curch) == 0);
-  if(curch != '\n'){
-  currentLine.push_back(curch); // Add new character to string
-}
+  
   if (lineEnd) {
     currentLine.clear(); // Clear string to start new line
     skipspaces();
     lineEnd = false;
-	currentLine.push_back(curch);
   }
+  if(prevch != '\n'){
+  	currentLine.push_back(prevch);
+	}
 }
 
 void scanner::displayError (string errorMessage)
@@ -166,8 +167,9 @@ void scanner::initch()
 
 void scanner::getCurrentLine() //called by parser, displays parser errors, location
 {
+	
   string errorMarker;
-  for (int i = 0; i < (currentLine.length()-curSymLen); i++) errorMarker.append(" ");
+  for (int i = 0; i < (currentLine.length()-cursymLen); i++) errorMarker.append(" ");
   errorMarker.append("^");
   
   cout << getLine() << endl;
