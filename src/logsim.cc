@@ -28,8 +28,11 @@ bool MyApp::OnInit()
     // glutInit cannot cope with Unicode command line arguments, so we pass
     // it some fake ASCII ones instead
     char **tmp1; int tmp2 = 0; glutInit(&tmp2, tmp1);
-    // Construct the GUI
-    MyFrame *frame = new MyFrame(NULL, wxT("Logic simulator"), wxDefaultPosition,  wxSize(800, 600), nmz, dmz, mmz);
+	  //char *tmp1[]={"My app", NULL }; int tmp2 = 1; glutInit(&tmp2, tmp1);//needed to compile on windows
+	// Construct the GUI
+	  wxTextCtrl *console = new wxTextCtrl();
+	  cout.rdbuf(console);
+    MyFrame *frame = new MyFrame(NULL, wxT("Logic simulator"), wxDefaultPosition,  wxSize(800, 600), nmz, dmz, mmz, console);
     frame->Show(true);
     return(true); // enter the GUI event loop
 #else

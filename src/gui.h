@@ -39,7 +39,7 @@ class MyFrame: public wxFrame
 {
  public:
   MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, 
-	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, 
+	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, wxTextCtrl *console = NULL,
 	  long style = wxDEFAULT_FRAME_STYLE); // constructor
   void reset();
  private:
