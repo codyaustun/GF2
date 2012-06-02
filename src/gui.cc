@@ -167,6 +167,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   // using sizers
 {
   SetIcon(wxIcon(wx_icon));
+  cyclescompleted = -1;
 
   nmz = names_mod;
   dmz = devices_mod;
