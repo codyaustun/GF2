@@ -94,7 +94,7 @@ void scanner::skipcomments()
 string scanner::getLine()
 {
   if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
-while (curch != ':' && curch != ';' && curch != ',') {
+while (curch != ':' && curch != ';' && curch != ',' && !eofile) {
 getch();
 }
   }
