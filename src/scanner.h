@@ -45,7 +45,9 @@ class scanner {
   void initch();  // Gets first character
 
  public:
-
+  symbol s;
+  int num;
+  name id;
   scanner(names* namesMod, const char* defFile); // Constructor, opens definition file
   ~scanner(); // Destructor, closes file
 
