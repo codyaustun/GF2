@@ -89,8 +89,9 @@ class MyGLCanvas: public wxGLCanvas
 class SwitchPanel: public wxFrame {
  public:
   SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
-	  names *names_mod, devices *devices_mod, monitor *monitor_mod, 
+	  names *names_mod, devices *devices_mod,
 	  long style = wxDEFAULT_FRAME_STYLE);
+    void refresh(names *names_mod, devices *devices_mod);
  private:
   void OnExit(wxCloseEvent& event);
   void OnOn(wxCommandEvent &event);
@@ -109,6 +110,7 @@ class MonitorPanel: public wxFrame {
   MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
 	  names *names_mod, devices *devices_mod, monitor *monitor_mod, MyFrame *frame,
 	  long style = wxDEFAULT_FRAME_STYLE);
+  void refresh(names *names_mod, devices *devices_mod, monitor *monitor_mod);
  private:
   struct devio{
   devio(name id, inplink ilist, outplink olist):id(id),ilist(ilist),olist(olist){}
@@ -131,5 +133,13 @@ class MonitorPanel: public wxFrame {
   vector<name> *sigs;
   DECLARE_EVENT_TABLE()
 };
+
+template<class T>
+void deletevector(vector<T> *vec){
+	for(vector<T>::iterator it = vec->begin(); it != vec->end(); ++it){
+	  delete[] *it;
+  }
+	delete vec;
+}
     
 #endif /* gui_h */

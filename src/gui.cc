@@ -183,7 +183,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
     exit(1);
   }
 
-  switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, mmz);
+  switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz);
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
   //console = new wxTextCtrl(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
   console->Create(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
@@ -260,13 +260,15 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 	parser *pmz = new parser(netz, demz, momz, smz);
 	if (pmz->readin ()){
 		cout << filename.mb_str() << " parsed correctly." << endl;
-		//delete nmz;
-		//delete dmz;
-		//delete mmz;
+		delete nmz;
+		delete dmz;
+		delete mmz;
 		nmz = namz;
 		dmz = demz;
 		mmz = momz;
 		canvas->setPointers(mmz,nmz);
+		monitors->refresh(nmz,dmz,mmz);
+		switches->refresh(nmz,dmz);
 		reset();
 	}else{
 		wxString message = wxT("Could not parse ");
@@ -358,21 +360,17 @@ BEGIN_EVENT_TABLE(SwitchPanel, wxFrame)
   EVT_BUTTON(SWITCHOFF_BUTTON_ID, SwitchPanel::OnOff)
 END_EVENT_TABLE()
 
-SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, monitor *monitor_mod, long style):wxFrame(parent, wxID_ANY, title, pos, wxSize(300,100), style) {
-  devs=devices_mod;
-  devlink switches = devices_mod -> getSwitches();
+SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, long style):wxFrame(parent, wxID_ANY, title, pos, wxSize(300,100), style) {
+  //instantiate objects
   wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
   switchChoice = new wxChoice(this,SWITCH_CHOICE_ID);
-  if(switches==NULL) switchChoice->Append(wxT("No Switches"));
-  namestring switchname;
   switcharray=new vector<name>;
-  for (devlink s = switches; s != NULL; s = s->next){ 
-    switchname = names_mod->getname(s->id);
-    switchChoice->Append(wxString::FromUTF8(switchname.c_str()));
-    switcharray->push_back(s->id);
-  }
-  switchChoice->SetSelection(0);
   //state = new wxStaticText(this,wxID_ANY,getState(0));
+
+  //Add switches to choice box
+  refresh(names_mod, devices_mod);
+
+  //Add components
   wxBoxSizer *top = new wxBoxSizer(wxHORIZONTAL);
   top->Add(switchChoice, 0, wxALL, 10);
   //top->Add(state, 0, wxTOP|wxLEFT|wxRIGHT, 15);
@@ -389,6 +387,22 @@ wxString SwitchPanel::getState(int selection){
   
 } 
 */
+
+void SwitchPanel::refresh(names *names_mod, devices *devices_mod){
+	devs=devices_mod;
+	devlink switches = devices_mod -> getSwitches();
+	switchChoice->Clear();
+	if(switches==NULL) switchChoice->Append(wxT("No Switches"));
+  namestring switchname;
+  delete switcharray;
+  switcharray=new vector<name>;
+  for (devlink s = switches; s != NULL; s = s->next){ 
+    switchname = names_mod->getname(s->id);
+    switchChoice->Append(wxString::FromUTF8(switchname.c_str()));
+    switcharray->push_back(s->id);
+  }
+  switchChoice->SetSelection(0);
+}
 
 void SwitchPanel::OnExit(wxCloseEvent &event){
   Show(false);
@@ -422,20 +436,44 @@ BEGIN_EVENT_TABLE(MonitorPanel, wxFrame)
 END_EVENT_TABLE()
 
 MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, monitor *monitor_mod, MyFrame *frame, long style):
-  wxFrame(parent, wxID_ANY, title, pos,wxSize(300,150), style),frame(frame) {
+	wxFrame(parent, wxID_ANY, title, pos,wxSize(300,150), style),frame(frame) {
+
+  //instantiate all objects
+  sigs = new vector<name>;
   monnames = new vector<name*>;
   devios = new vector<devio*>;
-  sigs = new vector<name>;
   removeChoice = new wxChoice(this,MONITORREMOVE_CHOICE_ID);
   addDevice = new wxChoice(this,MONITORADDDEV_CHOICE_ID);
   addSignal = new wxChoice(this,MONITORADDSIG_CHOICE_ID);
-  mons=monitor_mod;
-  nmz=names_mod;
 
-  //load monitors
+  //Load up all strings into choices
+  refresh(names_mod, devices_mod,monitor_mod); 
+  
+  //place components
+  wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer *add = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *remove = new wxBoxSizer(wxHORIZONTAL);
+  mainsizer->Add(add, 0, wxALIGN_CENTRE);
+  mainsizer->Add(remove, 0, wxALIGN_CENTRE);
+  add->Add(addDevice,0,wxLEFT|wxTOP,20);
+  add->Add(addSignal,0,wxALL,20);
+  add->Add(new wxButton(this, MONITORADD_BUTTON_ID, wxT("Add Monitor")), 0, wxRIGHT|wxTOP, 20);
+  remove->Add(removeChoice,0,wxALL,20);
+  remove->Add(new wxButton(this, MONITORREMOVE_BUTTON_ID, wxT("Remove Monitor")), 0, wxRIGHT|wxTOP|wxBOTTOM , 20);
+  SetSizer(mainsizer);
+}
+
+void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *monitor_mod){
+	mons = monitor_mod;
+	nmz = names_mod;	
+	removeChoice->Clear();
+	addDevice->Clear();
+	//load monitors
   int monitors = mons->moncount();
   name dev, outp, *monname;
   namestring displayname;
+  deletevector(monnames);
+  monnames = new vector<name*>;
   for(int i = 0; i < monitors; i++){
     mons->getmonname(i,dev,outp);
     monname = new name[2];
@@ -454,6 +492,8 @@ MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoin
   //load devices
   devlink devs = devices_mod->getDevices();
   namestring devname;
+  deletevector(devios);
+  devios = new vector<devio*>;
   for (devlink d = devs; d != NULL; d = d->next){ 
     devios->push_back(new devio(d->id,d->ilist,d->olist));
     addDevice->Append(wxString::FromUTF8(nmz->getname(d->id).c_str()));
@@ -461,19 +501,6 @@ MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoin
   addDevice->SetSelection(0);
   wxCommandEvent event;
   OnDeviceSelect(event);
-  
-  //place components
-  wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
-  wxBoxSizer *add = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer *remove = new wxBoxSizer(wxHORIZONTAL);
-  mainsizer->Add(add, 0, wxALIGN_CENTRE);
-  mainsizer->Add(remove, 0, wxALIGN_CENTRE);
-  add->Add(addDevice,0,wxLEFT|wxTOP,20);
-  add->Add(addSignal,0,wxALL,20);
-  add->Add(new wxButton(this, MONITORADD_BUTTON_ID, wxT("Add Monitor")), 0, wxRIGHT|wxTOP, 20);
-  remove->Add(removeChoice,0,wxALL,20);
-  remove->Add(new wxButton(this, MONITORREMOVE_BUTTON_ID, wxT("Remove Monitor")), 0, wxRIGHT|wxTOP|wxBOTTOM , 20);
-  SetSizer(mainsizer);
 }
 
 void MonitorPanel::OnExit(wxCloseEvent &event){
@@ -487,7 +514,7 @@ void MonitorPanel::OnAdd(wxCommandEvent &event){
   name dev = devios->at(devindex)->id;
   name sig = sigs->at(sigindex);
   bool ok;
-  cout << nmz->getname(dev)<< " " << nmz->getname(sig) << endl;
+  cout << "Added Monitor: " << nmz->getname(dev)<< " . " << nmz->getname(sig) << endl;
   mons->makemonitor(dev,sig,ok);
   if(ok){
     name* mon = new name[2];
