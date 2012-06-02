@@ -6,7 +6,6 @@
 #include <string>
 #include "scanner.h"
 #include "names.h"
-#include "parser.h"
 
 using namespace std;
 
@@ -15,7 +14,7 @@ scanner::scanner(names* namesMod, const char* defFile)
   dfnames = namesMod;
   inf.open(defFile); // Open defFile
   if (!inf) {
-    displayError("Cannot open file");
+    cout << "Error: Cannot open file " << defFile << endl;
     exit;
   }
   // If file successfully opened:
@@ -29,6 +28,12 @@ scanner::~scanner()
 {
   inf.close(); // Close defFile
 }
+
+void scanner::initch()
+{
+  eofile = (inf.get(curch) == 0);
+}
+
 
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {	
@@ -69,7 +74,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
     }
   }
   curSym = s;		    
-};
+}
 
 void scanner::skipspaces()
 {
@@ -86,18 +91,18 @@ void scanner::skipcomments()
       eofile = (inf.get(curch) == 0);
     }
    if (eofile) {
-     displayError("Comment not closed");
+     cout << "Error: Comment not closed" << endl;
    }
 }
 
-string scanner::getLine()
+void scanner::getnumber(int &number)               // Check for max possible number here?
 {
-  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
-	  while (curch != ':' && curch != ';' && curch != ',') {
-	    getch();
-	  }
-  }
-  return currentLine;
+  number = 0;                                      // Clear variable
+  while (isdigit(curch)) {                         // Read number from file
+     number = 10*number + atoi(&curch);
+    getch();
+   }
+  if (number > 2^32) number = 2^32; 
 }
 
 void scanner::getname(name &id)
@@ -117,27 +122,16 @@ void scanner::getname(name &id)
   if (i < maxlength) {                             // If str < maxlength, put in table
     id = dfnames->lookup(str);
   } else {                                         // If str > maxlength, inform user
-    string errM = "Name "; 
-    errM.append(str); 
-    errM.append(" was truncated."); 
-    displayError(errM);
+    cout << "Warning: Name " << str << " was truncated." << endl;
   }   
 }
 
-void scanner::getnumber(int &number)               // Check for max possible number here?
-{
-  number = 0;                                      // Clear variable
-  while (isdigit(curch)) {                         // Read number from file
-     number = 10*number + atoi(&curch);
-    getch();
-   }
-}
 
 void scanner::getch()
 {
   prevch = curch;
   eofile = (inf.get(curch) == 0);
-  currentLine.push_back(curch);                     // Add new character to string
+  currentLine.push_back(curch);                     // Builds up string currentLine as line is read
 
   if (lineEnd) {
     currentLine.clear();                             // Clear string to start new line
@@ -146,22 +140,21 @@ void scanner::getch()
   }
 }
 
-void scanner::displayError (string errorMessage)
+string scanner::getLine() 
 {
-   cout << "Error: " << errorMessage << endl;
+  if(curSym != SEMICOL && curSym != COLON && curSym != COMMA){
+	  while (curch != ':' && curch != ';' && curch != ',') {
+	    getch();
+	  }
+  }
+  return currentLine;
 }
 
-void scanner::initch()
-{
-  eofile = (inf.get(curch) == 0);
-}
-
-void scanner::getCurrentLine() //called by parser, displays parser errors, location
+void scanner::getCurrentLine()
 {
   string errorMarker;
   for (int i = 0; i < currentLine.length(); i++) errorMarker.append(" ");
   errorMarker.append("^");
-  
   cout << getLine() << endl;
   cout << errorMarker << endl;
 }

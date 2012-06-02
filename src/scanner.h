@@ -27,35 +27,32 @@ class scanner {
   string currentLine;    // Current Line
   bool eofile;           // True when end of file is reached
   names* dfnames;        // Names table
-  bool lineEnd;
+  bool lineEnd;          // Used to keep track of currentLine
+  symbol curSym;
+
   void skipspaces();     // Skips white spaces
 
   void skipcomments();   // Skips commments
 
-  void displayError(string errorMessage);
-  symbol curSym;
+  string getLine();      // Returns string with the entire current line
+
+  void getch();   // Reads next character, updates curch and currentLine string
+
+  void getnumber(int &number);  //Reads number from defFile
+
+  void getname(name& id);   //Reads names (alphanumeric) from defFile
+ 
+  void initch();  // Gets first character
 
  public:
-  symbol s;
-  name id;
-  int num;
 
-  scanner(names* namesMod, const char* defFile);
-  ~scanner();
+  scanner(names* namesMod, const char* defFile); // Constructor, opens definition file
+  ~scanner(); // Destructor, closes file
 
   void getSymbol(symbol& s, name& id, int& num);
+  /* Gets current symbol + nametable id (if name) or number (if int) */
 
-  void getCurrentLine();
-
-  string getLine();
-
-  void getch();   /* Reads next character, updates curch and currentLine string */
-
-  void getnumber(int &number);  /* Reads number from defFile */
-
-  void initch();
-
-  void getname(name& id);   /* Reads names (alphanumeric) from defFile */
+  void getCurrentLine(); // Called by parser upon error, prints currentLine, error marker
 
 };
 

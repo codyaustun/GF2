@@ -17,10 +17,9 @@ int main()
   name id = blankname;
   int num = 0;
 
-  //scan.initch();
    while (s != EOFSYM) {
      scan.getSymbol(s, id, num);
-     cout << "Symbol: " <<  s << " ID: " <<  id << " Number: " << num << endl;
+     cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
    }
 
   //namesMod->writename(34);
@@ -38,9 +37,11 @@ int main()
   // cout << scan.getname(id) << endl;
   //  cout << scan.getCurrentLine() << endl;
 
+  /* Testing Names  */
 
-  //names initNames;
+   //names initNames;
    //cout << initNames.lookup("Hello72@") << endl;
-   // initNames.writename(34);
+   //initNames.writename(34);
    //cout << initNames.getname(37) << endl;
+   //cout << initNames.namelength(5) << endl;
 }
