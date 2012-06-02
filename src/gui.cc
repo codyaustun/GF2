@@ -24,6 +24,11 @@ MyGLCanvas::MyGLCanvas(wxWindow *parent, wxWindowID id, monitor* monitor_mod, na
   cyclesdisplayed = -1;
 }
 
+void MyGLCanvas::setPointers(monitor *mons,names *names){
+  mmz = mons;
+  nmz = names;
+}
+
 void MyGLCanvas::Render(int cycles)
   // Draws canvas contents - the following example writes the string "example text" onto the canvas
   // and draws a signal trace. The trace is artificial if the simulator has not yet been run.
@@ -44,7 +49,7 @@ void MyGLCanvas::Render(int cycles)
     init = true;
   }
   glClear(GL_COLOR_BUFFER_BIT);
-  if(cyclesdisplayed>=0){
+  if(cyclesdisplayed>=0 && cycles>=0){
     for(int j =0; j<mmz->moncount(); j++){
       mmz->getmonname(j,dev,sig);
       monname = nmz->getname(dev);
@@ -167,6 +172,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   // using sizers
 {
   SetIcon(wxIcon(wx_icon));
+  cyclescompleted = -1;
 
   nmz = names_mod;
   dmz = devices_mod;
@@ -225,7 +231,7 @@ void MyFrame::reset()
   // Callback for the exit menu item
 {
   cyclescompleted=-1;
-  canvas->Render(0);
+  canvas->Render(-1);
   cout << "Logic Circuit Reset.\n";
 }
 
@@ -250,16 +256,17 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 	network *netz = new network(namz);
 	devices *demz = new devices(namz, netz);
 	monitor *momz = new monitor(namz, netz);
-    scanner *smz = new scanner(namz, filename.mb_str());
+	scanner *smz = new scanner(namz, filename.mb_str());
 	parser *pmz = new parser(netz, demz, momz, smz);
 	if (pmz->readin ()){
-		cout << filename << " parsed correctly." << endl;
-		delete nmz;
-		delete dmz;
-		delete mmz;
-		nmz=namz;
-		dmz=demz;
-		mmz=momz;
+		cout << filename.mb_str() << " parsed correctly." << endl;
+		//delete nmz;
+		//delete dmz;
+		//delete mmz;
+		nmz = namz;
+		dmz = demz;
+		mmz = momz;
+		canvas->setPointers(mmz,nmz);
 		reset();
 	}else{
 		wxString message = wxT("Could not parse ");
