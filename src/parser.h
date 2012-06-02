@@ -68,6 +68,7 @@ private:
     void error(string message, symbol stop) throw (runtime_error); 
     void error(string message, symbol stop1, symbol stop2) throw (runtime_error);
     void nextLine(string message);
+    symbol nextSection;
     
     // Needed for structure and syntax error handling
     void buildDeviceList();

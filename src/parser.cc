@@ -27,44 +27,75 @@ parser::parser(network* net, devices* dev, monitor* mon, scanner* s)
 bool parser::readin()
 {
     try {
-        // Get first Symbol
-        snz->getSymbol(curSym, curName, curInt);
-        
-        // Check syntax rule that device list should be first
-        // Create device list
-        if (curSym == DEVSYM) {
-            snz->getSymbol(curSym, curName, curInt);
-            buildDeviceList();
-        }else{
-            stopSym = COLON;
-            error("The devices list must come first.", stopSym);
-            buildDeviceList();
-        }
+		try{
+			// Get first Symbol
+			snz->getSymbol(curSym, curName, curInt);
+			nextSection = CONSYM;
+			// Check syntax rule that device list should be first
+			// Create device list
+			if (curSym == DEVSYM) {
+				
+				snz->getSymbol(curSym, curName, curInt);
+				buildDeviceList();
+			}else{
+				stopSym = COLON;
+				error("The devices list must come first.", stopSym);
+				buildDeviceList();
+			}
+        }catch( runtime_error e ){
+			if(curSym != nextSection){
+					throw;
+			}
+			stopSym = curSym;
+			error("Forgot a ';' at the end of the devices section", stopSym);
+		}
         
         
         // Check syntax rule that Connection list should be second
         // Create connection list
-	snz->getSymbol(curSym, curName, curInt);
-        if (curSym == CONSYM) {
-            snz->getSymbol(curSym, curName, curInt);
-            buildConnectionList();
-        }else{
-            stopSym = COLON;
-            error("The connections list should follow the devices list", stopSym);
-            buildConnectionList();
-        }
+        try{
+		snz->getSymbol(curSym, curName, curInt);
+		nextSection = MONSYM;
+			if (curSym == CONSYM) {
+				
+				snz->getSymbol(curSym, curName, curInt);
+				buildConnectionList();
+			}else{
+				stopSym = COLON;
+				error("The connections list should follow the devices list", stopSym);
+				buildConnectionList();
+			}
+        }catch( runtime_error e ){
+			if(curSym != nextSection){
+					throw;
+			}
+			stopSym = curSym;
+			error("Forgot a ';' at the end of the connections section",stopSym);
+
+		}
         
-        // Check syntax rule that Monitor list should be third
-        // Create Monitor List
-	snz->getSymbol(curSym, curName, curInt);
-        if (curSym == MONSYM) {
-            snz->getSymbol(curSym, curName, curInt);
-            buildMonitorList();
-        }else{
-            stopSym = COLON;
-            error("The monitors list should follow the connections list", stopSym);
-            buildMonitorList();
-        }
+        try{
+			// Check syntax rule that Monitor list should be third
+			// Create Monitor List
+			snz->getSymbol(curSym, curName, curInt);
+			nextSection = FINSYM;
+				if (curSym == MONSYM) {
+					snz->getSymbol(curSym, curName, curInt);
+					buildMonitorList();
+				}else{
+					stopSym = COLON;
+					error("The monitors list should follow the connections list", stopSym);
+					buildMonitorList();
+				}
+		}catch( runtime_error e ){
+			if(curSym != nextSection){
+					throw;
+			}
+			stopSym = curSym;
+			error("Forgot a ';' at the end of the monitors section", stopSym);
+		}
+        
+        
         
         // Check syntax rule that End of file symbol should be fourth
 	snz->getSymbol(curSym, curName, curInt);
@@ -114,20 +145,22 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     if (curSym == BADSYM) {
         cout << "Detected an invalid symbol. " << endl;
     }
+
+
     cout << message << endl;
-    symbolToString(curSym);
-    cout << endl;
     
     // Advance to the next instance of the stop symbol
-    while ((curSym != stop) && (curSym != EOFSYM)) {
+    while ((curSym != stop) && (curSym != EOFSYM) && (curSym != nextSection)) {
         snz->getSymbol(curSym, curName, curInt);
     }
-    
-    
-    // TO DO remove this line. For debugging only
-    cout << "Exiting error function" << endl;
+	
 
     // an exception in the case curSym == EOFSYM
+    if ((curSym == nextSection) && (nextSection != stopSym)){
+		throw runtime_error("Going to next section");
+	}
+    
+    
     if (curSym == EOFSYM) {
         throw runtime_error("Got to the end of the file");
     }
@@ -153,18 +186,20 @@ void parser::error(string message, symbol stop1, symbol stop2) throw (runtime_er
     if (curSym == BADSYM) {
         cout << "Detected an invalid symbol. ";
     }
+
     cout << message << endl;
-    symbolToString(curSym);
-    cout << endl;
     
     // Advance to the next instance of the stop symbol
     // For best performance make less likely stop symbol stop2
-    while ((curSym != stop1) && (curSym != stop2) && (curSym != EOFSYM)) {
+    while ((curSym != stop1) && (curSym != stop2) && 
+			(curSym != EOFSYM) && (curSym != nextSection)) 
+	{
         snz->getSymbol(curSym, curName, curInt);
     }
-    
-    // TO DO remove this line. For debugging only
-    cout << "Exiting error function" << endl;
+   
+    if ((curSym == nextSection) && (nextSection != stopSym)){
+		throw runtime_error("Going to next section");
+	}
     
     // Throw an exception in the case curSym == EOFSYM
     if (curSym == EOFSYM) {
@@ -248,6 +283,8 @@ void parser::buildMonitorList()
         error("There should be a colon following the keyword 'MONITORS'.",
               stopSym);
     }
+    
+    
     
     mon();
     
@@ -390,10 +427,6 @@ void parser::device() throw (runtime_error)
             // rethrow in case of EOFSYM error
             throw;
         }
-        
-        // TO DO remove this line. Only need for Debugging
-        cout << e.what() << endl;
-        // TO DO add cleaning
     }
     
 }
@@ -448,10 +481,6 @@ void parser::connection() throw (runtime_error)
             // rethrow in case of EOFSYM error
             throw;
         }
-        
-        // TO DO remove this line. Only need for Debugging
-        cout << e.what() << endl;
-        // TO DO add cleaning
     }
 }
 
@@ -474,10 +503,6 @@ void parser::mon() throw (runtime_error)
             // rethrow in case of EOFSYM error
             throw;
         }
-        
-        // TO DO remove this line. Only need for Debugging
-        cout << e.what() << endl;
-        // TO DO add cleaning
     }
     
 }
