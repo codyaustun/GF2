@@ -31,7 +31,6 @@ struct deviceTemp{
     int option;
 };
 
-
 // Structure to store used inputs
 struct inpTemp{
     name dev;
@@ -40,6 +39,7 @@ struct inpTemp{
 
 class parser {
 public:
+    
     bool readin();
     // Proper constructor
     parser(network* net, devices* dev, monitor* mon, scanner* s);
@@ -59,8 +59,8 @@ private:
     
     // Needed for semantic error control
     vector<deviceTemp> madeD;   // Vector of successfully created devices
-    vector<inpTemp> usedIns; // Vector of created inputs
-    vector<inpTemp> allIns; // Vector of all inputs. 
+    vector<inpTemp> usedIns;    // Vector of inputs used for connections
+    vector<inpTemp> allIns;     // Vector of all inputs. 
     
 
     
@@ -78,7 +78,6 @@ private:
     void connection() throw (runtime_error);
     void mon() throw (runtime_error);
     
-    // TO DO see if you could compress this down
     // Checks if symbols are semantically ok
     name nameCheck() throw (runtime_error);
     name nameCheck(dom deviceOrMonitor) throw (runtime_error);
