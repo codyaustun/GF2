@@ -20,20 +20,22 @@ enum {
   CONTINUE_BUTTON_ID,
   SWITCH_BUTTON_ID,
   MONITOR_BUTTON_ID,
-  MONITORREMOVE_CHOICE_ID,
   MONITORADDDEV_CHOICE_ID,
-  MONITORADDSIG_CHOICE_ID,
   MONITORADD_BUTTON_ID,
   MONITORREMOVE_BUTTON_ID,
   SWITCH_CHOICE_ID,
   SWITCHON_BUTTON_ID,
   SWITCHOFF_BUTTON_ID,
-  wxID_LOAD,
+  CONSOLESAVE_BUTTON_ID,
+  CONSOLECANCEL_BUTTON_ID,
+  LOAD_ID,
+  CONSOLEOPTIONS_ID,
 }; // widget identifiers
 
 class MyGLCanvas;
 class SwitchPanel;
 class MonitorPanel;
+class ConsolePanel;
 
 class MyFrame: public wxFrame
 {
@@ -42,6 +44,7 @@ class MyFrame: public wxFrame
 	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, wxTextCtrl *console = NULL,
 	  long style = wxDEFAULT_FRAME_STYLE); // constructor
   void reset();
+  void consoleSettings(int height, int fontsize);
  private:
   MyGLCanvas *canvas;                     // GL drawing area widget to draw traces
   wxSpinCtrl *spin;                       // control widget to select the number of cycles
@@ -51,11 +54,13 @@ class MyFrame: public wxFrame
   monitor *mmz;							  // pointer to monitor class
   SwitchPanel *switches;
   MonitorPanel *monitors;
+  ConsolePanel *consolePanel;
   int cyclescompleted;                    // how many simulation cycles have been completed
   void runnetwork(int ncycles);           // function to run the logic network
   void OnExit(wxCommandEvent& event);     // callback for exit menu item
   void OnAbout(wxCommandEvent& event);    // callback for about menu item
   void OnLoad(wxCommandEvent& event); 
+  void OnConsole(wxCommandEvent& event); 
   void OnRun(wxCommandEvent& event);   // callback for run button
   void OnContinue(wxCommandEvent& event); 
   void OnSwitches(wxCommandEvent& event); 
@@ -85,15 +90,22 @@ class MyGLCanvas: public wxGLCanvas
   DECLARE_EVENT_TABLE()
 };
 
+class MyPanel : public wxFrame{
+public:
+	MyPanel(wxWindow *parent, wxWindowID id, const wxString& title,const wxPoint& pos, wxSize size,long style):wxFrame(parent, id, title, pos, size, style){}
+	void show(MyFrame *frame);
+private:
+	void OnExit(wxCloseEvent& event);
+	DECLARE_EVENT_TABLE()
+};
 
-class SwitchPanel: public wxFrame {
+class SwitchPanel : public MyPanel {
  public:
   SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
 	  names *names_mod, devices *devices_mod,
 	  long style = wxDEFAULT_FRAME_STYLE);
     void refresh(names *names_mod, devices *devices_mod);
  private:
-  void OnExit(wxCloseEvent& event);
   void OnOn(wxCommandEvent &event);
   void OnOff(wxCommandEvent &event);
   // wxString getState(int selection);
@@ -104,7 +116,7 @@ class SwitchPanel: public wxFrame {
   DECLARE_EVENT_TABLE()
 };
 
-class MonitorPanel: public wxFrame {
+class MonitorPanel: public MyPanel {
 
  public:
   MonitorPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
@@ -132,6 +144,21 @@ class MonitorPanel: public wxFrame {
   vector<devio*> *devios;
   vector<name> *sigs;
   DECLARE_EVENT_TABLE()
+};
+
+class ConsolePanel : public MyPanel {
+public:
+	ConsolePanel(wxWindow *parent, const wxString& title, const wxPoint& pos, MyFrame *frame,
+	  long style = wxDEFAULT_FRAME_STYLE);
+private:
+	MyFrame *frame;
+	wxChoice *consoleSize;
+	wxChoice *textSize;
+	int csize,tsize;
+	int *csizes,*tsizes;
+	void OnSave(wxCommandEvent &event);
+	void OnCancel(wxCommandEvent &event);
+	DECLARE_EVENT_TABLE()
 };
 
 template<class T>
