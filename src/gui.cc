@@ -49,7 +49,7 @@ void MyGLCanvas::Render(int cycles)
     init = true;
   }
   glClear(GL_COLOR_BUFFER_BIT);
-  if(cyclesdisplayed>=0 && cycles>=0){
+  if(cyclesdisplayed>0){
     for(int j =0; j<mmz->moncount(); j++){
       mmz->getmonname(j,dev,sig);
       monname = nmz->getname(dev);
@@ -141,6 +141,7 @@ void MyGLCanvas::OnSize(wxSizeEvent& event)
 {
   wxGLCanvas::OnSize(event); // required on some platforms
   init = false;
+  Render();
   Refresh(); // required by some buggy nvidia graphics drivers,
   Update();  // harmless on other platforms!
 }
@@ -235,7 +236,7 @@ void MyFrame::reset()
   // Callback for the exit menu item
 {
   cyclescompleted=-1;
-  canvas->Render(-1);
+  canvas->Render(0);
   cout << "Logic Circuit Reset.\n";
 }
 
@@ -514,16 +515,25 @@ void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *moni
 }
 
 void MonitorPanel::OnAdd(wxCommandEvent &event){
-	frame->reset();
+	
   int devindex = addDevice->GetSelection();
   int sigindex = addSignal->GetSelection();
   name dev = devios->at(devindex)->id;
   name sig = sigs->at(sigindex);
-  bool ok;
-  cout << "Added Monitor: " << nmz->getname(dev)<< " . " << nmz->getname(sig) << endl;
+  bool ok = true;
+  for(size_t i=0; i<monnames->size();i++){
+	  if(monnames->at(i)[0]==dev && monnames->at(i)[1]==sig) ok = false;
+  }
+  if(!ok){
+	  wxMessageDialog warning(this, wxT("Monitor already exists"), wxT("Warning"), wxICON_ERROR | wxOK);
+    warning.ShowModal();
+	return;
+  }
   mons->makemonitor(dev,sig,ok);
   if(ok){
-    name* mon = new name[2];
+	  cout << "Added Monitor: " << nmz->getname(dev)<< " . " << nmz->getname(sig) << endl;
+    frame->reset();
+	  name* mon = new name[2];
     mon[0]=dev;
     mon[1]=sig;
     monnames->push_back(mon);
