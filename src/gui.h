@@ -164,8 +164,8 @@ private:
 
 template<class T>
 void deletevector(vector<T> *vec){
-	for(vector<T>::iterator it = vec->begin(); it != vec->end(); ++it){
-	  delete[] *it;
+	for(size_t size=0; size < vec->size(); size++){
+	  delete[] vec->at(size);
   }
 	delete vec;
 }
