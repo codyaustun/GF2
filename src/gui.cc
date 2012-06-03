@@ -168,7 +168,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 END_EVENT_TABLE()
   
 MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size,
-		 names *names_mod, devices *devices_mod, monitor *monitor_mod, wxTextCtrl *console, long style):
+		 names *names_mod, devices *devices_mod, monitor *monitor_mod, network *net_mod, wxTextCtrl *console, long style):
   wxFrame(parent, wxID_ANY, title, pos, size, style), console(console)
   // Constructor - initialises pointers to names, devices and monitor classes, lays out widgets
   // using sizers
@@ -179,13 +179,14 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   nmz = names_mod;
   dmz = devices_mod;
   mmz = monitor_mod;
-  
+  netz = net_mod;
+
   if (nmz == NULL || dmz == NULL || mmz == NULL) {
     cout << "Cannot operate GUI without names, devices and monitor classes" << endl;
     exit(1);
   }
 
-  switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz);
+  switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, netz);
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
   consolePanel = new ConsolePanel(this, wxT("Console Options"), wxDefaultPosition, this);
   console->Create(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
@@ -281,7 +282,7 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 		mmz = momz;
 		canvas->setPointers(mmz,nmz);
 		monitors->refresh(nmz,dmz,mmz);
-		switches->refresh(nmz,dmz);
+		switches->refresh(nmz,dmz,netz);
 		reset();
 	}else{
 		wxString message = wxT("Could not parse ");
@@ -334,9 +335,17 @@ void MyFrame::OnContinue(wxCommandEvent &event){
 void MyFrame::runnetwork(int ncycles)
   // Function to run the network, derived from corresponding function in userint.cc
 {
-  bool ok = true;
+  bool ok = true; 
+  if(cyclescompleted == maxcycles){
+	  wxMessageDialog warning(this, wxT("Maximum number of cycles reached, please run again."), wxT("Warning"), wxICON_ERROR | wxOK);
+		warning.ShowModal();
+	  return;
+  }
+  if(cyclescompleted+ncycles>maxcycles){
+	  ncycles=maxcycles-cyclescompleted;
+	  cout << "Warning max cycles reached, only " << ncycles << " were completed." << endl;
+  }
   int n = ncycles;
-
   while ((n > 0) && ok) {
     dmz->executedevices (ok);
     if (ok) {
@@ -345,7 +354,10 @@ void MyFrame::runnetwork(int ncycles)
     } else
       cout << "Error: network is oscillating" << endl;
   }
-  if (ok) cyclescompleted = cyclescompleted + ncycles;
+  if (ok){
+	  cyclescompleted = cyclescompleted + ncycles;
+	  cout << ncycles << " cycles run. " << cyclescompleted << " cycles total." << endl;
+  }
   else cyclescompleted = 0;
 }
 
@@ -375,21 +387,22 @@ void MyPanel::show(MyFrame *frame){
 BEGIN_EVENT_TABLE(SwitchPanel, MyPanel)
   EVT_BUTTON(SWITCHON_BUTTON_ID,SwitchPanel::OnOn)
   EVT_BUTTON(SWITCHOFF_BUTTON_ID, SwitchPanel::OnOff)
+  EVT_CHOICE(SWITCH_CHOICE_ID, SwitchPanel::OnSelect)
 END_EVENT_TABLE()
-SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, long style):MyPanel(parent, wxID_ANY, title, pos, wxSize(300,100), style) {
+SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, network *net_mod, long style):MyPanel(parent, wxID_ANY, title, pos, wxSize(300,100), style) {
   //instantiate objects
   wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
   switchChoice = new wxChoice(this,SWITCH_CHOICE_ID);
   switcharray=new vector<name>;
-  //state = new wxStaticText(this,wxID_ANY,getState(0));
+  state = new wxStaticText(this,wxID_ANY,wxT(""));
 
   //Add switches to choice box
-  refresh(names_mod, devices_mod);
+  refresh(names_mod, devices_mod, net_mod);
 
   //Add components
   wxBoxSizer *top = new wxBoxSizer(wxHORIZONTAL);
   top->Add(switchChoice, 0, wxALL, 10);
-  //top->Add(state, 0, wxTOP|wxLEFT|wxRIGHT, 15);
+  top->Add(state, 0, wxTOP|wxLEFT|wxRIGHT, 15);
   mainsizer->Add(top, 0, wxALIGN_CENTRE);
   wxBoxSizer *buttons = new wxBoxSizer(wxHORIZONTAL);
   buttons->Add(new wxButton(this, SWITCHON_BUTTON_ID, wxT("Set On")), 0, wxALL, 10);
@@ -397,18 +410,16 @@ SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint&
   mainsizer->Add(buttons, 0, wxALIGN_CENTRE);
   SetSizer(mainsizer);
 }
-/*
-wxString SwitchPanel::getState(int selection){
-  switchid sid = switcharray[selection];
-  
-} 
-*/
 
-void SwitchPanel::refresh(names *names_mod, devices *devices_mod){
+void SwitchPanel::refresh(names *names_mod, devices *devices_mod,network *net_mod){
 	devs=devices_mod;
+	nets=net_mod;
 	devlink switches = devices_mod -> getSwitches();
 	switchChoice->Clear();
-	if(switches==NULL) switchChoice->Append(wxT("No Switches"));
+	if(switches==NULL){
+		switchChoice->Append(wxT("No Switches"));
+		return;
+	}
   namestring switchname;
   delete switcharray;
   switcharray=new vector<name>;
@@ -418,6 +429,8 @@ void SwitchPanel::refresh(names *names_mod, devices *devices_mod){
     switcharray->push_back(s->id);
   }
   switchChoice->SetSelection(0);
+  wxCommandEvent event;
+  OnSelect(event);
 }
 
 void SwitchPanel::OnOn(wxCommandEvent &event){
@@ -427,6 +440,8 @@ void SwitchPanel::OnOn(wxCommandEvent &event){
   if(!ok){
     wxMessageDialog warning(this, wxT("No Switches"), wxT("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
+  }else{
+	  state->SetLabel(wxT("On"));
   }
 }
 
@@ -437,7 +452,19 @@ void SwitchPanel::OnOff(wxCommandEvent &event){
   if(!ok){
     wxMessageDialog warning(this, wxT("No Switches"), wxT("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
+  }else{
+	  state->SetLabel(wxT("Off"));
   }
+}
+
+void SwitchPanel::OnSelect(wxCommandEvent &event){
+	int index = switchChoice->GetSelection();
+	devlink dev=nets->finddevice(switcharray->at(index));
+	if(dev->swstate==high){
+		state->SetLabel(wxT("On"));
+	}else{
+		state->SetLabel(wxT("Off"));
+	}
 }
 
 BEGIN_EVENT_TABLE(MonitorPanel, MyPanel)

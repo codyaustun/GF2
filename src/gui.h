@@ -41,7 +41,7 @@ class MyFrame: public wxFrame
 {
  public:
   MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, 
-	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, wxTextCtrl *console = NULL,
+	  names *names_mod = NULL, devices *devices_mod = NULL, monitor *monitor_mod = NULL, network *net_mod=NULL ,wxTextCtrl *console = NULL,
 	  long style = wxDEFAULT_FRAME_STYLE); // constructor
   void reset();
   void consoleSettings(int height, int fontsize);
@@ -52,6 +52,7 @@ class MyFrame: public wxFrame
   names *nmz;                             // pointer to names class
   devices *dmz;                           // pointer to devices class
   monitor *mmz;							  // pointer to monitor class
+  network *netz;
   SwitchPanel *switches;
   MonitorPanel *monitors;
   ConsolePanel *consolePanel;
@@ -102,15 +103,16 @@ private:
 class SwitchPanel : public MyPanel {
  public:
   SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos,
-	  names *names_mod, devices *devices_mod,
+	  names *names_mod, devices *devices_mod, network *net_mod,
 	  long style = wxDEFAULT_FRAME_STYLE);
-    void refresh(names *names_mod, devices *devices_mod);
+    void refresh(names *names_mod, devices *devices_mod, network *net_mod);
  private:
   void OnOn(wxCommandEvent &event);
   void OnOff(wxCommandEvent &event);
-  // wxString getState(int selection);
-  //wxStaticText *state;
+  void OnSelect(wxCommandEvent &event);
+  wxStaticText *state;
   devices *devs;
+  network *nets;
   wxChoice *switchChoice;
   vector<name> *switcharray;
   DECLARE_EVENT_TABLE()
@@ -130,7 +132,6 @@ class MonitorPanel: public MyPanel {
     inplink ilist;
     outplink olist;
   };
-  void OnExit(wxCloseEvent& event);
   void OnAdd(wxCommandEvent &event);
   void OnRemove(wxCommandEvent &event);
   void OnDeviceSelect(wxCommandEvent &event);
