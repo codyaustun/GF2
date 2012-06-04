@@ -141,7 +141,7 @@ void MyGLCanvas::OnSize(wxSizeEvent& event)
 {
   wxGLCanvas::OnSize(event); // required on some platforms
   init = false;
-  Render();
+  //Render();
   Refresh(); // required by some buggy nvidia graphics drivers,
   Update();  // harmless on other platforms!
 }
