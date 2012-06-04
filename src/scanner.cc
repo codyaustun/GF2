@@ -21,6 +21,8 @@ scanner::scanner(names* namesMod, const char* defFile)
 	inf.seekg(0, ios::beg); // Seek beginning of file
 	currentLine.clear();
 	incrChar();
+	cout <<"File opened successfully" << endl;
+	s = BADSYM;
 }
 
 scanner::~scanner()
@@ -32,8 +34,8 @@ scanner::~scanner()
 
 void scanner::getSymbol(symbol& s, name& id, int& num)
 {
-	id = blankname; num = 0;
-	skipspaces();
+	s = BADSYM; id = blankname; num = 0; 
+	skipspaces(); skipcomments();
 	if (eofile) s = EOFSYM;
 	else {
 		if (isdigit(curch)) {
@@ -51,7 +53,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 				s = NAMESYM;
 			} else {
 				switch (curch) {
-					case '/': skipcomments();getSymbol(s,id,num);break;
+					//case '/': skipcomments(); getSymbol(s, id, num); break;
 					case '=': s = EQUALS; break;
 					case ':': s = COLON; break;
 					case ';': s = SEMICOL;break;
@@ -69,7 +71,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 			}
 		}
 	}
-	cursym = s;
+	//cursym = s; cout << "At the end: " << s << endl;
 }
 
 void scanner::getCurrentLine() 
@@ -118,7 +120,7 @@ void scanner::getname(name &id)
 			cout << dfnames->getname(id) << endl;
 		}
 		i = i+1;
-		getch();
+			getch();	
 	}
 
 	if (i < maxlength) { 		// If str < maxlength, put/find in table
@@ -144,21 +146,24 @@ void scanner::getnumber(int &number) // Check for max possible number?
 
 void scanner::skipspaces()
 {
-	while (!eofile && isspace(curch)) { 
+	while (!eofile && (isspace(curch) || curch == '\n')) { 
 		getch();
 	}
  }
 
 void scanner::skipcomments()
 {
-	currentLine.clear();
-	incrChar();
-	while (!eofile && prevch != '/') { 
-		prevch = curch;
-		incrChar();
-	}
-	if (eofile) {
-		displayError("Error: Comment not closed");
+	if (curch =='/') {
+		currentLine.clear();
+		incrChar(); 
+		while (!eofile && prevch != '/') { 
+			prevch = curch;
+			incrChar();
+		}
+		skipspaces();
+		if (eofile) {
+			displayError("Error: Comment not closed"); exit;
+		}
 	}
 }
 
