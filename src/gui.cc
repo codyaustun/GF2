@@ -2,6 +2,7 @@
 #include <GL/glut.h>
 #include "wx_icon.xpm"
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -159,6 +160,10 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_MENU(wxID_EXIT, MyFrame::OnExit)
   EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
   EVT_MENU(LOAD_ID, MyFrame::OnLoad)
+  EVT_MENU(CONSOLESELECT_ID, MyFrame::OnSelect)
+  EVT_MENU(CONSOLECOPY_ID, MyFrame::OnCopy)
+  EVT_MENU(CONSOLESAVE_ID, MyFrame::OnSave)
+  EVT_MENU(CONSOLECLEAR_ID, MyFrame::OnClear)
   EVT_MENU(CONSOLEOPTIONS_ID, MyFrame::OnConsole)
   EVT_BUTTON(RUN_BUTTON_ID, MyFrame::OnRun)
   EVT_BUTTON(CONTINUE_BUTTON_ID, MyFrame::OnContinue)
@@ -193,16 +198,21 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   console ->SetMinSize(wxSize(0,60));
   console ->SetFont(wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 
-  //wxStreamToTextRedirector redirect(console);
   wxMenu *fileMenu = new wxMenu;
   fileMenu->Append(LOAD_ID, wxT("&Parse File") );
+  fileMenu->AppendSeparator();
   fileMenu->Append(wxID_ABOUT, wxT("&About"));
   fileMenu->Append(wxID_EXIT, wxT("&Quit"));
-  wxMenu *optionMenu = new wxMenu;
-  optionMenu->Append(CONSOLEOPTIONS_ID, wxT("&Console Options"));
+  wxMenu *consoleMenu = new wxMenu;
+  consoleMenu->Append(CONSOLESELECT_ID,wxT("&Select All"));
+  consoleMenu->Append(CONSOLECOPY_ID,wxT("&Copy"));
+  consoleMenu->Append(CONSOLESAVE_ID,wxT("Save to &File"));
+  consoleMenu->Append(CONSOLECLEAR_ID,wxT("Clea&r"));
+  consoleMenu->AppendSeparator();
+  consoleMenu->Append(CONSOLEOPTIONS_ID, wxT("&Options"));
   wxMenuBar *menuBar = new wxMenuBar;
   menuBar->Append(fileMenu, wxT("&File"));
-  menuBar->Append(optionMenu, wxT("&Options"));
+  menuBar->Append(consoleMenu, wxT("&Console"));
   SetMenuBar(menuBar);
 
   wxBoxSizer *topsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -297,6 +307,39 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 void MyFrame::OnConsole(wxCommandEvent &event)
 {
 	consolePanel->show(this);
+}
+
+void MyFrame::OnSelect(wxCommandEvent &event)
+{
+  console->SetSelection(0,console->GetLastPosition());
+}
+
+void MyFrame::OnCopy(wxCommandEvent &event)
+{
+  console->Copy();	
+}
+
+void MyFrame::OnClear(wxCommandEvent &event)
+{
+  wxMessageDialog check(this, wxT("Do you really want to clear the console?"), wxT("Are You Sure?"), wxICON_QUESTION | wxYES_NO);
+  if(check.ShowModal()==wxID_YES){
+    console->SetValue(wxT(""));
+  }
+}
+
+void MyFrame::OnSave(wxCommandEvent &event)
+{
+  wxString filename = wxFileSelector(wxT("Save"), wxT(""),wxT("Console.log") , wxT("log"),wxT("*.log"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+  if(!filename.IsEmpty()){
+    ofstream fout;
+    try{
+      fout.open(filename.mb_str(), ofstream::out|ofstream::trunc);
+      fout << console->GetValue().mb_str();
+      fout.close();
+    }catch(ofstream::failure e){
+      cout << "Fail" << endl;
+    }
+  }
 }
 
 void MyFrame::OnRun(wxCommandEvent &event)
