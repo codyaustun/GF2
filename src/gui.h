@@ -29,6 +29,10 @@ enum {
   CONSOLESAVE_BUTTON_ID,
   CONSOLECANCEL_BUTTON_ID,
   LOAD_ID,
+  CONSOLESELECT_ID,
+  CONSOLECOPY_ID,
+  CONSOLESAVE_ID,
+  CONSOLECLEAR_ID,
   CONSOLEOPTIONS_ID,
 }; // widget identifiers
 
@@ -62,6 +66,10 @@ class MyFrame: public wxFrame
   void OnAbout(wxCommandEvent& event);    // callback for about menu item
   void OnLoad(wxCommandEvent& event); 
   void OnConsole(wxCommandEvent& event); 
+  void OnSelect(wxCommandEvent& event); 
+  void OnCopy(wxCommandEvent& event); 
+  void OnSave(wxCommandEvent& event); 
+  void OnClear(wxCommandEvent& event); 
   void OnRun(wxCommandEvent& event);   // callback for run button
   void OnContinue(wxCommandEvent& event); 
   void OnSwitches(wxCommandEvent& event); 
