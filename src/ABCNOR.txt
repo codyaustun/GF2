@@ -1,5 +1,3 @@
-/ AB + C NOR Implementation /
-
 DEVICES:
 C = SWITCH $ 0,
 B = SWITCH $ 0,
