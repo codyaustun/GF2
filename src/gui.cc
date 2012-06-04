@@ -195,8 +195,8 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
   consolePanel = new ConsolePanel(this, wxT("Console Options"), wxDefaultPosition, this);
   console->Create(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
-  console ->SetMinSize(wxSize(0,60));
-  console ->SetFont(wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
+  console ->SetMinSize(wxSize(0,120));
+  console ->SetFont(wxFont(8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 
   wxMenu *fileMenu = new wxMenu;
   fileMenu->Append(LOAD_ID, wxT("&Parse File") );
@@ -253,7 +253,7 @@ void MyFrame::reset()
 
 void MyFrame::consoleSettings(int height, int fontsize){
 	console->SetMinSize(wxSize(0,height));
-	console->SetFont(wxFont(fontsize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
+	console->SetFont(wxFont(fontsize, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 	GetSizer()->Layout();
 	Refresh();
 	Update();
@@ -659,7 +659,7 @@ ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoin
 		  //instantiate all objects
   consoleSize = new wxChoice(this,wxID_ANY);
   textSize = new wxChoice(this,wxID_ANY);
-  csize=0;
+  csize=1;
   tsize=1; 
   //Load up all strings into choices
   consoleSize ->Append(wxT("Small"));
@@ -674,9 +674,9 @@ ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoin
   //store values in arrays for quick access
   csizes=new int[3];
   tsizes=new int[4];
-  csizes[0]=60;
-  csizes[1]=100;
-  csizes[2]=160;
+  csizes[0]=80;
+  csizes[1]=120;
+  csizes[2]=180;
   tsizes[0]=6;
   tsizes[1]=8;
   tsizes[2]=10;
