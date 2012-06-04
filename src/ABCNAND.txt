@@ -1,0 +1,24 @@
+/ AB + C NAND Implementation /
+
+DEVICES:
+A = SWITCH $ 0,
+B = SWITCH $ 0,
+C = SWITCH $ 0,
+NOT1 = NAND $ 1,
+NAND2 = NAND $2,
+NAND1 = NAND $2;
+
+CONNECTIONS:
+C - NOT1.I1,
+B - NAND2.I1,
+A - NAND2.I2,
+NOT1 - NAND1.I1,
+NAND2 - NAND1.I2;
+
+MONITORS:
+NAND1,
+A,
+B,
+C;
+
+FIN
