@@ -1,5 +1,3 @@
-/ AB + C NAND Implementation /
-
 DEVICES:
 A = SWITCH $ 0,
 B = SWITCH $ 0,
