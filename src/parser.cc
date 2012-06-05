@@ -706,9 +706,9 @@ int parser::option(name devType) throw (runtime_error)
         //  Definition: check if option is okay
         switch (devType) {
             case 4:
-                // TO DO determine max clock
-                if (option < 1){
-                    nextLine("A clock does not have this option.");
+                // max number of clock 
+                if ((option < 1) || (option > 1000)){
+                    nextLine("The number of clock cycles must be between 1 and 1000.");
                 }
                 break;
             case 5:
