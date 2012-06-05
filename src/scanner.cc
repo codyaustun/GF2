@@ -36,7 +36,10 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 {
 	s = BADSYM; id = blankname; num = 0; 
 	skipspaces(); skipcomments();
-	if (eofile) s = EOFSYM;
+	if (eofile) {
+	  s = EOFSYM;
+	  cursymLen=0;
+	}
 	else {
 		if (isdigit(curch)) {
 			s = NUMSYM;
