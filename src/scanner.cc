@@ -53,7 +53,6 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 				s = NAMESYM;
 			} else {
 				switch (curch) {
-					//case '/': skipcomments(); getSymbol(s, id, num); break;
 					case '=': s = EQUALS; break;
 					case ':': s = COLON; break;
 					case ';': s = SEMICOL;break;
@@ -71,7 +70,7 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 			}
 		}
 	}
-	//cursym = s; cout << "At the end: " << s << endl;
+	cursym = s;
 }
 
 void scanner::getCurrentLine() 
@@ -81,9 +80,9 @@ void scanner::getCurrentLine()
 	{
 	  errorMarker.append(" ");
 	}
-	errorMarker.append("^");
-	cout << getLine() << endl;
-	cout << errorMarker << endl;
+	errorMarker.append("^"); 	
+	cout << getLine() << endl;		// Prints current line
+	cout << errorMarker << endl;	// Prints position of error
 }
 
 /* Private functions: */
@@ -133,14 +132,18 @@ void scanner::getname(name &id)
 	}
 }
 
-void scanner::getnumber(int &number) // Check for max possible number?
+void scanner::getnumber(int &number)
 {
 	cursymLen = 0;
 	number = 0; 
-	while (isdigit(curch)) { 		// Read number
+	while (isdigit(curch)) { 				// Read number
 		number = 10*number + atoi(&curch);
 		getch();
 		cursymLen++;
+	}
+	if (number > 1000) {
+		number = 1000;
+		cout << "Warning: Max parameter value = 1000" << endl;
 	}
 }
 
@@ -160,10 +163,10 @@ void scanner::skipcomments()
 			prevch = curch;
 			incrChar();
 		}
-		skipspaces();
 		if (eofile) {
-			displayError("Error: Comment not closed"); exit;
+			displayError("Error: Comment not closed");
 		}
+		skipspaces();
 	}
 }
 
@@ -181,4 +184,6 @@ void scanner::displayError (string errorMessage)
 {
    cout << errorMessage << endl;
 }
+
+
 
