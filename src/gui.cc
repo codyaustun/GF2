@@ -10,7 +10,6 @@ using namespace std;
 BEGIN_EVENT_TABLE(MyGLCanvas, wxGLCanvas)
   EVT_SIZE(MyGLCanvas::OnSize)
   EVT_PAINT(MyGLCanvas::OnPaint)
-  EVT_MOUSE_EVENTS(MyGLCanvas::OnMouse)
 END_EVENT_TABLE()
   
 MyGLCanvas::MyGLCanvas(wxWindow *parent, wxWindowID id, monitor* monitor_mod, names* names_mod,
@@ -24,7 +23,9 @@ MyGLCanvas::MyGLCanvas(wxWindow *parent, wxWindowID id, monitor* monitor_mod, na
   cyclesdisplayed = -1;
 }
 
-void MyGLCanvas::setPointers(monitor *mons,names *names){
+void MyGLCanvas::setPointers(monitor *mons,names *names)
+	//Sets monitor and names class when they change
+{
   mmz = mons;
   nmz = names;
 }
@@ -50,6 +51,7 @@ void MyGLCanvas::Render(int cycles)
   }
   glClear(GL_COLOR_BUFFER_BIT);
   if(cyclesdisplayed>0){
+	//Draw the traces
     for(int j =0; j<mmz->moncount(); j++){
       mmz->getmonname(j,dev,sig);
       monname = nmz->getname(dev);
@@ -107,7 +109,9 @@ void MyGLCanvas::Render(int cycles)
   SwapBuffers();
 }
 
-void MyGLCanvas::WriteText(wxString message, float x, float y){
+void MyGLCanvas::WriteText(wxString message, float x, float y)
+//Write text to the canvas
+{
   glRasterPos2f(x, y);
   for (unsigned int i = 0; i < message.Len(); i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, message[i]);
 }
@@ -141,15 +145,8 @@ void MyGLCanvas::OnSize(wxSizeEvent& event)
 {
   wxGLCanvas::OnSize(event); // required on some platforms
   init = false;
-  //Render();
   Refresh(); // required by some buggy nvidia graphics drivers,
   Update();  // harmless on other platforms!
-}
-
-void MyGLCanvas::OnMouse(wxMouseEvent& event)
-  // Callback function for mouse events inside the GL canvas
-{
- 
 }
 
 // MyFrame ///////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +161,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
   EVT_BUTTON(CONTINUE_BUTTON_ID, MyFrame::OnContinue)
   EVT_BUTTON(SWITCH_BUTTON_ID, MyFrame::OnSwitches)
   EVT_BUTTON(MONITOR_BUTTON_ID, MyFrame::OnMonitors)
-  EVT_SPINCTRL(MY_SPINCNTRL_ID, MyFrame::OnSpin)
 END_EVENT_TABLE()
   
 MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size,
@@ -185,7 +181,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
     cout << "Cannot operate GUI without names, devices and monitor classes" << endl;
     exit(1);
   }
-
+  //instantiate objects and set up console
   switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, netz);
   monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
   consolePanel = new ConsolePanel(this, wxT("Console Options"), wxDefaultPosition, this);
@@ -193,7 +189,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   console ->SetMinSize(wxSize(0,60));
   console ->SetFont(wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 
-  //wxStreamToTextRedirector redirect(console);
+  //Create Menus
   wxMenu *fileMenu = new wxMenu;
   fileMenu->Append(LOAD_ID, wxT("&Parse File") );
   fileMenu->Append(wxID_ABOUT, wxT("&About"));
@@ -205,6 +201,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   menuBar->Append(optionMenu, wxT("&Options"));
   SetMenuBar(menuBar);
 
+  //Sizers and canvas
   wxBoxSizer *topsizer = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *canvassizer = new wxBoxSizer(wxVERTICAL);
   canvas = new MyGLCanvas(this, wxID_ANY, monitor_mod, names_mod);
@@ -219,7 +216,7 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   button_sizer->Add(new wxButton(this, CONTINUE_BUTTON_ID, wxT("Continue")), 0, wxALL, 10);
   //Cycle Selector
   button_sizer->Add(new wxStaticText(this, wxID_ANY, wxT("Cycles")), 0, wxTOP|wxLEFT|wxRIGHT, 10);
-  spin = new wxSpinCtrl(this, MY_SPINCNTRL_ID, wxString(wxT("10")));
+  spin = new wxSpinCtrl(this, wxID_ANY, wxString(wxT("10")));
   button_sizer->Add(spin, 0 , wxALL, 10);
   //Switch Button
   button_sizer->Add(new wxButton(this, SWITCH_BUTTON_ID, wxT("Switches")), 0, wxALL, 10);
@@ -241,7 +238,9 @@ void MyFrame::reset()
   cout << "Logic Circuit Reset.\n";
 }
 
-void MyFrame::consoleSettings(int height, int fontsize){
+void MyFrame::consoleSettings(int height, int fontsize)
+//Allows console options to be set
+{
 	console->SetMinSize(wxSize(0,height));
 	console->SetFont(wxFont(fontsize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 	GetSizer()->Layout();
@@ -263,17 +262,21 @@ void MyFrame::OnAbout(wxCommandEvent &event)
 }
 
 void MyFrame::OnLoad(wxCommandEvent &event)
+	//Callback for file parser
 {
   wxString filename = wxFileSelector(wxT("Choose file to parse"));
   if(!filename.IsEmpty()){
+	  //create six new instances of the scanner/parser/network class set
 	names *namz = new names();
 	network *netz = new network(namz);
 	devices *demz = new devices(namz, netz);
 	monitor *momz = new monitor(namz, netz);
 	scanner *smz = new scanner(namz, filename.mb_str());
 	parser *pmz = new parser(netz, demz, momz, smz);
+	//try parsing the input file
 	if (pmz->readin ()){
 		cout << filename.mb_str() << " parsed correctly." << endl;
+		//if successful set local pointers and subclass pointers
 		delete nmz;
 		delete dmz;
 		delete mmz;
@@ -285,6 +288,7 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 		switches->refresh(nmz,dmz,netz);
 		reset();
 	}else{
+		//Error popup
 		wxString message = wxT("Could not parse ");
 		message.Append(filename);
 		message.Append(wxT(" correctly!"));
@@ -295,12 +299,13 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 }
 
 void MyFrame::OnConsole(wxCommandEvent &event)
+	//Callback for console options
 {
 	consolePanel->show(this);
 }
 
 void MyFrame::OnRun(wxCommandEvent &event)
-  // Callback for the push button
+  // Callback for the run button
 {
   cyclescompleted = 0;
   mmz->resetmonitor ();
@@ -308,21 +313,21 @@ void MyFrame::OnRun(wxCommandEvent &event)
   canvas->Render(cyclescompleted);
 }
 
-void MyFrame::OnSpin(wxSpinEvent &event)
-  // Callback for the spin control
+void MyFrame::OnSwitches(wxCommandEvent &event)
+	//Callback for switch button
 {
-
-}
-
-void MyFrame::OnSwitches(wxCommandEvent &event){
   switches->show(this);
 }
 
-void MyFrame::OnMonitors(wxCommandEvent &event){  
+void MyFrame::OnMonitors(wxCommandEvent &event)
+	//Callback for monitor button
+{  
   monitors->show(this);
 }
 
-void MyFrame::OnContinue(wxCommandEvent &event){
+void MyFrame::OnContinue(wxCommandEvent &event)
+	//callback for continue button
+{
 	if(cyclescompleted>0){
 		runnetwork(spin->GetValue());
 		canvas->Render(cyclescompleted);
@@ -361,14 +366,20 @@ void MyFrame::runnetwork(int ncycles)
   else cyclescompleted = 0;
 }
 
+///////////// MY PANEL /////////////////////////////////////////////////////////
+
 BEGIN_EVENT_TABLE(MyPanel, wxFrame)
   EVT_CLOSE(MyPanel::OnExit)
 END_EVENT_TABLE()
-void MyPanel::OnExit(wxCloseEvent &event){
+void MyPanel::OnExit(wxCloseEvent &event)
+//Callback on close event
+{
   Show(false);
 }
 
-void MyPanel::show(MyFrame *frame){
+void MyPanel::show(MyFrame *frame)
+	//Used to position and show the pop up when it is opened
+{
 	wxPoint position = GetScreenPosition();
   if(position.x==wxDefaultPosition.x && position.y==wxDefaultPosition.y){
      wxSize frameSize = frame->GetSize();
@@ -384,12 +395,16 @@ void MyPanel::show(MyFrame *frame){
   Show(true);
 }
 
+////////// SWITCH PANEL //////////////////////////////////////////////////////////
+
 BEGIN_EVENT_TABLE(SwitchPanel, MyPanel)
   EVT_BUTTON(SWITCHON_BUTTON_ID,SwitchPanel::OnOn)
   EVT_BUTTON(SWITCHOFF_BUTTON_ID, SwitchPanel::OnOff)
   EVT_CHOICE(SWITCH_CHOICE_ID, SwitchPanel::OnSelect)
 END_EVENT_TABLE()
-SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, network *net_mod, long style):MyPanel(parent, wxID_ANY, title, pos, wxSize(300,100), style) {
+SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint& pos, names *names_mod, devices *devices_mod, network *net_mod, long style):MyPanel(parent, wxID_ANY, title, pos, wxSize(300,100), style) 
+//Panel to allow you to set the switches
+{
   //instantiate objects
   wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
   switchChoice = new wxChoice(this,SWITCH_CHOICE_ID);
@@ -411,7 +426,9 @@ SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint&
   SetSizer(mainsizer);
 }
 
-void SwitchPanel::refresh(names *names_mod, devices *devices_mod,network *net_mod){
+void SwitchPanel::refresh(names *names_mod, devices *devices_mod,network *net_mod)
+	//Used to reset the choice boxes
+{
 	devs=devices_mod;
 	nets=net_mod;
 	devlink switches = devices_mod -> getSwitches();
@@ -433,7 +450,9 @@ void SwitchPanel::refresh(names *names_mod, devices *devices_mod,network *net_mo
   OnSelect(event);
 }
 
-void SwitchPanel::OnOn(wxCommandEvent &event){
+void SwitchPanel::OnOn(wxCommandEvent &event)
+	//Callback for set on button
+{
   int index = switchChoice->GetSelection();
   bool ok;
   devs->setswitch(switcharray->at(index),high,ok);
@@ -445,7 +464,9 @@ void SwitchPanel::OnOn(wxCommandEvent &event){
   }
 }
 
-void SwitchPanel::OnOff(wxCommandEvent &event){
+void SwitchPanel::OnOff(wxCommandEvent &event)
+	//callback for set off button
+{
   int index = switchChoice->GetSelection();
   bool ok;
   devs->setswitch(switcharray->at(index),low,ok);
@@ -457,7 +478,9 @@ void SwitchPanel::OnOff(wxCommandEvent &event){
   }
 }
 
-void SwitchPanel::OnSelect(wxCommandEvent &event){
+void SwitchPanel::OnSelect(wxCommandEvent &event)
+	//Callback for switch choice box to set state
+{
 	int index = switchChoice->GetSelection();
 	devlink dev=nets->finddevice(switcharray->at(index));
 	if(dev->swstate==high){
@@ -466,6 +489,8 @@ void SwitchPanel::OnSelect(wxCommandEvent &event){
 		state->SetLabel(wxT("Off"));
 	}
 }
+
+////////// MONITOR PANEL ////////////////////////////////////////////////////////
 
 BEGIN_EVENT_TABLE(MonitorPanel, MyPanel)
   EVT_BUTTON(MONITORADD_BUTTON_ID,MonitorPanel::OnAdd)
@@ -501,7 +526,9 @@ MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoin
   SetSizer(mainsizer);
 }
 
-void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *monitor_mod){
+void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *monitor_mod)
+	//Resets the strings in the choice boxes 
+{
 	mons = monitor_mod;
 	nmz = names_mod;	
 	removeChoice->Clear();
@@ -510,7 +537,7 @@ void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *moni
   int monitors = mons->moncount();
   name dev, outp, *monname;
   namestring displayname;
-  deletevector(monnames);
+  deletevectorarrays(monnames);
   monnames = new vector<name*>;
   for(int i = 0; i < monitors; i++){
     mons->getmonname(i,dev,outp);
@@ -541,8 +568,9 @@ void MonitorPanel::refresh(names *names_mod, devices *devices_mod, monitor *moni
   OnDeviceSelect(event);
 }
 
-void MonitorPanel::OnAdd(wxCommandEvent &event){
-	
+void MonitorPanel::OnAdd(wxCommandEvent &event)
+	//Callback for Add monitor button
+{
   int devindex = addDevice->GetSelection();
   int sigindex = addSignal->GetSelection();
   name dev = devios->at(devindex)->id;
@@ -577,7 +605,9 @@ void MonitorPanel::OnAdd(wxCommandEvent &event){
   }
 }
 
-void MonitorPanel::OnRemove(wxCommandEvent &event){
+void MonitorPanel::OnRemove(wxCommandEvent &event)
+	//Callback for remove monitor button
+{
   frame->reset();
   int index = removeChoice->GetSelection();
   if(index!=-1){
@@ -593,7 +623,9 @@ void MonitorPanel::OnRemove(wxCommandEvent &event){
   }
 }
 
-void MonitorPanel::OnDeviceSelect(wxCommandEvent &event){
+void MonitorPanel::OnDeviceSelect(wxCommandEvent &event)
+	//Callback for device select to set up output choice box
+{
   int index = addDevice->GetSelection();
   devio *dev = devios->at(index);
   addSignal->Clear();
@@ -605,15 +637,17 @@ void MonitorPanel::OnDeviceSelect(wxCommandEvent &event){
   addSignal->SetSelection(0);
 }
 
+////////// CONSOLE PANEL ////////////////////////////////////////////////////////
+
 BEGIN_EVENT_TABLE(ConsolePanel, MyPanel)
 	EVT_BUTTON(CONSOLESAVE_BUTTON_ID, ConsolePanel::OnSave)
 	EVT_BUTTON(CONSOLECANCEL_BUTTON_ID, ConsolePanel::OnCancel)
 END_EVENT_TABLE()
 
 ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoint& pos, MyFrame *frame,
-	  long style):MyPanel(parent, wxID_ANY, title, pos,wxSize(300,150), style),frame(frame){
-
-		  //instantiate all objects
+	  long style):MyPanel(parent, wxID_ANY, title, pos,wxSize(300,150), style),frame(frame)
+{
+  //instantiate all objects
   consoleSize = new wxChoice(this,wxID_ANY);
   textSize = new wxChoice(this,wxID_ANY);
   csize=0;
@@ -656,14 +690,18 @@ ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoin
   SetSizer(mainsizer);
 }
 
-void ConsolePanel::OnSave(wxCommandEvent &event){
+void ConsolePanel::OnSave(wxCommandEvent &event)
+	//Callback for save button
+{
 	csize = consoleSize->GetSelection();
 	tsize = textSize->GetSelection();
 	frame->consoleSettings(csizes[csize], tsizes[tsize]);
 	Show(false);
 }
 
-void ConsolePanel::OnCancel(wxCommandEvent &event){
+void ConsolePanel::OnCancel(wxCommandEvent &event)
+// Callback for cancel button
+{
 	consoleSize->SetSelection(csize);
 	textSize->SetSelection(tsize);
 	Show(false);
