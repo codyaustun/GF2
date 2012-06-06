@@ -6,8 +6,10 @@
 /* Network specification */
 
 typedef enum {falling, low, rising, high} asignal;
+
+// CC CHANGED
 typedef enum {aswitch, aclock, andgate, nandgate, orgate,
-	      norgate, xorgate, dtype, baddevice} devicekind;
+	      norgate, xorgate, dtype, baddevice, rc} devicekind;
 
 struct outputrec {
   name       id;
@@ -30,8 +32,11 @@ struct devicerec {
   /* the next elements are only used by some of the device kinds */
   asignal swstate;      // used when kind == aswitch
   int frequency;        // used when kind == aclock
-  int counter;          // used when kind == aclock
+  int counter;          // used when kind == aclock || kind == rc
   asignal memory;       // used when kind == dtype
+    
+  // CC CHANGED
+  int fall;             // used when kind == rc
 };
 typedef devicerec* devlink;
 
