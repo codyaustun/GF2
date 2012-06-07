@@ -356,8 +356,10 @@ void devices::execclock(devlink d)
  */
 void devices::execrc(devlink d)
 {
-    if (d->olist->sig == falling)
+    if (d->olist->sig == falling){
         signalupdate (low, d->olist->sig);
+    }
+    
 }
 
 
@@ -394,14 +396,14 @@ void devices::updateclocks (void)
  */
 void devices::updatercs (void)
 {
-    // TO DO
     devlink d;
     for (d = netz->devicelist (); d != NULL; d = d->next) {
         if (d->kind == rc) {
             if (d->counter == d->fall) {
-                if (d->olist->sig == high)
-                    d->olist->sig = falling;
-            }else{
+                d->olist->sig = falling;
+                (d->counter)++;
+            }else if(d->counter < d->fall ){
+				d->olist->sig = high;
                 (d->counter)++;
             }
         }
@@ -441,6 +443,8 @@ void devices::coldStart()
 			outplink qout, qbarout;
 			qout = (outplink) ((rand()%2)? high:low);
 			qbarout = (outplink) inv((rand()%2)? high:low);
+		}else if (d->kind == rc){
+			d->counter = 0;
 		}
 	}
 }
