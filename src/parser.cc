@@ -7,6 +7,7 @@
 //
 
 #include "parser.h"
+#include "translate.h"
 
 parser::parser(network* net, devices* dev, monitor* mon, scanner* s)
 {
@@ -34,7 +35,7 @@ bool parser::readin()
 				buildDeviceList();
 			}else{
 				stopSym = COLON;
-				error("The devices list must come first.", stopSym);
+				error(s_("The devices list must come first."), stopSym);
 				buildDeviceList();
 			}
         }catch( runtime_error e ){
@@ -44,7 +45,7 @@ bool parser::readin()
 					throw;
 			}
 			stopSym = curSym;
-			error("Forgot a ';' at the end of the devices section", stopSym);
+			error(s_("Forgot a ';' at the end of the devices section"), stopSym);
 		}
         
         // Syntax rule: check  that Connection list should be second
@@ -59,7 +60,7 @@ bool parser::readin()
 				buildConnectionList();
 			}else{
 				stopSym = COLON;
-				error("The connections list should follow the devices list", stopSym);
+				error(s_("The connections list should follow the devices list"), stopSym);
 				buildConnectionList();
 			}
         }catch( runtime_error e ){
@@ -68,7 +69,7 @@ bool parser::readin()
 					throw;
 			}
 			stopSym = curSym;
-			error("Forgot a ';' at the end of the connections section",stopSym);
+			error(s_("Forgot a ';' at the end of the connections section"),stopSym);
 
 		}
         
@@ -84,7 +85,7 @@ bool parser::readin()
 					buildMonitorList();
 				}else{
 					stopSym = COLON;
-					error("The monitors list should follow the connections list", stopSym);
+					error(s_("The monitors list should follow the connections list"), stopSym);
 					buildMonitorList();
 				}
 		}catch( runtime_error e ){
@@ -94,7 +95,7 @@ bool parser::readin()
 					throw;
 			}
 			stopSym = curSym;
-			error("Forgot a ';' at the end of the monitors section", stopSym);
+			error(s_("Forgot a ';' at the end of the monitors section"), stopSym);
 		}
         
         // Syntax rule: check that FIN symbol should be fourth
@@ -106,7 +107,7 @@ bool parser::readin()
             return ((errorCount == 0) && ok);
         }else{
             stopSym = EOFSYM;
-            error("'FIN' should follow the monitors list", stopSym);
+            error(s_("'FIN' should follow the monitors list"), stopSym);
             return false;
         }
     }
@@ -140,9 +141,9 @@ void parser::error(string message, symbol stop) throw (runtime_error)
     snz->getCurrentLine(); 
     
     // Print out error message
-    cout << "Error (" << errorCount << "): ";
+    cout << s_("Error (") << errorCount << "): ";
     if (curSym == BADSYM) {
-        cout << "Detected an invalid symbol. " << endl;
+      cout << s_("Detected an invalid symbol. ") << endl;
     }
     cout << message << endl;
     
@@ -212,7 +213,7 @@ void parser::buildDeviceList()
         snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
-        error("There should be a colon following the keyword 'DEVICES'.",
+        error(s_("There should be a colon following the keyword 'DEVICES'."),
               stopSym);
     }
     
@@ -228,7 +229,7 @@ void parser::buildDeviceList()
     // Syntax rule: check for SEMICOLON
     if (curSym != SEMICOL) {
         stopSym = curSym;
-        error("There should be a ';' at the end of the devices section.",
+        error(s_("There should be a ';' at the end of the devices section."),
               stopSym);
     }
 
@@ -243,7 +244,7 @@ void parser::buildConnectionList()
         snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
-        error("There should be a colon following the keyword 'CONNECTIONS'.",
+        error(s_("There should be a colon following the keyword 'CONNECTIONS'."),
               stopSym);
     }
 
@@ -259,14 +260,14 @@ void parser::buildConnectionList()
     // Syntax rule: check for SEMICOLON
     if (curSym != SEMICOL) {
         stopSym = curSym;
-        error("There should be a ';' at the end of the connections section.",
+        error(s_("There should be a ';' at the end of the connections section."),
               stopSym);
     }
     
     // Semantic rule: check to make sure all inputs are connected
     if(usedIns.size() != allIns.size()){
         stopSym = curSym;
-        error("All inputs must be connected to an output.", stopSym);
+        error(s_("All inputs must be connected to an output."), stopSym);
     }
 }
 
@@ -279,7 +280,7 @@ void parser::buildMonitorList()
         snz->getSymbol(curSym, curName, curInt);
     }else{
         stopSym = NAMESYM;
-        error("There should be a colon following the keyword 'MONITORS'.",
+        error(s_("There should be a colon following the keyword 'MONITORS'."),
               stopSym);
     }
     
@@ -296,7 +297,7 @@ void parser::buildMonitorList()
     // Syntax rule: check for SEMICOLON
     if (curSym != SEMICOL) {
         stopSym = curSym;
-        error("There should be a ';' at the end of the monitors section.",
+        error(s_("There should be a ';' at the end of the monitors section."),
               stopSym);
     }
 }
@@ -332,7 +333,7 @@ void parser::device() throw (runtime_error)
                     int devOpt = option(devType);
                     newDev.option = devOpt;
                 }else{
-                    nextLine("Expected a dollar sign.");  
+		  nextLine(s_("Expected a dollar sign."));  
                 }
             }
             
@@ -420,11 +421,11 @@ void parser::device() throw (runtime_error)
                 }
                     
             }else{
-                nextLine("Expected a ',' or ';'");
+	      nextLine(s_("Expected a ',' or ';'"));
             }
             
         }else{
-            nextLine("Expected an equals sign.");
+	  nextLine(s_("Expected an equals sign."));
         }
     } catch (runtime_error e) {
         // checks to see if this is the correct level to handle this
@@ -450,7 +451,7 @@ void parser::connection() throw (runtime_error)
             
             // Semantic rule: connections must be made output to input
             if (!((sig1 == blankname) || ((sig1 > 31)&& (sig1 < 34)))){
-                nextLine("An output must come first in a connection");
+	      nextLine(s_("An output must come first in a connection"));
             }
             
             // Syntax rule: check for dash
@@ -465,7 +466,7 @@ void parser::connection() throw (runtime_error)
                     
                     // Semantic rule: connections must be made output to input
                     if (((sig2 == blankname) || ((sig2 > 31)&& (sig2 < 34)))){
-                        nextLine("An input must be second in a connection");
+		      nextLine(s_("An input must be second in a connection"));
                     }
                     
                     // Add input to list of used inputs for future error handling
@@ -479,7 +480,7 @@ void parser::connection() throw (runtime_error)
                     
                 
             }else{
-                nextLine("Expected a dash."); 
+	      nextLine(s_("Expected a dash.")); 
             }
         
     } catch (runtime_error e) {
@@ -508,7 +509,7 @@ void parser::mon() throw (runtime_error)
             // make monitor
             monz->makemonitor(devName, sig, ok);
         }else{
-            nextLine("Monitors can only be connected outputs");
+	  nextLine(s_("Monitors can only be connected outputs"));
         }
     } catch (runtime_error e) {
         if (curSym != COMMA && curSym != SEMICOL){
@@ -532,7 +533,7 @@ name parser::nameCheck() throw (runtime_error)
         
         // Semantic rule: check to see if the device exists
         if (!nameExist(newName)){
-            nextLine("The device does not exist");
+	  nextLine(s_("The device does not exist"));
         }
         
         // Go to next symbol
@@ -542,7 +543,7 @@ name parser::nameCheck() throw (runtime_error)
         return newName;
         
     }else{
-        nextLine("Expected a name");
+      nextLine(s_("Expected a name"));
        
     }
 
@@ -559,7 +560,7 @@ name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
         
         // Semantic rule: check to see if the device exists
         if (nameExist(newName)){
-            nextLine("The name has already been used");
+	  nextLine(s_("The name has already been used"));
         }
         
         // Go to next symbol
@@ -572,11 +573,11 @@ name parser::nameCheck(dom deviceOrMonitor) throw (runtime_error)
     // TO DO figure out a nicer way to do this
     }else if((curSym == TYPESYM) || (curSym == SIGSYM) || (curSym == CONSYM) ||
              (curSym == DEVSYM) || (curSym == MONSYM)){
-        nextLine("Keywords cannot be names");
+      nextLine(s_("Keywords cannot be names"));
         
     }
     else{
-        nextLine("Expected a name");
+      nextLine(s_("Expected a name"));
     }
 }
 
@@ -619,10 +620,10 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
             deviceTemp dev = getDeviceTemp(deviceName);
             switch (dev.type) {
                 case 0:
-                    nextLine("A clock's output is just specified by the clock's name.");
+		  nextLine(s_("A clock's output is just specified by the clock's name."));
                     break;
                 case 1:
-                    nextLine("A switch's output is just specified by the clock's name.");
+		  nextLine(s_("A switch's output is just specified by the clock's name."));
                     break;
                 case 2:
                 case 3:
@@ -630,30 +631,30 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
                 case 5:
                     if ((devSignal > 11) && (devSignal < 28)) {
                         if (!(dev.option >= (devSignal-11))){
-                            nextLine("This gate doesn't have that many inputs.");
+			  nextLine(s_("This gate doesn't have that many inputs."));
                         }else{
                             if (usedInput(dev.n, devSignal)){
-                                nextLine("This input has already been used"); 
+			      nextLine(s_("This input has already been used")); 
                             }
                             
                         }
                     }else{
-                        nextLine("A gate only has standard inputs and an output.");
+		      nextLine(s_("A gate only has standard inputs and an output."));
                     }
                     break;
                 case 6:
                     if (!((devSignal > 27) && (devSignal < 34))) {
-                        nextLine("A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR");
+		      nextLine(s_("A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR"));
                     }
                     break;
                 case 7:
                     if (!((devSignal > 11) && (devSignal < 14))){
-                        nextLine("A XOR only 2 inputs.");
+		      nextLine(s_("A XOR only 2 inputs."));
                     }
                     break;
                     
                 default:
-                    nextLine("Unexpected error");
+		  nextLine(s_("Unexpected error"));
                     break;
             }
             
@@ -661,12 +662,12 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
             return devSignal;
             
         }else{
-            nextLine("Expected an input or output");
+	  nextLine(s_("Expected an input or output"));
         }
     }else{
         // Definition: a DTYPE always requires a period since it has multiple outputs.
         if (dev.type == 6){
-            nextLine("You must specify either an input or output of a DTYPE");
+	  nextLine(s_("You must specify either an input or output of a DTYPE"));
         }else{
             return blankname;
         }
@@ -690,7 +691,7 @@ name parser::type() throw (runtime_error)
         return devType;
         
     }else{
-        nextLine("Expected a device type.");
+      nextLine(s_("Expected a device type."));
     }
 }
 
@@ -708,50 +709,50 @@ int parser::option(name devType) throw (runtime_error)
             case 4:
                 // max number of clock 
                 if ((option < 1) || (option > 1000)){
-                    nextLine("The number of clock cycles must be between 1 and 1000.");
+		  nextLine(s_("The number of clock cycles must be between 1 and 1000."));
                 }
                 break;
             case 5:
                 // option -> initial value (1 or 0)
                 if (!((option >= 0) && (option <= 1))){
-                    nextLine("A switch does not have this option.");
+		  nextLine(s_("A switch does not have this option."));
                 }
                 break;
             case 6:
                 // 1 <= option <= 16 -> number of inputs
                 if (!((option >= 1) && (option <= 16))){
-                    nextLine("An AND does not have this option.");
+		  nextLine(s_("An AND does not have this option."));
                 }
                 break;
             case 7:
                // 1 <= option <= 16 -> number of inputs
                 if (!((option >= 1) && (option <= 16))){
-                    nextLine("An NAND does not have this option.");
+		  nextLine(s_("An NAND does not have this option."));
                 }
                 break;
             case 8:
                 // 1 <= option <= 16 -> number of inputs
                 if (!((option >= 1) && (option <= 16))){
-                    nextLine("An OR does not have this option.");
+		  nextLine(s_("An OR does not have this option."));
                 }
                 break;
             case 9:
                 // 1 <= option <= 16 -> number of inputs
                 if (!((option >= 1) && (option <= 16))){
-                    nextLine("An NOR does not have this option.");
+		  nextLine(s_("An NOR does not have this option."));
                 }
                 break;
             case 10:
                 // TO DO remove this case
-                nextLine("Unexpected error");
+	      nextLine(s_("Unexpected error"));
                 break;
             case 11:
                 // TO DO remove this case
-                nextLine("Unexpected error");
+	      nextLine(s_("Unexpected error"));
                 break;
                 
             default:
-                nextLine("Unexpected error");
+	      nextLine(s_("Unexpected error"));
                 break;
         }
         
@@ -759,7 +760,7 @@ int parser::option(name devType) throw (runtime_error)
         return option;
         
     }else{
-        nextLine("Expected a device option.");
+      nextLine(s_("Expected a device option."));
     }
 }
 
@@ -783,7 +784,7 @@ void parser::nextLine(string message)
     stopSym = COMMA;
     stopSym2 = SEMICOL;
     error(message, stopSym, stopSym2);
-    throw runtime_error("Skipping to next line");
+    throw runtime_error(s_("Skipping to next line"));
 }
 
 /*
@@ -804,55 +805,55 @@ bool parser::usedInput(name d, name s)
 void parser::symbolToString(symbol s){
     switch (s) {
         case BADSYM:
-            cout << "BADSYM";
+	  cout << s_("BADSYM");
             break;
         case COLON:
-            cout << "COLON";
+	  cout << s_("COLON");
             break;
         case NAMESYM:
-            cout << "NAMESYM";
+	  cout << s_("NAMESYM");
             break;
         case EQUALS:
-            cout << "EQUALS";
+	  cout << s_("EQUALS");
             break;
         case TYPESYM:
-            cout << "TYPESYM";
+	  cout << s_("TYPESYM");
             break;
         case DOLLAR:
-            cout << "DOLLAR";
+	  cout << s_("DOLLAR");
             break;
         case NUMSYM:
-            cout << "NUMSYM";
+	  cout << s_("NUMSYM");
             break;
         case COMMA:
-            cout << "COMMA";
+	  cout << s_("COMMA");
             break;
         case DEVSYM:
-            cout << "DEVSYM";
+	  cout << s_("DEVSYM");
             break;
         case CONSYM:
-            cout << "CONSYM";
+	  cout << s_("CONSYM");
             break;
         case MONSYM:
-            cout << "MONSYM";
+	  cout << s_("MONSYM");
             break;
         case FINSYM:
-            cout << "FINSYM";
+	  cout << s_("FINSYM");
             break;
         case EOFSYM:
-            cout << "EOFSYM";
+	  cout << s_("EOFSYM");
             break;
         case SIGSYM:
-            cout << "SIGSYM";
+	  cout << s_("SIGSYM");
             break;
         case SEMICOL:
-            cout << "SEMICOL";
+	  cout << s_("SEMICOL");
             break;
         case DASH:
-            cout << "DASH";
+	  cout << s_("DASH");
             break;
         case PERIOD:
-            cout << "PERIOD";
+	  cout << s_("PERIOD");
             
         default:
             break;
