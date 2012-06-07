@@ -351,6 +351,7 @@ void MyFrame::OnSave(wxCommandEvent &event)
 void MyFrame::OnRun(wxCommandEvent &event)
   // Callback for the run button
 {
+  dmz->coldStart();
   cyclescompleted = 0;
   mmz->resetmonitor ();
   runnetwork(spin->GetValue());
