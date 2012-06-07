@@ -21,30 +21,30 @@ class names{
 
  public:
 
-	  name lookup (namestring str);
-		/* Returns the internal representation of the name given in character  */
-		/* form.  If the name is not already in the name table, it is          */
-		/* automatically inserted.                                             */
+name lookup (namestring str);
+/* Returns the internal representation of the name given in character 
+form.  If the name is not already in the name table, it is        
+automatically inserted.                                             */
 
-	  name newname (namestring str); //Inserts new name into table, returns id
+name newname (namestring str); //Inserts new name into table, returns id
 
-	  name cvtname (namestring str);
-		/* Returns the internal representation of the name given in character  */
-		/* form.  If the name is not in the name table then 'blankname' is     */
-		/* returned.                                                           */
+name cvtname (namestring str);
+/* Returns the internal representation of the name given in character 
+form.  If the name is not in the name table then 'blankname' is   
+returned.                                                           */
 
-	  namestring getname(name id); //Returns name in character form, from id
+namestring getname(name id); //Returns name in character form, from id
 
-	  void writename (name id);
-		/* Prints out the given name on the console                            */
+void writename (name id);
+/* Prints out the given name on the console                         */
 
-	  length namelength (name id);
-		/* Returns length ie number of characters in given name                */
+length namelength (name id);
+/* Returns length ie number of characters in given name             */
 
-	  names (void);
-		/* names initialises the name table.  This procedure is called at      */
-		/* system initialisation before any of the above procedures/functions  */
-		/* are used.                                                           */
+names (void);
+/* names initialises the name table.  This procedure is called at    
+system initialisation before any of the above procedures/functions 
+are used.                                                           */
 };
 
 #endif /* names_h */

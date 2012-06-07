@@ -58,6 +58,7 @@ class MyFrame: public wxFrame
   SwitchPanel *switches;				  // Switch Panel
   MonitorPanel *monitors;				  // Monitor Panel
   ConsolePanel *consolePanel;             // Console Option Panel
+  wxLocale locale;
   int cyclescompleted;                    // how many simulation cycles have been completed
   void runnetwork(int ncycles);           // function to run the logic network
   void OnExit(wxCommandEvent& event);     // callback for exit menu item

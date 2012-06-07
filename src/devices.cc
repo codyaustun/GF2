@@ -1,6 +1,7 @@
 #include "devices.h"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -103,8 +104,8 @@ void devices::makeclock (name id, int frequency)
   devlink d;
   netz->adddevice (aclock, id, d);
   netz->addoutput (d, blankname);
-  d->frequency = frequency;
-  d->counter = 0;
+  d->frequency = frequency; 
+  d->counter = 5; 
 }
 
 
@@ -428,6 +429,22 @@ devlink devices::getSwitches(){
   return switches;
 }
 
+void devices::coldStart()
+{
+	devlink d;
+	for (d = netz->devicelist (); d != NULL; d = d->next) {
+		if (d->kind == aclock) {
+			d->counter = 1+ rand()%(d->frequency);
+			d->olist->sig = (rand()%2)? high:low;
+		} else if (d->kind == dtype) {
+			d->memory = (rand()%2)? high:low;
+			outplink qout, qbarout;
+			qout = (outplink) ((rand()%2)? high:low);
+			qbarout = (outplink) inv((rand()%2)? high:low);
+		}
+	}
+}
+
 devlink devices::getDevices(){
   return netz->devicelist();
 }
@@ -542,5 +559,4 @@ devices::devices (names* names_mod, network* net_mod)
   qpin    = nmz->lookup("Q");
   qbarpin = nmz->lookup("QBAR");
 }
-
 

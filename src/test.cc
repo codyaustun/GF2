@@ -11,27 +11,31 @@ using namespace std;
 
 int main()
 {
-  names* namesMod = new names();
-  scanner scan(namesMod, (char*) "defFile1.txt");
+  //names* namesMod = new names();
+  //scanner scan(namesMod, (char*) "defFile1.txt");
   symbol s = BADSYM;
   name id = blankname;
   int num = 0;
+  for (int i = 0; i < 100; i++) {
+	//cout << rand()%2 << endl;
+  	cout << (rand()%5) << endl;
+	}
   
    //while (s != EOFSYM) {
      //scan.getSymbol(s, id, num);
      //cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
    //}
    //cout << endl;
-   int i = 0;
-   while (i<5) {
-   scan.getSymbol(s, id, num);
-   cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
-   i++;
-   }
-   cout << scan.getLine() << endl;
+   //int i = 0;
+   //while (i<5) {
+   //scan.getSymbol(s, id, num);
+   //cout << "Symbol: " <<  s << " Name: " <<  namesMod->getname(id) << " Number: " << num << endl;
+   //i++;
+   //}
+   
   //namesMod->writename(34);
 
-  //scan.getSymbol(s, id, num);
+  //scan.getCurrentLine();
   // cout << s << endl;
 
   // scan.getch();

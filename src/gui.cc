@@ -184,7 +184,6 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   netz = net_mod;
 
   //set up locale stuff
-  wxLocale locale;
   locale.Init(wxLocale::GetSystemLanguage(),wxLOCALE_CONV_ENCODING);
   locale.AddCatalogLookupPathPrefix(wxT("."));
   locale.AddCatalog(wxT("logsim"));
@@ -359,6 +358,7 @@ void MyFrame::OnSave(wxCommandEvent &event)
 void MyFrame::OnRun(wxCommandEvent &event)
   // Callback for the run button
 {
+  dmz->coldStart();
   cyclescompleted = 0;
   mmz->resetmonitor ();
   runnetwork(spin->GetValue());

@@ -1,12 +1,13 @@
+/Comment/ 
 DEVICES:
 SW1 = SWITCH $ 0, 
 SW2 = SWITCH $ 0, 
 SW3 = SWITCH $ 0, 
 SW4 = SWITCH $ 0,
-SW5 = SWITCH $ 0, 
+SW5 = /hello/ SWITCH $ 0, 
 SW6 = SWITCH $ 0, 
 AND1 = AND $ 2, 
-NAND1 = NAND $ 2, 
+NAND1 = NAND $ 2, /hello/
 AND2 = AND $ 2, 
 OR1 = OR $ 3;
 
