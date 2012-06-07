@@ -52,7 +52,8 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 				if (id == 1) s = CONSYM; else
 				if (id == 2) s = MONSYM; else
 				if (id == 3) s = FINSYM; else
-				if (id >= 3 && id <= 11) s = TYPESYM; else
+                // CC added RC type
+				if ((id >= 3 && id <= 11) || id == 34) s = TYPESYM; else
 				if(id >=12 && id <= 33) s = SIGSYM; else
 				s = NAMESYM;
 			} else {

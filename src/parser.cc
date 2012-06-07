@@ -324,7 +324,8 @@ void parser::device() throw (runtime_error)
             deviceTemp newDev;
             
             // XOR and DTYPE don't have options
-            if (devType < 10){
+             // Added condition (devType == 34) for RC
+            if (devType < 10 || devType == 34){
             // Syntax rule: check for dollar sign
                 if (curSym == DOLLAR) {
                     snz->getSymbol(curSym, curName, curInt);
@@ -341,7 +342,14 @@ void parser::device() throw (runtime_error)
                 
                 newDev.n = devName;
                 // Self imposed: when creating deviceTemp subtract 4 from devType
-                newDev.type = (devType - 4);
+                
+                 // Added for RC
+                if (devType == 34) {
+                    newDev.type = 8;
+                }else{
+                    newDev.type = (devType - 4);
+                }
+                
                 madeD.push_back(newDev);
 
                 // maps dev.type to devicekind enum in devices.cc
@@ -413,11 +421,10 @@ void parser::device() throw (runtime_error)
                             allIns.push_back(newSig);
                         }
                         break;
-                        
-                    default:
+                     // Added for RC
+                    case 8:
+                        devz->makedevice(rc, newDev.n, newDev.option, ok);
                         break;
-                        
-                        
                 }
                     
             }else{
@@ -623,7 +630,11 @@ name parser::signalCheck(name deviceName) throw (runtime_error)
 		  nextLine(s_("A clock's output is just specified by the clock's name."));
                     break;
                 case 1:
-		  nextLine(s_("A switch's output is just specified by the clock's name."));
+		  nextLine(s_("A switch's output is just specified by the switch's name."));
+                    break;
+                // Added for RC
+                case 8:
+                    nextLine(s_("A RC's output is just specified by the RC's name."));
                     break;
                 case 2:
                 case 3:
@@ -742,17 +753,15 @@ int parser::option(name devType) throw (runtime_error)
 		  nextLine(s_("An NOR does not have this option."));
                 }
                 break;
-            case 10:
-                // TO DO remove this case
-	      nextLine(s_("Unexpected error"));
-                break;
-            case 11:
-                // TO DO remove this case
-	      nextLine(s_("Unexpected error"));
+             // Added for RC
+            case 34:
+                if ((option < 1) || (option > 1000)){
+                    nextLine(s_("The number of RC cycles before falling must be between 1 and 1000."));
+                }
                 break;
                 
             default:
-	      nextLine(s_("Unexpected error"));
+                nextLine(s_("Unexpected error"));
                 break;
         }
         
