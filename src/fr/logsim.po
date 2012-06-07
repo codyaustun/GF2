@@ -192,7 +192,7 @@ msgstr "Console.log"
 
 #: gui.cc:233
 msgid "Continue"
-msgstr "continuer"
+msgstr "Continuer"
 
 #: gui.cc:309
 msgid "Could not parse "
