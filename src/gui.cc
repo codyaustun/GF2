@@ -3,6 +3,7 @@
 #include "wx_icon.xpm"
 #include <iostream>
 #include <fstream>
+#include "translate.h"
 
 using namespace std;
 
@@ -182,34 +183,40 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   mmz = monitor_mod;
   netz = net_mod;
 
+  //set up locale stuff
+  locale.Init(wxLocale::GetSystemLanguage(),wxLOCALE_CONV_ENCODING);
+  locale.AddCatalogLookupPathPrefix(wxT("."));
+  locale.AddCatalog(wxT("logsim"));
+  
+
   if (nmz == NULL || dmz == NULL || mmz == NULL) {
-    cout << "Cannot operate GUI without names, devices and monitor classes" << endl;
+    cout << s_("Cannot operate GUI without names, devices and monitor classes") << endl;
     exit(1);
   }
   //instantiate objects and set up console
-  switches = new SwitchPanel(this, wxT("Switches"), wxDefaultPosition, nmz, dmz, netz);
-  monitors = new MonitorPanel(this, wxT("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
-  consolePanel = new ConsolePanel(this, wxT("Console Options"), wxDefaultPosition, this);
+  switches = new SwitchPanel(this, _("Switches"), wxDefaultPosition, nmz, dmz, netz);
+  monitors = new MonitorPanel(this, _("Monitors"), wxDefaultPosition, nmz, dmz, mmz, this);
+  consolePanel = new ConsolePanel(this, _("Console Options"), wxDefaultPosition, this);
   console->Create(this,wxID_ANY,wxT(""),wxDefaultPosition,wxDefaultSize, wxTE_READONLY|wxTE_DONTWRAP|wxTE_MULTILINE);
   console ->SetMinSize(wxSize(0,120));
   console ->SetFont(wxFont(8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL));
 
   //Create Menus
   wxMenu *fileMenu = new wxMenu;
-  fileMenu->Append(LOAD_ID, wxT("&Parse File") );
+  fileMenu->Append(LOAD_ID, _("&Parse File") );
   fileMenu->AppendSeparator();
-  fileMenu->Append(wxID_ABOUT, wxT("&About"));
-  fileMenu->Append(wxID_EXIT, wxT("&Quit"));
+  fileMenu->Append(wxID_ABOUT, _("&About"));
+  fileMenu->Append(wxID_EXIT, _("&Quit"));
   wxMenu *consoleMenu = new wxMenu;
-  consoleMenu->Append(CONSOLESELECT_ID,wxT("&Select All"));
-  consoleMenu->Append(CONSOLECOPY_ID,wxT("&Copy"));
-  consoleMenu->Append(CONSOLESAVE_ID,wxT("Save to &File"));
-  consoleMenu->Append(CONSOLECLEAR_ID,wxT("Clea&r"));
+  consoleMenu->Append(CONSOLESELECT_ID,_("&Select All"));
+  consoleMenu->Append(CONSOLECOPY_ID,_("&Copy"));
+  consoleMenu->Append(CONSOLESAVE_ID,_("Save to &File"));
+  consoleMenu->Append(CONSOLECLEAR_ID,_("Clea&r"));
   consoleMenu->AppendSeparator();
-  consoleMenu->Append(CONSOLEOPTIONS_ID, wxT("&Options"));
+  consoleMenu->Append(CONSOLEOPTIONS_ID, _("&Options"));
   wxMenuBar *menuBar = new wxMenuBar;
-  menuBar->Append(fileMenu, wxT("&File"));
-  menuBar->Append(consoleMenu, wxT("&Console"));
+  menuBar->Append(fileMenu, _("&File"));
+  menuBar->Append(consoleMenu, _("&Console"));
   SetMenuBar(menuBar);
 
   //Sizers and canvas
@@ -222,17 +229,17 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
 
   wxBoxSizer *button_sizer = new wxBoxSizer(wxVERTICAL);
   //Run Button
-  button_sizer->Add(new wxButton(this, RUN_BUTTON_ID, wxT("Run")), 0, wxALL, 10);
+  button_sizer->Add(new wxButton(this, RUN_BUTTON_ID, _("Run")), 0, wxALL, 10);
   //Continue Button
-  button_sizer->Add(new wxButton(this, CONTINUE_BUTTON_ID, wxT("Continue")), 0, wxALL, 10);
+  button_sizer->Add(new wxButton(this, CONTINUE_BUTTON_ID, _("Continue")), 0, wxALL, 10);
   //Cycle Selector
-  button_sizer->Add(new wxStaticText(this, wxID_ANY, wxT("Cycles")), 0, wxTOP|wxLEFT|wxRIGHT, 10);
+  button_sizer->Add(new wxStaticText(this, wxID_ANY, _("Cycles")), 0, wxTOP|wxLEFT|wxRIGHT, 10);
   spin = new wxSpinCtrl(this, wxID_ANY, wxString(wxT("10")));
   button_sizer->Add(spin, 0 , wxALL, 10);
   //Switch Button
-  button_sizer->Add(new wxButton(this, SWITCH_BUTTON_ID, wxT("Switches")), 0, wxALL, 10);
+  button_sizer->Add(new wxButton(this, SWITCH_BUTTON_ID, _("Switches")), 0, wxALL, 10);
   //Monitor Button
-  button_sizer->Add(new wxButton(this, MONITOR_BUTTON_ID, wxT("Monitors")), 0, wxALL, 10);
+  button_sizer->Add(new wxButton(this, MONITOR_BUTTON_ID, _("Monitors")), 0, wxALL, 10);
 
   topsizer->Add(button_sizer, 0, wxALIGN_CENTER);
 
@@ -246,7 +253,7 @@ void MyFrame::reset()
 {
   cyclescompleted=-1;
   canvas->Render(0);
-  cout << "Logic Circuit Reset.\n";
+  cout << s_("Logic Circuit Reset.") << endl;
 }
 
 void MyFrame::consoleSettings(int height, int fontsize)
@@ -268,14 +275,14 @@ void MyFrame::OnExit(wxCommandEvent &event)
 void MyFrame::OnAbout(wxCommandEvent &event)
   // Callback for the about menu item
 {
-  wxMessageDialog about(this, wxT("Logic Simulator GUI\nTom Mottram\nMay 2012"), wxT("About Logsim"), wxICON_INFORMATION | wxOK);
+  wxMessageDialog about(this, _("Logic Simulator GUI\nTom Mottram\nMay 2012"), _("About Logsim"), wxICON_INFORMATION | wxOK);
   about.ShowModal();
 }
 
 void MyFrame::OnLoad(wxCommandEvent &event)
 	//Callback for file parser
 {
-  wxString filename = wxFileSelector(wxT("Choose file to parse"));
+  wxString filename = wxFileSelector(_("Choose file to parse"));
   if(!filename.IsEmpty()){
 	  //create six new instances of the scanner/parser/network class set
 	names *namz = new names();
@@ -286,7 +293,7 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 	parser *pmz = new parser(netz, demz, momz, smz);
 	//try parsing the input file
 	if (pmz->readin ()){
-		cout << filename.mb_str() << " parsed correctly." << endl;
+	  cout << filename.mb_str() << s_(" parsed correctly.") << endl;
 		//if successful set local pointers and subclass pointers
 		delete nmz;
 		delete dmz;
@@ -300,10 +307,10 @@ void MyFrame::OnLoad(wxCommandEvent &event)
 		reset();
 	}else{
 		//Error popup
-		wxString message = wxT("Could not parse ");
+		wxString message = _("Could not parse ");
 		message.Append(filename);
-		message.Append(wxT(" correctly!"));
-		wxMessageDialog warning(this, message, wxT("Warning"), wxICON_ERROR | wxOK);
+		message.Append(_(" correctly!"));
+		wxMessageDialog warning(this, message, _("Warning"), wxICON_ERROR | wxOK);
 		warning.ShowModal();
 	}
   }
@@ -327,7 +334,7 @@ void MyFrame::OnCopy(wxCommandEvent &event)
 
 void MyFrame::OnClear(wxCommandEvent &event)
 {
-  wxMessageDialog check(this, wxT("Do you really want to clear the console?"), wxT("Are You Sure?"), wxICON_QUESTION | wxYES_NO);
+  wxMessageDialog check(this, _("Do you really want to clear the console?"), _("Are You Sure?"), wxICON_QUESTION | wxYES_NO);
   if(check.ShowModal()==wxID_YES){
     console->SetValue(wxT(""));
   }
@@ -335,7 +342,7 @@ void MyFrame::OnClear(wxCommandEvent &event)
 
 void MyFrame::OnSave(wxCommandEvent &event)
 {
-  wxString filename = wxFileSelector(wxT("Save"), wxT(""),wxT("Console.log") , wxT("log"),wxT("*.log"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+  wxString filename = wxFileSelector(_("Save"), wxT(""),_("Console.log") , _("log"),_("*.log"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
   if(!filename.IsEmpty()){
     ofstream fout;
     try{
@@ -343,7 +350,7 @@ void MyFrame::OnSave(wxCommandEvent &event)
       fout << console->GetValue().mb_str();
       fout.close();
     }catch(ofstream::failure e){
-      cout << "Fail" << endl;
+      cout << s_("Fail") << endl;
     }
   }
 }
@@ -377,7 +384,7 @@ void MyFrame::OnContinue(wxCommandEvent &event)
 		runnetwork(spin->GetValue());
 		canvas->Render(cyclescompleted);
 	}else{
-		wxMessageDialog warning(this, wxT("Must run the network before continuing."), wxT("Warning"), wxICON_ERROR | wxOK);
+		wxMessageDialog warning(this, _("Must run the network before continuing."), _("Warning"), wxICON_ERROR | wxOK);
 		warning.ShowModal();
 	}
 }
@@ -387,13 +394,13 @@ void MyFrame::runnetwork(int ncycles)
 {
   bool ok = true; 
   if(cyclescompleted == maxcycles){
-	  wxMessageDialog warning(this, wxT("Maximum number of cycles reached, please run again."), wxT("Warning"), wxICON_ERROR | wxOK);
+	  wxMessageDialog warning(this, _("Maximum number of cycles reached, please run again."), _("Warning"), wxICON_ERROR | wxOK);
 		warning.ShowModal();
 	  return;
   }
   if(cyclescompleted+ncycles>maxcycles){
 	  ncycles=maxcycles-cyclescompleted;
-	  cout << "Warning max cycles reached, only " << ncycles << " were completed." << endl;
+	  cout << s_("Warning max cycles reached, only ") << ncycles << s_(" were completed.") << endl;
   }
   int n = ncycles;
   while ((n > 0) && ok) {
@@ -402,11 +409,11 @@ void MyFrame::runnetwork(int ncycles)
       n--;
       mmz->recordsignals ();
     } else
-      cout << "Error: network is oscillating" << endl;
+      cout << s_("Error: network is oscillating") << endl;
   }
   if (ok){
 	  cyclescompleted = cyclescompleted + ncycles;
-	  cout << ncycles << " cycles run. " << cyclescompleted << " cycles total." << endl;
+	  cout << ncycles << s_(" cycles run. ") << cyclescompleted << s_(" cycles total.") << endl;
   }
   else cyclescompleted = 0;
 }
@@ -465,8 +472,8 @@ SwitchPanel::SwitchPanel(wxWindow *parent, const wxString& title, const wxPoint&
   top->Add(state, 0, wxTOP|wxLEFT|wxRIGHT, 15);
   mainsizer->Add(top, 0, wxALIGN_CENTRE);
   wxBoxSizer *buttons = new wxBoxSizer(wxHORIZONTAL);
-  buttons->Add(new wxButton(this, SWITCHON_BUTTON_ID, wxT("Set On")), 0, wxALL, 10);
-  buttons->Add(new wxButton(this, SWITCHOFF_BUTTON_ID, wxT("Set Off")), 0, wxALL, 10);
+  buttons->Add(new wxButton(this, SWITCHON_BUTTON_ID, _("Set On")), 0, wxALL, 10);
+  buttons->Add(new wxButton(this, SWITCHOFF_BUTTON_ID, _("Set Off")), 0, wxALL, 10);
   mainsizer->Add(buttons, 0, wxALIGN_CENTRE);
   SetSizer(mainsizer);
 }
@@ -479,7 +486,7 @@ void SwitchPanel::refresh(names *names_mod, devices *devices_mod,network *net_mo
 	devlink switches = devices_mod -> getSwitches();
 	switchChoice->Clear();
 	if(switches==NULL){
-		switchChoice->Append(wxT("No Switches"));
+		switchChoice->Append(_("No Switches"));
 		return;
 	}
   namestring switchname;
@@ -502,10 +509,10 @@ void SwitchPanel::OnOn(wxCommandEvent &event)
   bool ok;
   devs->setswitch(switcharray->at(index),high,ok);
   if(!ok){
-    wxMessageDialog warning(this, wxT("No Switches"), wxT("Warning"), wxICON_ERROR | wxOK);
+    wxMessageDialog warning(this, _("No Switches"), _("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
   }else{
-	  state->SetLabel(wxT("On"));
+	  state->SetLabel(_("On"));
   }
 }
 
@@ -516,10 +523,10 @@ void SwitchPanel::OnOff(wxCommandEvent &event)
   bool ok;
   devs->setswitch(switcharray->at(index),low,ok);
   if(!ok){
-    wxMessageDialog warning(this, wxT("No Switches"), wxT("Warning"), wxICON_ERROR | wxOK);
+    wxMessageDialog warning(this, _("No Switches"), _("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
   }else{
-	  state->SetLabel(wxT("Off"));
+	  state->SetLabel(_("Off"));
   }
 }
 
@@ -529,9 +536,9 @@ void SwitchPanel::OnSelect(wxCommandEvent &event)
 	int index = switchChoice->GetSelection();
 	devlink dev=nets->finddevice(switcharray->at(index));
 	if(dev->swstate==high){
-		state->SetLabel(wxT("On"));
+		state->SetLabel(_("On"));
 	}else{
-		state->SetLabel(wxT("Off"));
+		state->SetLabel(_("Off"));
 	}
 }
 
@@ -565,9 +572,9 @@ MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoin
   mainsizer->Add(remove, 0, wxALIGN_CENTRE);
   add->Add(addDevice,0,wxLEFT|wxTOP,20);
   add->Add(addSignal,0,wxALL,20);
-  add->Add(new wxButton(this, MONITORADD_BUTTON_ID, wxT("Add Monitor")), 0, wxRIGHT|wxTOP, 20);
+  add->Add(new wxButton(this, MONITORADD_BUTTON_ID, _("Add Monitor")), 0, wxRIGHT|wxTOP, 20);
   remove->Add(removeChoice,0,wxALL,20);
-  remove->Add(new wxButton(this, MONITORREMOVE_BUTTON_ID, wxT("Remove Monitor")), 0, wxRIGHT|wxTOP|wxBOTTOM , 20);
+  remove->Add(new wxButton(this, MONITORREMOVE_BUTTON_ID, _("Remove Monitor")), 0, wxRIGHT|wxTOP|wxBOTTOM , 20);
   SetSizer(mainsizer);
 }
 
@@ -625,13 +632,13 @@ void MonitorPanel::OnAdd(wxCommandEvent &event)
 	  if(monnames->at(i)[0]==dev && monnames->at(i)[1]==sig) ok = false;
   }
   if(!ok){
-	  wxMessageDialog warning(this, wxT("Monitor already exists"), wxT("Warning"), wxICON_ERROR | wxOK);
+	  wxMessageDialog warning(this, _("Monitor already exists"), _("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
 	return;
   }
   mons->makemonitor(dev,sig,ok);
   if(ok){
-	  cout << "Added Monitor: " << nmz->getname(dev)<< " . " << nmz->getname(sig) << endl;
+    cout << s_("Added Monitor: ") << nmz->getname(dev)<< " . " << nmz->getname(sig) << endl;
     frame->reset();
 	  name* mon = new name[2];
     mon[0]=dev;
@@ -645,7 +652,7 @@ void MonitorPanel::OnAdd(wxCommandEvent &event)
     removeChoice->Append(wxString::FromUTF8(monname.c_str()));
     removeChoice->SetSelection(0);
   }else{
-    wxMessageDialog warning(this, wxT("Max number of monitors reached: 10"), wxT("Warning"), wxICON_ERROR | wxOK);
+    wxMessageDialog warning(this, _("Max number of monitors reached: 10"), _("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
   }
 }
@@ -663,7 +670,7 @@ void MonitorPanel::OnRemove(wxCommandEvent &event)
     bool ok;
     mons->remmonitor(devsig[0],devsig[1],ok);
   }else{
-    wxMessageDialog warning(this, wxT("No monitors to remove"), wxT("Warning"), wxICON_ERROR | wxOK);
+    wxMessageDialog warning(this, _("No monitors to remove"), _("Warning"), wxICON_ERROR | wxOK);
     warning.ShowModal();
   }
 }
@@ -698,9 +705,9 @@ ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoin
   csize=1;
   tsize=1; 
   //Load up all strings into choices
-  consoleSize ->Append(wxT("Small"));
-  consoleSize ->Append(wxT("Medium"));
-  consoleSize ->Append(wxT("Large"));
+  consoleSize ->Append(_("Small"));
+  consoleSize ->Append(_("Medium"));
+  consoleSize ->Append(_("Large"));
   textSize->Append(wxT("6"));
   textSize->Append(wxT("8"));
   textSize->Append(wxT("10"));
@@ -725,13 +732,13 @@ ConsolePanel::ConsolePanel(wxWindow *parent, const wxString& title, const wxPoin
   mainsizer->Add(top, 0, wxALIGN_CENTRE|wxEXPAND);
   mainsizer->Add(middle, 0, wxALIGN_CENTRE|wxEXPAND);
   mainsizer->Add(buttons, 0, wxALIGN_BOTTOM|wxALIGN_RIGHT);
-  top->Add(new wxStaticText(this, wxID_ANY, wxT("Console Height:")), 0, wxTOP|wxLEFT|wxRIGHT, 20);
+  top->Add(new wxStaticText(this, wxID_ANY, _("Console Height:")), 0, wxTOP|wxLEFT|wxRIGHT, 20);
   top->Add(consoleSize,0,wxTOP,20);
-  middle->Add(new wxStaticText(this, wxID_ANY, wxT("Text Size:")), 0, wxTOP|wxLEFT|wxRIGHT, 20);
+  middle->Add(new wxStaticText(this, wxID_ANY, _("Text Size:")), 0, wxTOP|wxLEFT|wxRIGHT, 20);
   middle->Add(0,0,0,wxLEFT,28);
   middle->Add(textSize,0,wxTOP,20);
-  buttons->Add(new wxButton(this, CONSOLESAVE_BUTTON_ID, wxT("Save")), 0, wxRIGHT|wxTOP, 20);
-  buttons->Add(new wxButton(this, CONSOLECANCEL_BUTTON_ID, wxT("Cancel")), 0, wxRIGHT|wxTOP, 20);
+  buttons->Add(new wxButton(this, CONSOLESAVE_BUTTON_ID, _("Save")), 0, wxRIGHT|wxTOP, 20);
+  buttons->Add(new wxButton(this, CONSOLECANCEL_BUTTON_ID, _("Cancel")), 0, wxRIGHT|wxTOP, 20);
   SetSizer(mainsizer);
 }
 

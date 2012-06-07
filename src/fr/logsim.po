@@ -1,0 +1,536 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: logsim\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-06-06 22:06+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: tm402\n"
+"Language-Team: Team 6\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: gui.cc:311
+msgid " correctly!"
+msgstr " correctement!"
+
+#: gui.cc:414
+msgid " cycles run. "
+msgstr " cycles de fonctionner."
+
+#: gui.cc:414
+msgid " cycles total."
+msgstr " cycles au total."
+
+#: gui.cc:295
+msgid " parsed correctly."
+msgstr " analysée correctement."
+
+#: scanner.cc:134
+msgid " was truncated."
+msgstr " a été tronqué"
+
+#: gui.cc:401
+msgid " were completed."
+msgstr "ont été achevés"
+
+#: gui.cc:207
+msgid "&About"
+msgstr "&Propos"
+
+#: gui.cc:218
+msgid "&Console"
+msgstr "&Console"
+
+#: gui.cc:211
+msgid "&Copy"
+msgstr "&Copier"
+
+#: gui.cc:217
+msgid "&File"
+msgstr "&Filchier"
+
+#: gui.cc:215
+msgid "&Options"
+msgstr "&Options"
+
+#: gui.cc:205
+msgid "&Parse File"
+msgstr "&Analyser le fichier"
+
+#: gui.cc:208
+msgid "&Quit"
+msgstr "&Quitter"
+
+#: gui.cc:210
+msgid "&Select All"
+msgstr "&Sélectionnez tous"
+
+#: parser.cc:110
+msgid "'FIN' should follow the monitors list"
+msgstr "«FIN» devrait suivre la liste des moniteurs"
+
+#: gui.cc:344
+msgid "*.log"
+msgstr "*.log"
+
+#: parser.cc:647
+msgid "A DTYPE only has signals Q, QBAR, DATA, CLK, SET and CLEAR"
+msgstr "Un DTYPE a que des signaux Q, Qbar, DATA, CLK, SET et CLEAR"
+
+#: parser.cc:652
+msgid "A XOR only 2 inputs."
+msgstr "Un XOR seulement 2 entrées."
+
+#: parser.cc:623
+msgid "A clock's output is just specified by the clock's name."
+msgstr "De sortie Une horloge est juste spécifié par son nom de l'horloge."
+
+#: parser.cc:642
+msgid "A gate only has standard inputs and an output."
+msgstr "A gate only has standard inputs and an output."
+
+#: parser.cc:718
+msgid "A switch does not have this option."
+msgstr "Un commutateur ne possède pas cette option."
+
+#: parser.cc:626
+msgid "A switch's output is just specified by the clock's name."
+msgstr "Une sortie de commutation est juste spécifié par le nom du commutateur."
+
+#: gui.cc:277
+msgid "About Logsim"
+msgstr "À propos de Logsim"
+
+#: gui.cc:573
+msgid "Add Monitor"
+msgstr "Ajouter Surveiller"
+
+#: gui.cc:639
+msgid "Added Monitor: "
+msgstr "Ajouté Moniteur:"
+
+#: parser.cc:270
+msgid "All inputs must be connected to an output."
+msgstr "Toutes les entrées doivent être connectée à une sortie."
+
+#: parser.cc:724
+msgid "An AND does not have this option."
+msgstr "Un ET n'a pas cette option."
+
+#: parser.cc:730
+msgid "An NAND does not have this option."
+msgstr "Un NON-ET ne possède pas cette option."
+
+#: parser.cc:742
+msgid "An NOR does not have this option."
+msgstr "Une porte NON-OU ne possède pas cette option."
+
+#: parser.cc:736
+msgid "An OR does not have this option."
+msgstr "Un OU ne possède pas cette option."
+
+#: parser.cc:469
+msgid "An input must be second in a connection"
+msgstr "Une entrée doit être une deuxième connexion"
+
+#: parser.cc:454
+msgid "An output must come first in a connection"
+msgstr "Une sortie doit venir d'abord dans une connexion"
+
+#: gui.cc:336
+msgid "Are You Sure?"
+msgstr "Etes-vous sûr?"
+
+#: parser.cc:808
+msgid "BADSYM"
+msgstr "BADSYM"
+
+#: parser.cc:811
+msgid "COLON"
+msgstr "COLON"
+
+#: parser.cc:829
+msgid "COMMA"
+msgstr "COMMA"
+
+#: parser.cc:835
+msgid "CONSYM"
+msgstr "CONSYM"
+
+#: gui.cc:739
+msgid "Cancel"
+msgstr "Annuler"
+
+#: gui.cc:192
+msgid "Cannot operate GUI without names, devices and monitor classes"
+msgstr "Impossible de faire fonctionner l'interface graphique sans noms, des dispositifs et des classes de moniteur"
+
+#: gui.cc:284
+msgid "Choose file to parse"
+msgstr "Choisir un fichier à analyser"
+
+#: gui.cc:213
+msgid "Clea&r"
+msgstr "&Effacer"
+
+#: gui.cc:733
+msgid "Console Height:"
+msgstr "Consolez-Hauteur:"
+
+#: gui.cc:198
+msgid "Console Options"
+msgstr "Options de la console"
+
+#: gui.cc:344
+msgid "Console.log"
+msgstr "Console.log"
+
+#: gui.cc:233
+msgid "Continue"
+msgstr "Continuer"
+
+#: gui.cc:309
+msgid "Could not parse "
+msgstr "Impossible d'analyser"
+
+#: gui.cc:235
+msgid "Cycles"
+msgstr "Cycles"
+
+#: parser.cc:853
+msgid "DASH"
+msgstr "DASH"
+
+#: parser.cc:832
+msgid "DEVSYM"
+msgstr "DEVSYM"
+
+#: parser.cc:823
+msgid "DOLLAR"
+msgstr "DOLLAR"
+
+#: parser.cc:146
+msgid "Detected an invalid symbol. "
+msgstr "Détecté un symbole invalide."
+
+#: gui.cc:336
+msgid "Do you really want to clear the console?"
+msgstr "Voulez-vous vraiment effacer la console?"
+
+#: parser.cc:844
+msgid "EOFSYM"
+msgstr "EOFSYM"
+
+#: parser.cc:817
+msgid "EQUALS"
+msgstr "EQUALS"
+
+#: parser.cc:144
+msgid "Error ("
+msgstr "Erreur ("
+
+#: scanner.cc:171
+msgid "Error: Comment not closed"
+msgstr "Erreur: Commentaire pas fermé"
+
+#: gui.cc:410
+msgid "Error: network is oscillating"
+msgstr "Erreur: le réseau est oscillante"
+
+#: parser.cc:424
+msgid "Expected a ',' or ';'"
+msgstr "Prévue a ',' ou ';'"
+
+#: parser.cc:483
+msgid "Expected a dash."
+msgstr "Prévue par un tiret."
+
+#: parser.cc:763
+msgid "Expected a device option."
+msgstr "Prévue une option appareil."
+
+#: parser.cc:694
+msgid "Expected a device type."
+msgstr "S'attendait à un type d'appareil."
+
+#: parser.cc:336
+msgid "Expected a dollar sign."
+msgstr "Prévue un signe de dollar."
+
+#: parser.cc:546
+#: parser.cc:580
+msgid "Expected a name"
+msgstr "Prévue d'un nom"
+
+#: parser.cc:428
+msgid "Expected an equals sign."
+msgstr "Prévue d'un signe égal."
+
+#: parser.cc:665
+msgid "Expected an input or output"
+msgstr "S'attendait à une entrée ou de sortie"
+
+#: parser.cc:841
+msgid "FINSYM"
+msgstr "FINSYM"
+
+#: gui.cc:352
+msgid "Fail"
+msgstr "Impossible de charger l'échec."
+
+#: scanner.cc:25
+msgid "File opened successfully"
+msgstr "Le fichier ouvert avec succès"
+
+#: parser.cc:72
+msgid "Forgot a ';' at the end of the connections section"
+msgstr "Mot un ';' à la fin de la section des connexions"
+
+#: parser.cc:48
+msgid "Forgot a ';' at the end of the devices section"
+msgstr "Mot un ';' à la fin de la section des dispositifs"
+
+#: parser.cc:98
+msgid "Forgot a ';' at the end of the monitors section"
+msgstr "Mot un ';' à la fin de la section moniteurs"
+
+#: parser.cc:576
+msgid "Keywords cannot be names"
+msgstr "Mots-clés ne peuvent pas être des noms de"
+
+#: gui.cc:708
+msgid "Large"
+msgstr "Grand"
+
+#: gui.cc:255
+msgid "Logic Circuit Reset."
+msgstr "Circuit logique de restauration."
+
+#: gui.cc:277
+msgid ""
+"Logic Simulator GUI\n"
+"Tom Mottram\n"
+"May 2012"
+msgstr ""
+"Interface graphique pour le simulateur de la logique\n"
+" Tom Mottram\n"
+" May 2012"
+
+#: parser.cc:838
+msgid "MONSYM"
+msgstr "MONSYM"
+
+#: gui.cc:653
+msgid "Max number of monitors reached: 10"
+msgstr "Nombre maximum de moniteurs atteint: 10"
+
+#: gui.cc:395
+msgid "Maximum number of cycles reached, please run again."
+msgstr "Le nombre maximum de cycles atteint, s'il vous plaît exécuter à nouveau."
+
+#: gui.cc:707
+msgid "Medium"
+msgstr "Moyen"
+
+#: gui.cc:633
+msgid "Monitor already exists"
+msgstr "Moniteur existe déjà"
+
+#: gui.cc:197
+#: gui.cc:241
+msgid "Monitors"
+msgstr "Moniteurs"
+
+#: parser.cc:512
+msgid "Monitors can only be connected outputs"
+msgstr "Les moniteurs peuvent être connectés sorties"
+
+#: gui.cc:385
+msgid "Must run the network before continuing."
+msgstr "Doit faire fonctionner le réseau avant de poursuivre."
+
+#: parser.cc:814
+msgid "NAMESYM"
+msgstr "NAMESYM"
+
+#: parser.cc:826
+msgid "NUMSYM"
+msgstr "NUMSYM"
+
+#: gui.cc:487
+#: gui.cc:510
+#: gui.cc:524
+msgid "No Switches"
+msgstr "Pas de commutateurs"
+
+#: gui.cc:671
+msgid "No monitors to remove"
+msgstr "Pas de moniteurs pour éliminer"
+
+#: gui.cc:527
+#: gui.cc:539
+msgid "Off"
+msgstr "Arrêt"
+
+#: gui.cc:513
+#: gui.cc:537
+msgid "On"
+msgstr "Marche"
+
+#: parser.cc:856
+msgid "PERIOD"
+msgstr "PERIOD"
+
+#: gui.cc:575
+msgid "Remove Monitor"
+msgstr "Retirer Surveiller"
+
+#: gui.cc:231
+msgid "Run"
+msgstr "Exécuter"
+
+#: parser.cc:850
+msgid "SEMICOL"
+msgstr "SEMICOL"
+
+#: parser.cc:847
+msgid "SIGSYM"
+msgstr "SIGSYM"
+
+#: gui.cc:344
+#: gui.cc:738
+msgid "Save"
+msgstr "Enregistrer"
+
+#: gui.cc:212
+msgid "Save to &File"
+msgstr "&Enregistrer dans un fichier"
+
+#: gui.cc:474
+msgid "Set Off"
+msgstr "Éteignez"
+
+#: gui.cc:473
+msgid "Set On"
+msgstr "Tournez"
+
+#: parser.cc:787
+msgid "Skipping to next line"
+msgstr "Saut à la ligne suivante"
+
+#: gui.cc:706
+msgid "Small"
+msgstr "Petit"
+
+#: gui.cc:196
+#: gui.cc:239
+msgid "Switches"
+msgstr "Commutateurs"
+
+#: parser.cc:820
+msgid "TYPESYM"
+msgstr "TYPESYM"
+
+#: gui.cc:735
+msgid "Text Size:"
+msgstr "Taille du texte:"
+
+#: parser.cc:63
+msgid "The connections list should follow the devices list"
+msgstr "La liste des connexions devrait suivre la liste des périphériques"
+
+#: parser.cc:536
+msgid "The device does not exist"
+msgstr "Le périphérique n'existe pas"
+
+#: parser.cc:38
+msgid "The devices list must come first."
+msgstr "La liste des périphériques doit venir en premier."
+
+#: parser.cc:88
+msgid "The monitors list should follow the connections list"
+msgstr "La liste des moniteurs doivent suivre la liste des connexions"
+
+#: parser.cc:563
+msgid "The name has already been used"
+msgstr "Le nom a déjà été utilisé"
+
+#: parser.cc:712
+msgid "The number of clock cycles must be between 1 and 1000."
+msgstr "Le nombre de cycles d'horloge doit être comprise entre 1 et 1000."
+
+#: parser.cc:263
+msgid "There should be a ';' at the end of the connections section."
+msgstr "Il devrait y avoir un ';' à la fin de la section des connexions."
+
+#: parser.cc:232
+msgid "There should be a ';' at the end of the devices section."
+msgstr "Il devrait y avoir un ';' à la fin de la section périphériques."
+
+#: parser.cc:300
+msgid "There should be a ';' at the end of the monitors section."
+msgstr "Il devrait y avoir un ';' à la fin de la section moniteurs."
+
+#: parser.cc:247
+msgid "There should be a colon following the keyword 'CONNECTIONS'."
+msgstr "Il devrait y avoir deux points à la suite 'CONNECTIONS' le mot-clé."
+
+#: parser.cc:216
+msgid "There should be a colon following the keyword 'DEVICES'."
+msgstr "Il devrait y avoir deux points à la suite du mot-clé 'DEVICES'."
+
+#: parser.cc:283
+msgid "There should be a colon following the keyword 'MONITORS'."
+msgstr "Il devrait y avoir deux points à la suite du mot-clé 'MONITORS'."
+
+#: parser.cc:634
+msgid "This gate doesn't have that many inputs."
+msgstr "Cette porte n'a pas d'entrées que de nombreux."
+
+#: parser.cc:637
+msgid "This input has already been used"
+msgstr "Cette entrée a déjà été utilisé"
+
+#: parser.cc:657
+#: parser.cc:747
+#: parser.cc:751
+#: parser.cc:755
+msgid "Unexpected error"
+msgstr "Une erreur inattendue"
+
+#: gui.cc:312
+#: gui.cc:385
+#: gui.cc:395
+#: gui.cc:510
+#: gui.cc:524
+#: gui.cc:633
+#: gui.cc:653
+#: gui.cc:671
+msgid "Warning"
+msgstr "Avertissement"
+
+#: gui.cc:401
+msgid "Warning max cycles reached, only "
+msgstr "Avertissement cycles max atteint, seulement "
+
+#: scanner.cc:150
+msgid "Warning: Max parameter value = 1000"
+msgstr "Attention: la valeur du paramètre max = 1000"
+
+#: scanner.cc:132
+msgid "Warning: Name "
+msgstr "Avertissement: Nom "
+
+#: parser.cc:670
+msgid "You must specify either an input or output of a DTYPE"
+msgstr "Vous devez spécifier une entrée ou sortie d'un DTYPE"
+
+#: gui.cc:344
+msgid "log"
+msgstr "log"
+

@@ -5,4 +5,26 @@ Shit To Do (STD):
 - modify EBNF to reflect the fact that not all signals are in the form name.signal
 -- change connection rule
 -- change monitor rule
+
+
+
+Parser changes
+- new device type: RC
+-- option: number of cycles until the output falls low
+-- 1 output
+-- no inputs
+
+- new checks
+-- in sigcheck
+-- in option check
+-- in monitor and connection
+--- check for output
+
+
+Scanner changes:
+- Add RC to names table (element 34)
+
+Semantics
+- RC is a reserved word
+- Max number for n
  

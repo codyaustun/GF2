@@ -6,6 +6,7 @@
 #include <string>
 #include "scanner.h"
 #include "names.h"
+#include "translate.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ scanner::scanner(names* namesMod, const char* defFile)
 	currentLine.clear();
 	lineNum = 1;
 	incrChar();
-	cout <<"File opened successfully" << endl;
+	cout <<s_("File opened successfully") << endl;
 	s = BADSYM;
 }
 
@@ -131,10 +132,10 @@ void scanner::getname(name &id)
 	if (i < maxlength) { 		// If str < maxlength, put/find in table
 		id = dfnames->lookup(str);
 	} else { 					// If str > maxlength, inform the user
-		string errM = "Warning: Name ";
-		errM.append(str);
-		errM.append(" was truncated.");
-		displayError(errM);
+	  wxString errM = _("Warning: Name ");
+	  errM.Append(wxString(str.c_str(),wxConvUTF8));
+	  errM.Append(_(" was truncated."));
+	  displayError(string(errM.mb_str()));
 	}
 }
 
@@ -149,7 +150,7 @@ void scanner::getnumber(int &number)
 	}
 	if (number > 1000) {
 		number = 1000;
-		cout << "Warning: Max parameter value = 1000" << endl;
+		cout << s_("Warning: Max parameter value = 1000") << endl;
 	}
 }
 
@@ -169,7 +170,7 @@ void scanner::skipcomments()
 			incrChar();
 		}
 		if (eofile) {
-			displayError("Error: Comment not closed");
+		  displayError(s_("Error: Comment not closed"));
 		}
 		skipspaces();
 	}
