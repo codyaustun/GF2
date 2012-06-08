@@ -44,6 +44,8 @@ names::names(void) //Initializes nametable with reserved keywords
 	nametable.push_back("CLR");
 	nametable.push_back("Q");
 	nametable.push_back("QBAR");        //..33
+    // CC added RC keyword
+    nametable.push_back("RC");          //..34
 }
 
 name names::cvtname (namestring str) 

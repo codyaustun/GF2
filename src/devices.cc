@@ -1,6 +1,7 @@
 #include "devices.h"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -103,8 +104,8 @@ void devices::makeclock (name id, int frequency)
   devlink d;
   netz->adddevice (aclock, id, d);
   netz->addoutput (d, blankname);
-  d->frequency = frequency;
-  d->counter = 0;
+  d->frequency = frequency; 
+  d->counter = 5; 
 }
 
 
@@ -355,8 +356,10 @@ void devices::execclock(devlink d)
  */
 void devices::execrc(devlink d)
 {
-    if (d->olist->sig == falling)
+    if (d->olist->sig == falling){
         signalupdate (low, d->olist->sig);
+    }
+    
 }
 
 
@@ -393,14 +396,14 @@ void devices::updateclocks (void)
  */
 void devices::updatercs (void)
 {
-    // TO DO
     devlink d;
     for (d = netz->devicelist (); d != NULL; d = d->next) {
         if (d->kind == rc) {
             if (d->counter == d->fall) {
-                if (d->olist->sig == high)
-                    d->olist->sig = falling;
-            }else{
+                d->olist->sig = falling;
+                (d->counter)++;
+            }else if(d->counter < d->fall ){
+				d->olist->sig = high;
                 (d->counter)++;
             }
         }
@@ -426,6 +429,24 @@ devlink devices::getSwitches(){
     }
   }
   return switches;
+}
+
+void devices::coldStart()
+{
+	devlink d;
+	for (d = netz->devicelist (); d != NULL; d = d->next) {
+		if (d->kind == aclock) {
+			d->counter = 1+ rand()%(d->frequency);
+			d->olist->sig = (rand()%2)? high:low;
+		} else if (d->kind == dtype) {
+			d->memory = (rand()%2)? high:low;
+			outplink qout, qbarout;
+			qout = (outplink) ((rand()%2)? high:low);
+			qbarout = (outplink) inv((rand()%2)? high:low);
+		}else if (d->kind == rc){
+			d->counter = 0;
+		}
+	}
 }
 
 devlink devices::getDevices(){
@@ -542,5 +563,4 @@ devices::devices (names* names_mod, network* net_mod)
   qpin    = nmz->lookup("Q");
   qbarpin = nmz->lookup("QBAR");
 }
-
 

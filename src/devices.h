@@ -66,6 +66,8 @@ public:
 
   devlink getDevices();
 
+  void coldStart();
+   
   devices (names* names_mod, network* net_mod);
     /* Called to initialise module.                                        */
 };

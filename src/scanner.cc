@@ -21,6 +21,7 @@ scanner::scanner(names* namesMod, const char* defFile)
 	inf.clear();			// Clear any fail bits
 	inf.seekg(0, ios::beg); // Seek beginning of file
 	currentLine.clear();
+	lineNum = 1;
 	incrChar();
 	cout <<s_("File opened successfully") << endl;
 	s = BADSYM;
@@ -52,7 +53,8 @@ void scanner::getSymbol(symbol& s, name& id, int& num)
 				if (id == 1) s = CONSYM; else
 				if (id == 2) s = MONSYM; else
 				if (id == 3) s = FINSYM; else
-				if (id >= 3 && id <= 11) s = TYPESYM; else
+                // CC added RC type
+				if ((id >= 3 && id <= 11) || id == 34) s = TYPESYM; else
 				if(id >=12 && id <= 33) s = SIGSYM; else
 				s = NAMESYM;
 			} else {
@@ -84,7 +86,8 @@ void scanner::getCurrentLine()
 	{
 	  errorMarker.append(" ");
 	}
-	errorMarker.append("^"); 	
+	errorMarker.append("^"); 
+	cout << "Line " << lineNum << ":" << endl;	
 	cout << getLine() << endl;		// Prints current line
 	cout << errorMarker << endl;	// Prints position of error
 }
@@ -94,6 +97,7 @@ void scanner::getCurrentLine()
 void scanner::incrChar()
 {
 	eofile = (inf.get(curch) == 0);
+	if (curch == '\n') lineNum ++;
 }
 
 void scanner::getch()
@@ -161,7 +165,6 @@ void scanner::skipspaces()
 void scanner::skipcomments()
 {
 	if (curch =='/') {
-		currentLine.clear();
 		incrChar(); 
 		while (!eofile && prevch != '/') { 
 			prevch = curch;
@@ -175,11 +178,12 @@ void scanner::skipcomments()
 }
 
 string scanner::getLine()
-{
+{	
 	if(cursym != SEMICOL && cursym != COLON && cursym != COMMA){
 		while (curch !=':' && curch !=';' && curch !=',' && !eofile) {
-			getch();
+			getch(); 
 		}
+		currentLine.push_back(curch);
 	}
 	return currentLine;
 }
@@ -188,6 +192,3 @@ void scanner::displayError (string errorMessage)
 {
    cout << errorMessage << endl;
 }
-
-
-

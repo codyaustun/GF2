@@ -24,12 +24,13 @@ class scanner {
 	ifstream inf; 		// Input definition file
 	char curch; 		// Current character
 	char prevch; 		// Previous character
-	string currentLine; // Current Line
+	string currentLine;	// Current Line
 	bool eofile; 		// True when end of file is reached
 	names* dfnames; 	// Names table
 	bool lineEnd;		// True when we pass an end of line
 	symbol cursym;		// Current symbol
 	int cursymLen;		// Current symbol length
+	int lineNum;		// Line number
 
 	void getch(); 
 	/* Reads next character, updates curch and currentLine string */
