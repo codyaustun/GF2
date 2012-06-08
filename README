@@ -1,30 +1,2 @@
-Shit To Do (STD):
-- Define a semantic rule for max clock option
-- modify EBNF to reflect changes to device rule
-- modify EBNF to reflect removal of option monitor names
-- modify EBNF to reflect the fact that not all signals are in the form name.signal
--- change connection rule
--- change monitor rule
-
-
-
-Parser changes
-- new device type: RC
--- option: number of cycles until the output falls low
--- 1 output
--- no inputs
-
-- new checks
--- in sigcheck
--- in option check
--- in monitor and connection
---- check for output
-
-
-Scanner changes:
-- Add RC to names table (element 34)
-
-Semantics
-- RC is a reserved word
-- Max number for n
- 
+Welcome to Team 6’s Logic SimulatorIn order to run the logic simulator, use command line to open up the “src” directory in our shared directory.Then, use the following command to run logic simulator:	>./logsim [filename][filename] should be replaced with the definition file you wish to open. The predefined definition files are found in the “src” directory. They are as follows:	- ABCNOR.txt: NOR implementation of the logic formula AB + C	- ABCNAND.txt: NAND implementation of the logic formula AB + C	- ABCANDOR.txt: AND and OR implementation of the logic formula AB + C	- 2bit.txt: 2 Bit counter		- 4bitadder.txt: 4 bit counter	- demorgans.txt: Demonstrating De Morgan's Theorem	- RCtest.txt: simple RC demonstration where two RC devices feed into an AND GateTo run the simulator in a different language use the following commands:
+	>LC_ALL=fr_FR ./logsim [filename] ### French	>LC_ALL=hi_IN ./logsim [filename] ### Hindi
