@@ -144,11 +144,13 @@ void scanner::getnumber(int &number)
 {
 	cursymLen = 0;
 	number = 0; 
-	while (isdigit(curch)) { 				// Read number
-		number = 10*number + atoi(&curch);
-		getch();
-		cursymLen++;
+	string num = "";
+	while (isdigit(curch)) { 
+	  num+=curch;
+          getch();
+	  cursymLen++;
 	}
+	number =  atoi(num.c_str());
 	if (number > 1000) {
 		number = 1000;
 		cout << s_("Warning: Max parameter value = 1000") << endl;
