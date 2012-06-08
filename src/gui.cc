@@ -63,6 +63,14 @@ void MyGLCanvas::Render(int cycles)
   }
   glClear(GL_COLOR_BUFFER_BIT);
   int moncount = mmz->moncount();
+  if(moncount==0){
+    glColor3f(1.0, 0.0, 0.0);
+    WriteText(wxT("NO MONITORS"),width/2-40 ,y/2 );
+    glFlush();
+    SwapBuffers();
+    return;
+  }
+
   if(cyclesdisplayed>0){
 	//Draw the traces
     for(int j =0; j<moncount; j++){
