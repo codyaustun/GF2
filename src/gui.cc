@@ -472,7 +472,11 @@ void MyPanel::show(MyFrame *frame)
      position.y+=(frameSize.GetHeight()-GetSize().GetHeight())/2;
   }
   SetPosition(position);
-
+  wxSizer *sizer = GetSizer();
+  if(sizer!=NULL){
+    SetSize(0,0);
+    sizer->Fit(this);
+  }
   Iconize(false);
   SetFocus();
   Raise();  
@@ -600,7 +604,7 @@ MonitorPanel::MonitorPanel(wxWindow *parent, const wxString& title, const wxPoin
   wxBoxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
   wxBoxSizer *add = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *remove = new wxBoxSizer(wxHORIZONTAL);
-  mainsizer->Add(add, 0, wxALIGN_CENTRE);
+  mainsizer->Add(add, 0, wxALIGN_CENTRE|wxEXPAND);
   mainsizer->Add(remove, 0, wxALIGN_CENTRE);
   add->Add(addDevice,0,wxLEFT|wxTOP,20);
   add->Add(addSignal,0,wxALL,20);
