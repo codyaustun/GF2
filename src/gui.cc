@@ -40,11 +40,21 @@ void MyGLCanvas::Render(int cycles)
 {
   float y = GetSize().GetHeight()-50,ydiff,xdiff;
   int width = GetSize().GetWidth();
+  float xdiv = (float)(width-40)/10;
   asignal s;
   name dev,sig;
   namestring monname;
   
   if (cycles >= 0) cyclesdisplayed = cycles;
+  int xnum = cyclesdisplayed/10;
+  while(cyclesdisplayed>0){
+    if(xnum<10){
+      if(10%xnum==0)break;
+    }else{
+      if(100%xnum==0)break;
+    }
+    xnum++;
+  }
 
   SetCurrent();
   if (!init) {
@@ -52,9 +62,10 @@ void MyGLCanvas::Render(int cycles)
     init = true;
   }
   glClear(GL_COLOR_BUFFER_BIT);
+  int moncount = mmz->moncount();
   if(cyclesdisplayed>0){
 	//Draw the traces
-    for(int j =0; j<mmz->moncount(); j++){
+    for(int j =0; j<moncount; j++){
       mmz->getmonname(j,dev,sig);
       monname = nmz->getname(dev);
       if(sig!=blankname){
@@ -84,8 +95,7 @@ void MyGLCanvas::Render(int cycles)
 	break;
       }
       glBegin(GL_LINE_STRIP);
-      xdiff=(float)(width-60)/cyclesdisplayed;
-      if(xdiff>20) xdiff=20;
+      xdiff=(float)(width-40)/10/xnum;
       for (int i=0; i<cyclesdisplayed; i++) {
 	if (mmz->getsignaltrace(j, i, s)) {
 	  if (s==low) ydiff = -10.0;
@@ -100,11 +110,22 @@ void MyGLCanvas::Render(int cycles)
       glColor3f(0.0, 0.0, 0.0);
       glBegin(GL_LINE_STRIP);
       glVertex2f(20.0, y); 
-      glVertex2f(xdiff*cyclesdisplayed+20.0, y);
+      glVertex2f(xdiv*10+20.0, y);
       glEnd();
       glDisable(GL_LINE_STIPPLE);
       y-=50;
     }
+    glEnable(GL_LINE_STIPPLE);
+    for(int i =0; i<11; i++){
+      glLineStipple(1,0xBBBB);
+      glColor3f(0.0, 0.0, 0.0);
+      glBegin(GL_LINE_STRIP);
+      glVertex2f(20+i*xdiv, GetSize().GetHeight()-20); 
+      glVertex2f(20+i*xdiv, GetSize().GetHeight()-20-moncount*50);
+      glEnd();
+      WriteText(wxString::Format(wxT("%i"),i*xnum),15+i*xdiv,GetSize().GetHeight()-30-moncount*50);
+    }
+glDisable(GL_LINE_STIPPLE);
   }
   // We've been drawing to the back buffer, flush the graphics pipeline and swap the back buffer to the front
   glFlush();
