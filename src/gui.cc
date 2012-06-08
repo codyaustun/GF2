@@ -46,7 +46,8 @@ void MyGLCanvas::Render(int cycles)
   namestring monname;
   
   if (cycles >= 0) cyclesdisplayed = cycles;
-  int xnum = cyclesdisplayed/10;
+  int xnum= cyclesdisplayed/10;
+  if(cyclesdisplayed%10!=0)xnum++;
   while(cyclesdisplayed>0){
     if(xnum<10){
       if(10%xnum==0)break;
