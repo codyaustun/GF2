@@ -184,9 +184,20 @@ MyFrame::MyFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, co
   netz = net_mod;
 
   //set up locale stuff
-  locale.Init(wxLocale::GetSystemLanguage(),wxLOCALE_CONV_ENCODING);
-  locale.AddCatalogLookupPathPrefix(wxT("."));
-  locale.AddCatalog(wxT("logsim"));
+  if(wxLocale::IsAvailable(wxLocale::GetSystemLanguage())){
+      if(locale.Init(wxLocale::GetSystemLanguage(),wxLOCALE_CONV_ENCODING)){
+	locale.AddCatalogLookupPathPrefix(wxT("."));
+	locale.AddCatalog(wxT("logsim"));
+      }else{
+	wxMessageDialog warning(this, wxT("Selected language is wrong"), wxT("Warning"), wxICON_ERROR | wxOK);
+	warning.ShowModal();
+	locale.Init( wxLANGUAGE_ENGLISH );
+      }
+    }else{
+      wxMessageDialog warning(this, wxT("Launguage not available"), wxT("Warning"), wxICON_ERROR | wxOK);
+		warning.ShowModal();
+		locale.Init( wxLANGUAGE_ENGLISH );
+    }
   
 
   if (nmz == NULL || dmz == NULL || mmz == NULL) {
